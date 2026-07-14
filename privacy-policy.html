@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kebijakan Privasi - HabitSehat</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            background: #f8f9fa;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 { 
+            color: #00BFA6; 
+            font-size: 2rem; 
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid #00BFA6;
+            padding-bottom: 0.5rem;
+        }
+        .meta { 
+            color: #666; 
+            font-size: 0.9rem; 
+            margin-bottom: 2rem; 
+        }
+        h2 { 
+            color: #1a1a2e; 
+            font-size: 1.3rem; 
+            margin: 2rem 0 1rem; 
+            padding-left: 0.75rem;
+            border-left: 4px solid #00BFA6;
+        }
+        h3 { color: #333; font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+        p { margin-bottom: 1rem; }
+        ul { margin: 1rem 0 1rem 1.5rem; }
+        li { margin-bottom: 0.5rem; }
+        .highlight { 
+            background: #e8fdfb; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            border-left: 4px solid #00BFA6;
+            margin: 1.5rem 0;
+        }
+        .contact { 
+            background: #f0f4f8; 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+            margin-top: 2rem; 
+        }
+        a { color: #00BFA6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .footer { 
+            text-align: center; 
+            margin-top: 3rem; 
+            padding-top: 1.5rem; 
+            border-top: 1px solid #eee;
+            color: #888; 
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kebijakan Privasi HabitSehat</h1>
+        <p class="meta">Terakhir diperbarui: <strong>14 Juli 2026</strong> | Versi 1.0</p>
+
+        <div class="highlight">
+            <strong>Ringkasan Singkat:</strong> HabitSehat adalah aplikasi <strong>100% offline</strong>. Kami <strong>tidak mengumpulkan, menyimpan, atau membagikan</strong> data pribadi Anda ke server manapun. Semua data tersimpan lokal di perangkat Anda.
+        </div>
+
+        <h2>1. Data Yang Kami Kumpulkan</h2>
+        <p><strong>Jawaban singkat: Tidak ada.</strong></p>
+        <p>HabitSehat tidak mengumpulkan data pribadi, data kebiasaan, data kesehatan, lokasi, kontak, atau identitas perangkat. Aplikasi berfungsi sepenuhnya tanpa koneksi internet.</p>
+
+        <h2>2. Data Yang Tersimpan Lokal (Di Perangkat Anda)</h2>
+        <p>Data berikut hanya tersimpan di database lokal (Room/SQLite) pada perangkat Anda:</p>
+        <ul>
+            <li>Daftar kebiasaan (nama, ikon, kategori, target, jadwal)</li>
+            <li>Log harian kebiasaan (tanggal, jumlah, catatan)</li>
+            <li>Log minum air (tanggal, jumlah ml, jenis minuman)</li>
+            <li>Kebiasaan buruk (HabitStop): nama, biaya per kejadian, log resistensi</li>
+            <li>Sesi Pomodoro (durasi, tipe, habit terkait, tanggal)</li>
+            <li>Progress challenge & badge yang didapat</li>
+            <li>Penggunaan: tema terpilih, mode gelap/terang, target air harian</li>
+            <li>Status premium (lokal, divalidasi via Play Billing)</li>
+        </ul>
+        <p>Data ini <strong>tidak pernah keluar</strong> dari perangkat Anda kecuali Anda memilih fitur <em>Backup ke Google Drive</em> (hanya premium, manual, terenkripsi).</p>
+
+        <h2>3. Izin Aplikasi</h2>
+        <table style="width:100%; border-collapse: collapse; margin: 1rem 0;">
+            <tr style="background:#f0f4f8;"><th style="padding:0.5rem; text-align:left;">Izin</th><th style="padding:0.5rem; text-align:left;">Alasan</th></tr>
+            <tr><td style="padding:0.5rem;">POST_NOTIFICATIONS</td><td style="padding:0.5rem;">Pengingat minum air, notifikasi laporan mingguan, Pomodoro selesai</td></tr>
+            <tr><td style="padding:0.5rem;">RECEIVE_BOOT_COMPLETED</td><td style="padding:0.5rem;">Jadwal ulang notifikasi & widget update setelah reboot</td></tr>
+            <tr><td style="padding:0.5rem;">INTERNET</td><td style="padding:0.5rem;">Hanya untuk Google Drive Backup (premium, user-initiated) & Play Billing validation</td></tr>
+            <tr><td style="padding:0.5rem;">ACCESS_NETWORK_STATE</td><td style="padding:0.5rem;">Cek koneksi sebelum backup/restore</td></tr>
+        </table>
+        <p>Kami <strong>tidak meminta</strong> izin: Lokasi, Kamera, Mikrofon, Kontak, SMS, Telepon, Penyimpanan (kecuali scoped storage untuk backup file).</p>
+
+        <h2>4. Layanan Pihak Ketiga</h2>
+        <ul>
+            <li><strong>Google Play Billing</strong> — Validasi pembelian premium (langsung via Play Store, kami tidak melihat detail pembayaran)</li>
+            <li><strong>Google Drive API</strong> — Hanya jika Anda manual klik "Backup ke Drive" (premium). Data dienkripsi sebelum upload.</li>
+            <li><strong>Firebase/Analytics/Crashlytics</strong> — <strong>TIDAK DIGUNAKAN</strong> di aplikasi ini.</li>
+        </ul>
+
+        <h2>5. Keamanan Data</h2>
+        <ul>
+            <li>Database lokal: Room (SQLite) dengan enkripsi filesystem Android standar</li>
+            <li>Backup Google Drive: File JSON dienkripsi AES-256 sebelum upload</li>
+            <li>Tidak ada komunikasi jaringan latar belakang (background network)</li>
+        </ul>
+
+        <h2>6. Hak Pengguna</h2>
+        <p>Anda memiliki kontrol penuh atas data Anda:</p>
+        <ul>
+            <li><strong>Hapus semua data</strong>: Menu Pengaturan → "Hapus Semua Data" (sekali klik, permanen)</li>
+            <li><strong>Ekspor data</strong>: Fitur backup manual ke Google Drive (premium)</li>
+            <li><strong>Uninstall</strong>: Menghapus aplikasi = menghapus semua data lokal</li>
+        </ul>
+
+        <h2>7. Anak di Bawah 13 Tahun</h2>
+        <p>HabitSehat tidak ditujukan untuk anak di bawah 13 tahun. Kami tidak sadar mengumpulkan data dari anak-anak. Jika Anda orang tua dan menemukan anak Anda menggunakan aplikasi ini, tidak ada risiko privasi karena tidak ada data yang dikumpulkan.</p>
+
+        <h2>8. Perubahan Kebijakan</h2>
+        <p>Jika ada perubahan materiil (misal: menambahkan fitur sync cloud opt-in), kami akan memperbarui halaman ini dan menampilkan notifikasi di aplikasi. Versi terbaru selalu tersedia di tautan ini.</p>
+
+        <div class="contact">
+            <h2>📧 Kontak</h2>
+            <p>Pertanyaan tentang privasi? Hubungi:</p>
+            <p><strong>Email:</strong> <a href="mailto:nandaori04@gmail.com">nandaori04@gmail.com</a></p>
+            <p><strong>GitHub:</strong> <a href="https://github.com/neofidao-spec/HabitSehat" target="_blank">github.com/neofidao-spec/HabitSehat</a></p>
+            <p><strong>Developer:</strong> Fani Hernanda (@UdudMr)</p>
+        </div>
+
+        <div class="footer">
+            <p>HabitSehat v1.0.0 &copy; 2026 Neofidao Spec</p>
+            <p>Dibangun dengan ❤️ untuk kebiasaan sehat yang nyata, tanpa kompromi privasi.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<svg width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00BFA6"/>
+      <stop offset="100%" style="stop-color:#00D4B8"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="150" cy="100" r="80" fill="url(#accent)" opacity="0.1"/>
+  <circle cx="880" cy="400" r="120" fill="url(#accent)" opacity="0.08"/>
+  <circle cx="50" cy="450" r="60" fill="#00BFA6" opacity="0.1"/>
+  
+  <!-- Left side - App mockup frames -->
+  <g transform="translate(80, 80)">
+    <!-- Phone frame 1 - Home -->
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#0d0d1a" stroke="#333" stroke-width="2"/>
+    <rect x="8" y="8" width="164" height="324" rx="16" fill="#1a1a2e"/>
+    <!-- Status bar -->
+    <rect x="8" y="8" width="164" height="20" fill="#1a1a2e"/>
+    <text x="90" y="24" text-anchor="middle" fill="#fff" font-size="10" font-family="system-ui">09:30</text>
+    <!-- Streak circle -->
+    <circle cx="90" cy="80" r="35" fill="none" stroke="url(#accent)" stroke-width="4"/>
+    <text x="90" y="78" text-anchor="middle" fill="#fff" font-size="22" font-weight="bold" font-family="system-ui">12</text>
+    <text x="90" y="100" text-anchor="middle" fill="#00BFA6" font-size="9" font-family="system-ui">HARI STREAK</text>
+    <!-- Habit items -->
+    <g fill="#2a2a4a">
+      <rect x="16" y="130" width="148" height="36" rx="10"/>
+      <rect x="16" y="176" width="148" height="36" rx="10"/>
+      <rect x="16" y="222" width="148" height="36" rx="10"/>
+      <rect x="16" y="268" width="148" height="36" rx="10"/>
+    </g>
+    <!-- Check marks -->
+    <text x="145" y="154" text-anchor="middle" fill="#00BFA6" font-size="18">✓</text>
+    <text x="145" y="200" text-anchor="middle" fill="#00BFA6" font-size="18">✓</text>
+    <text x="145" y="246" text-anchor="middle" fill="#00BFA6" font-size="18">✓</text>
+    <text x="145" y="292" text-anchor="middle" fill="#888" font-size="18">○</text>
+    <!-- Water -->
+    <rect x="16" y="310" width="70" height="24" rx="6" fill="#00BFA6" opacity="0.2"/>
+    <text x="51" y="326" text-anchor="middle" fill="#00BFA6" font-size="10" font-family="system-ui">💧 1.8/2.5L</text>
+  </g>
+  
+  <!-- Phone frame 2 - Heatmap -->
+  <g transform="translate(290, 80)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#0d0d1a" stroke="#333" stroke-width="2"/>
+    <rect x="8" y="8" width="164" height="324" rx="16" fill="#1a1a2e"/>
+    <text x="90" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="system-ui">HEATMAP MINGGUAN</text>
+    <!-- Mini heatmap squares -->
+    <g>
+      <rect x="18" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="32" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.7"/>
+      <rect x="46" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="60" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.3"/>
+      <rect x="74" y="45" width="10" height="10" rx="2" fill="#333"/>
+      <rect x="88" y="45" width="10" height="10" rx="2" fill="#333"/>
+      <rect x="102" y="45" width="10" height="10" rx="2" fill="#333"/>
+    </g>
+    <!-- 7 rows -->
+    <g transform="translate(0, 20)">
+      <rect x="18" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="32" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="46" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.7"/>
+      <rect x="60" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="74" y="45" width="10" height="10" rx="2" fill="#333"/>
+      <rect x="88" y="45" width="10" height="10" rx="2" fill="#333"/>
+      <rect x="102" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.3"/>
+    </g>
+    <g transform="translate(0, 40)">
+      <rect x="18" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="32" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="46" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="60" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.7"/>
+      <rect x="74" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="88" y="45" width="10" height="10" rx="2" fill="#333"/>
+      <rect x="102" y="45" width="10" height="10" rx="2" fill="#333"/>
+    </g>
+    <g transform="translate(0, 60)">
+      <rect x="18" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.3"/>
+      <rect x="32" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="46" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="60" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.9"/>
+      <rect x="74" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.7"/>
+      <rect x="88" y="45" width="10" height="10" rx="2" fill="#00BFA6" opacity="0.5"/>
+      <rect x="102" y="45" width="10" height="10" rx="2" fill="#333"/>
+    </g>
+    <text x="90" y="290" text-anchor="middle" fill="#888" font-size="9" font-family="system-ui">Sen  Sel  Rab  Kam  Jum  Sab  Min</text>
+    <text x="90" y="310" text-anchor="middle" fill="#00BFA6" font-size="11" font-weight="bold" font-family="system-ui">Konsisten 85% minggu ini 🔥</text>
+  </g>
+  
+  <!-- Phone frame 3 - Theme / HabitStop -->
+  <g transform="translate(500, 80)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#0d0d1a" stroke="#333" stroke-width="2"/>
+    <rect x="8" y="8" width="164" height="324" rx="16" fill="#1a1a2e"/>
+    <text x="90" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="system-ui">TEMA & HABITSTOP</text>
+    <!-- Theme cards -->
+    <g>
+      <rect x="16" y="45" width="60" height="80" rx="10" fill="linear-gradient(135deg, #00BFA6, #00D4B8)"/>
+      <rect x="90" y="45" width="60" height="80" rx="10" fill="linear-gradient(135deg, #6366f1, #8b5cf6)"/>
+      <rect x="16" y="140" width="60" height="80" rx="10" fill="linear-gradient(135deg, #f43f5e, #fb7185)"/>
+      <rect x="90" y="140" width="60" height="80" rx="10" fill="linear-gradient(135deg, #fbbf24, #f59e0b)"/>
+    </g>
+    <!-- Lock icons on premium themes -->
+    <text x="120" y="95" text-anchor="middle" fill="#fff" font-size="16">🔒</text>
+    <text x="120" y="190" text-anchor="middle" fill="#fff" font-size="16">🔒</text>
+    <text x="46" y="190" text-anchor="middle" fill="#fff" font-size="16">🔒</text>
+    <!-- HabitStop -->
+    <rect x="16" y="240" width="134" height="70" rx="12" fill="#2a1a2a" stroke="#f43f5e" stroke-width="1"/>
+    <text x="83" y="260" text-anchor="middle" fill="#f43f5e" font-size="12" font-weight="bold" font-family="system-ui">🚬 HABITSTOP</text>
+    <text x="83" y="280" text-anchor="middle" fill="#fff" font-size="18" font-weight="bold" font-family="system-ui">Rp 2.4jt</text>
+    <text x="83" y="295" text-anchor="middle" fill="#00BFA6" font-size="10" font-family="system-ui">tersimpan • 18 hari bebas</text>
+  </g>
+  
+  <!-- Phone frame 4 - Pomodoro / Challenges -->
+  <g transform="translate(710, 80)">
+    <rect x="0" y="0" width="180" height="340" rx="24" fill="#0d0d1a" stroke="#333" stroke-width="2"/>
+    <rect x="8" y="8" width="164" height="324" rx="16" fill="#1a1a2e"/>
+    <text x="90" y="30" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold" font-family="system-ui">POMODORO & CHALLENGE</text>
+    <!-- Timer circle -->
+    <circle cx="90" cy="110" r="50" fill="none" stroke="#333" stroke-width="8"/>
+    <circle cx="90" cy="110" r="50" fill="none" stroke="url(#accent)" stroke-width="8" stroke-dasharray="251" stroke-dashoffset="75" stroke-linecap="round" filter="url(#glow)"/>
+    <text x="90" y="112" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold" font-family="system-ui">18:42</text>
+    <text x="90" y="135" text-anchor="middle" fill="#00BFA6" font-size="9" font-family="system-ui">FOKUS • 25:00</text>
+    <!-- Challenge cards -->
+    <rect x="16" y="180" width="134" height="45" rx="10" fill="#2a2a4a"/>
+    <text x="83" y="198" text-anchor="middle" fill="#00BFA6" font-size="11" font-weight="bold" font-family="system-ui">🌱 PEMULA 7 HARI</text>
+    <rect x="26" y="205" width="100" height="6" rx="3" fill="#333"/>
+    <rect x="26" y="205" width="70" height="6" rx="3" fill="url(#accent)"/>
+    <text x="83" y="218" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Hari 4/7 • ████████░░</text>
+    
+    <rect x="16" y="240" width="134" height="45" rx="10" fill="#2a2a4a"/>
+    <text x="83" y="258" text-anchor="middle" fill="#00BFA6" font-size="11" font-weight="bold" font-family="system-ui">🌿 KONSISTEN 21 HARI</text>
+    <rect x="26" y="265" width="100" height="6" rx="3" fill="#333"/>
+    <rect x="26" y="265" width="30" height="6" rx="3" fill="url(#accent)"/>
+    <text x="83" y="278" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Hari 1/21 • ██░░░░░░░░</text>
+    
+    <rect x="16" y="300" width="134" height="45" rx="10" fill="#2a2a4a" opacity="0.5"/>
+    <text x="83" y="318" text-anchor="middle" fill="#888" font-size="11" font-weight="bold" font-family="system-ui">🌳 MASTER 30 HARI</text>
+    <rect x="26" y="325" width="100" height="6" rx="3" fill="#333"/>
+    <text x="83" y="338" text-anchor="middle" fill="#888" font-size="9" font-family="system-ui">Belum dimulai • 🔒 Premium</text>
+  </g>
+  
+  <!-- Right side - Text content -->
+  <g transform="translate(50, 80)">
+    <!-- Main title -->
+    <text x="0" y="0" fill="url(#accent)" font-size="42" font-weight="800" font-family="system-ui" letter-spacing="-1">HabitSehat</text>
+    <text x="0" y="50" fill="#fff" font-size="20" font-weight="400" font-family="system-ui">Kebiasaan Sehat Harian</text>
+    
+    <!-- Tagline -->
+    <text x="0" y="100" fill="#00BFA6" font-size="16" font-family="system-ui">🎨 20+ Tema Premium  •  💧 Water Tracker  •  🔥 Streak & Heatmap</text>
+    <text x="0" y="130" fill="#00BFA6" font-size="16" font-family="system-ui">🚬 HabitStop  •  🍅 Pomodoro  •  🏆 Challenges  •  📱 Widget</text>
+    
+    <!-- Key features -->
+    <g transform="translate(0, 180)">
+      <text x="0" y="0" fill="#fff" font-size="18" font-weight="bold" font-family="system-ui">✨ Fitur Utama</text>
+      
+      <g transform="translate(0, 35)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">1</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Habit Tracker — hingga 5 kebiasaan gratis, unlimited premium</text>
+      </g>
+      <g transform="translate(0, 50)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">2</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Water Tracker — target harian, log cepat, widget interaktif</text>
+      </g>
+      <g transform="translate(0, 100)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">3</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">HabitStop — hentikan kebiasaan buruk, hitung uang tersimpan</text>
+      </g>
+      <g transform="translate(0, 150)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">4</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Pomodoro Timer — 25/50/90 menit, white noise, statistik</text>
+      </g>
+      <g transform="translate(0, 200)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">5</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Weekly Report — AI insight lokal, konsistensi %, saran personal</text>
+      </g>
+      <g transform="translate(0, 250)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">6</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Challenges — 7/21/30 hari, badge, progress tracker</text>
+      </g>
+      <g transform="translate(0, 300)">
+        <circle cx="12" cy="12" r="12" fill="url(#accent)"/>
+        <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">7</text>
+        <text x="35" y="18" fill="#fff" font-size="14" font-family="system-ui">Widget 3 ukuran — Mini, Medium, Large (Android 15+ interaktif)</text>
+      </g>
+    </g>
+    
+    <!-- Premium badge -->
+    <g transform="translate(0, 500)">
+      <rect x="0" y="0" width="400" height="60" rx="12" fill="url(#accent)"/>
+      <text x="200" y="38" text-anchor="middle" fill="#0d0d1a" font-size="16" font-weight="bold" font-family="system-ui">
+        💎 Premium: Rp19rb/bln  •  Rp199rb Lifetime  •  100% Offline  •  No Ads  •  No Account
+      </text>
+    </g>
+  </g>
+  
+  <!-- Bottom badges -->
+  <g transform="translate(80, 440)">
+    <text x="0" y="0" fill="#888" font-size="12" font-family="system-ui">Download di</text>
+    <rect x="100" y="-16" width="160" height="48" rx="8" fill="#000"/>
+    <text x="180" y="8" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">Google Play</text>
+    <rect x="280" y="-16" width="140" height="48" rx="8" fill="#333" stroke="#00BFA6" stroke-width="1"/>
+    <text x="350" y="8" text-anchor="middle" fill="#00BFA6" font-size="12" font-weight="bold" font-family="system-ui">v1.0.0</text>
+    <text x="440" y="8" text-anchor="middle" fill="#666" font-size="11" font-family="system-ui">< 5MB APK  •  Android 8.0+</text>
+  </g>
+  
+</svg>

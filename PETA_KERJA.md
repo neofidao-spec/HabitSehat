@@ -24,7 +24,7 @@
 | **Pomodoro Timer** | ✅ Selesai | Circular countdown, 25/50/90 menit, integrasi habit, premium gating |
 | **Weekly Report** | ✅ Selesai | Auto-generate dari Room, konsistensi %, habit breakdown, insight |
 | **Challenges** | ✅ Selesai | 7/21/30 hari challenge, progress tracker, badge system, auto-detect |
-| **Release build** | 🔄 In Progress | Signing config done, keystore in GH Secrets, CI/CD siap |
+| **Release build** | ✅ Selesai | Signing config, ProGuard, keystore workflow, AAB + APK signed, release v1.0.0 published |
 | **Play Store** | ❌ Belum | Listing, assets, screenshots |
 
 ---
@@ -294,8 +294,8 @@ HabitSehat/
 |------|-----------|--------|
 || **Fase 1:** Finalisasi fitur inti | 100% | ✅ Selesai |
 || **Fase 2:** Fitur pelengkap premium | 10% | 🟡 Google Drive backup (bulk of work remains) |
-|| **Fase 3:** Release build | 70% | 🟡 Signing config + ProGuard + CI/CD siap, butuh tagged release |
-|| **Fase 4:** Play Store assets | 0% | ⚪ Belum mulai |
+|| **Fase 3:** Release build | 100% | ✅ Signed APK + AAB, GitHub Release v1.0.0 published |
+|| **Fase 4:** Play Store assets | 100% | ✅ Icon (adaptive), feature graphic, 6 screenshots, listing copy, privacy policy — ALL DONE |
 || **Fase 5:** Beta testing | 0% | ⚪ Belum mulai |
 || **Fase 6:** Production launch | 0% | ⚪ Belum mulai |
 || **Fase 7:** Post-launch | 0% | ⚪ Belum mulai |
