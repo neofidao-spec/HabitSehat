@@ -22,6 +22,8 @@ class HabitRepository(
     private fun today() = LocalDate.now()
     private val isoDateFormat = DateTimeFormatter.ISO_LOCAL_DATE
 
+    private fun toStr(date: LocalDate) = date.format(isoDateFormat)
+
     // ============ HABITS ============
     suspend fun getAllHabits() = habitDao.getAllActive()
     suspend fun addHabit(habit: Habit) = habitDao.insert(habit)
@@ -33,19 +35,19 @@ class HabitRepository(
     }
 
     suspend fun uncheckHabit(habitId: Long, date: LocalDate = today()) {
-        habitLogDao.undoLast(habitId, date)
+        habitLogDao.undoLast(habitId, toStr(date))
     }
 
     suspend fun isHabitChecked(habitId: Long, date: LocalDate = today()): Boolean {
-        return (habitLogDao.getTotalCount(habitId, date) ?: 0) > 0
+        return (habitLogDao.getTotalCount(habitId, toStr(date)) ?: 0) > 0
     }
 
     suspend fun getHabitCount(habitId: Long, date: LocalDate = today()): Int {
-        return habitLogDao.getTotalCount(habitId, date) ?: 0
+        return habitLogDao.getTotalCount(habitId, toStr(date)) ?: 0
     }
 
     suspend fun getStreak(habitId: Long, since: LocalDate): Int {
-        return habitLogDao.getStreakCount(habitId, since)
+        return habitLogDao.getStreakCount(habitId, toStr(since))
     }
 
     fun getTodayProgress(): Flow<Pair<Int, Int>> = flow {
@@ -64,15 +66,15 @@ class HabitRepository(
     }
 
     suspend fun undoWater(date: LocalDate = today()) {
-        waterLogDao.undoLast(date)
+        waterLogDao.undoLast(toStr(date))
     }
 
     suspend fun getWaterTotal(date: LocalDate = today()): Int {
-        return waterLogDao.getTotal(date) ?: 0
+        return waterLogDao.getTotal(toStr(date)) ?: 0
     }
 
     fun getWaterLogs(date: LocalDate = today()): Flow<List<WaterLog>> = flow {
-        emit(waterLogDao.getLogs(date))
+        emit(waterLogDao.getLogs(toStr(date)))
     }
 
     // ============ BAD HABITS ============
@@ -83,7 +85,8 @@ class HabitRepository(
     suspend fun getBadHabitById(id: Long) = badHabitDao.getById(id)
 
     suspend fun resistBadHabit(badHabitId: Long, date: LocalDate = today()) {
-        val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
+        val dateStr = toStr(date)
+        val existingLogs = badHabitLogDao.getLogs(badHabitId, dateStr)
         if (existingLogs.isNotEmpty()) {
             val log = existingLogs[0].copy(resistedCount = existingLogs[0].resistedCount + 1)
             badHabitLogDao.update(log)
@@ -96,7 +99,8 @@ class HabitRepository(
     }
 
     suspend fun giveInBadHabit(badHabitId: Long, date: LocalDate = today()) {
-        val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
+        val dateStr = toStr(date)
+        val existingLogs = badHabitLogDao.getLogs(badHabitId, dateStr)
         if (existingLogs.isNotEmpty()) {
             val log = existingLogs[0].copy(gaveInCount = existingLogs[0].gaveInCount + 1)
             badHabitLogDao.update(log)
@@ -125,11 +129,12 @@ class HabitRepository(
     }
 
     suspend fun getBadHabitResistedStreak(badHabitId: Long, since: LocalDate): Int {
-        return badHabitLogDao.getResistedStreak(badHabitId, since)
+        return badHabitLogDao.getResistedStreak(badHabitId, toStr(since))
     }
 
     suspend fun getLastResistedDate(badHabitId: Long): LocalDate? {
-        return badHabitLogDao.getLastResistedDate(badHabitId)
+        val str = badHabitLogDao.getLastResistedDate(badHabitId)
+        return str?.let { LocalDate.parse(it) }
     }
 
     suspend fun getMoneySaved(badHabit: BadHabit): Int {
@@ -144,11 +149,11 @@ class HabitRepository(
 
     // ============ POMODORO ============
     suspend fun savePomodoroSession(session: PomodoroSession) = pomodoroDao.insert(session)
-    suspend fun getTotalFocusSeconds(): Int = pomodoroDao.getTotalFocusSeconds(today()) ?: 0
-    suspend fun getSessionCount(): Int = pomodoroDao.getSessionCount(today())
+    suspend fun getTotalFocusSeconds(): Int = pomodoroDao.getTotalFocusSeconds(toStr(today())) ?: 0
+    suspend fun getSessionCount(): Int = pomodoroDao.getSessionCount(toStr(today()))
     suspend fun getWeeklyFocusSeconds(): Int {
         val since = LocalDate.now().minusDays(7)
-        return pomodoroDao.getWeeklyFocusSeconds(since) ?: 0
+        return pomodoroDao.getWeeklyFocusSeconds(toStr(since)) ?: 0
     }
     suspend fun getRecentSessions() = pomodoroDao.getRecentSessions()
 
@@ -158,10 +163,10 @@ class HabitRepository(
         val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val sunday = monday.plusDays(6)
 
-        val start = monday.format(isoDateFormat)
-        val end = sunday.format(isoDateFormat)
-        val previousWeekStart = monday.minusDays(7).format(isoDateFormat)
-        val previousWeekEnd = monday.minusDays(1).format(isoDateFormat)
+        val start = toStr(monday)
+        val end = toStr(sunday)
+        val previousWeekStart = toStr(monday.minusDays(7))
+        val previousWeekEnd = toStr(monday.minusDays(1))
 
         val habits = habitDao.getAllActive()
 
@@ -174,10 +179,10 @@ class HabitRepository(
         var currentDay = monday
         val dailyDoneCounts = mutableMapOf<String, Int>() // date -> done count
         while (!currentDay.isAfter(sunday)) {
-            val dateStr = currentDay.format(isoDateFormat)
+            val dateStr = toStr(currentDay)
             var done = 0
             for (habit in habits) {
-                if (isHabitChecked(habit.id, currentDay)) done++
+                if (isHabitChecked(habit.id, dateStr)) done++
             }
             dailyDoneCounts[dateStr] = done
             totalPossibleDays++
@@ -190,8 +195,8 @@ class HabitRepository(
             var habitDoneDays = 0
             currentDay = monday
             while (!currentDay.isAfter(sunday)) {
-                val dateStr = currentDay.format(isoDateFormat)
-                if (isHabitChecked(habit.id, currentDay)) habitDoneDays++
+                val dateStr = toStr(currentDay)
+                if (isHabitChecked(habit.id, dateStr)) habitDoneDays++
                 currentDay = currentDay.plusDays(1)
             }
             habitStats.add(HabitStat(habit.name, habitDoneDays, 7))
@@ -218,7 +223,7 @@ class HabitRepository(
 
         // Streak
         val bestStreak = habits.maxOfOrNull {
-            habitLogDao.getStreakCount(it.id, LocalDate.now().minusDays(365))
+            habitLogDao.getStreakCount(it.id, toStr(LocalDate.now().minusDays(365)))
         } ?: 0
 
         return WeeklyReport(
@@ -263,7 +268,7 @@ class HabitRepository(
     suspend fun updateChallengeProgress(challengeId: Long): Boolean {
         val progress = challengeProgressDao.getProgress(challengeId) ?: return false
         val challenge = challengeDao.getById(challengeId) ?: return false
-        val todayStr = today().toString()
+        val todayStr = toStr(today())
 
         if (progress.lastUpdateDate == todayStr) return true // already updated today
 

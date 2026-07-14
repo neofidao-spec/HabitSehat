@@ -38,25 +38,25 @@ interface HabitDao {
 @Dao
 interface HabitLogDao {
     @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date = :date ORDER BY createdAt DESC")
-    suspend fun getLogs(habitId: Long, date: LocalDate): List<HabitLog>
+    suspend fun getLogs(habitId: Long, date: String): List<HabitLog>
 
     @Query("SELECT SUM(count) FROM habit_logs WHERE habitId = :habitId AND date = :date")
-    suspend fun getTotalCount(habitId: Long, date: LocalDate): Int?
+    suspend fun getTotalCount(habitId: Long, date: String): Int?
 
     @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE habitId = :habitId AND date >= :since")
-    suspend fun getStreakCount(habitId: Long, since: LocalDate): Int
+    suspend fun getStreakCount(habitId: Long, since: String): Int
 
     @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date >= :since")
-    suspend fun getTotalActiveDays(since: LocalDate): Int
+    suspend fun getTotalActiveDays(since: String): Int
 
     @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date BETWEEN :start AND :end")
-    suspend fun getActiveDaysInRange(start: LocalDate, end: LocalDate): Int
+    suspend fun getActiveDaysInRange(start: String, end: String): Int
 
     @Insert
     suspend fun insert(log: HabitLog)
 
     @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date AND id IN (SELECT id FROM habit_logs WHERE habitId = :habitId AND date = :date LIMIT 1)")
-    suspend fun undoLast(habitId: Long, date: LocalDate)
+    suspend fun undoLast(habitId: Long, date: String)
 
     @Query("DELETE FROM habit_logs WHERE habitId = :habitId")
     suspend fun deleteByHabitId(habitId: Long)
@@ -65,13 +65,13 @@ interface HabitLogDao {
 @Dao
 interface WaterLogDao {
     @Query("SELECT * FROM water_logs WHERE date = :date ORDER BY createdAt ASC")
-    suspend fun getLogs(date: LocalDate): List<WaterLog>
+    suspend fun getLogs(date: String): List<WaterLog>
 
     @Query("SELECT SUM(amountMl) FROM water_logs WHERE date = :date")
-    suspend fun getTotal(date: LocalDate): Int?
+    suspend fun getTotal(date: String): Int?
 
     @Query("SELECT AVG(amountMl) FROM water_logs WHERE date BETWEEN :start AND :end")
-    suspend fun getAverageInRange(start: LocalDate, end: LocalDate): Double?
+    suspend fun getAverageInRange(start: String, end: String): Double?
 
     @Insert
     suspend fun insert(log: WaterLog)
@@ -80,7 +80,7 @@ interface WaterLogDao {
     suspend fun delete(log: WaterLog)
 
     @Query("DELETE FROM water_logs WHERE date = :date AND id IN (SELECT id FROM water_logs WHERE date = :date ORDER BY createdAt DESC LIMIT 1)")
-    suspend fun undoLast(date: LocalDate)
+    suspend fun undoLast(date: String)
 
     @Query("DELETE FROM water_logs")
     suspend fun deleteAll()
@@ -125,7 +125,7 @@ interface BadHabitLogDao {
     suspend fun update(log: BadHabitLog)
 
     @Query("SELECT * FROM bad_habit_logs WHERE badHabitId = :badHabitId AND date = :date")
-    suspend fun getLogs(badHabitId: Long, date: LocalDate): List<BadHabitLog>
+    suspend fun getLogs(badHabitId: Long, date: String): List<BadHabitLog>
 
     @Query("SELECT SUM(resistedCount) FROM bad_habit_logs WHERE badHabitId = :badHabitId")
     suspend fun getTotalOccurrencesResisted(badHabitId: Long): Int?
@@ -139,10 +139,10 @@ interface BadHabitLogDao {
         AND date BETWEEN :since AND date('now')
         AND resistedCount > 0
     """)
-    suspend fun getResistedStreak(badHabitId: Long, since: LocalDate): Int
+    suspend fun getResistedStreak(badHabitId: Long, since: String): Int
 
     @Query("SELECT MAX(date) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND resistedCount > 0")
-    suspend fun getLastResistedDate(badHabitId: Long): LocalDate?
+    suspend fun getLastResistedDate(badHabitId: Long): String?
 
     @Query("DELETE FROM bad_habit_logs WHERE badHabitId = :badHabitId")
     suspend fun deleteByBadHabitId(badHabitId: Long)
@@ -157,22 +157,22 @@ interface PomodoroDao {
     suspend fun insert(session: PomodoroSession): Long
 
     @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date = :date")
-    suspend fun getTotalFocusSeconds(date: LocalDate): Int?
+    suspend fun getTotalFocusSeconds(date: String): Int?
 
     @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
-    suspend fun getTotalFocusSecondsSince(since: LocalDate): Int?
+    suspend fun getTotalFocusSecondsSince(since: String): Int?
 
     @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date BETWEEN :start AND :end")
-    suspend fun getFocusSecondsInRange(start: LocalDate, end: LocalDate): Int?
+    suspend fun getFocusSecondsInRange(start: String, end: String): Int?
 
     @Query("SELECT COUNT(*) FROM pomodoro_sessions WHERE date = :date")
-    suspend fun getSessionCount(date: LocalDate): Int
+    suspend fun getSessionCount(date: String): Int
 
     @Query("SELECT * FROM pomodoro_sessions ORDER BY createdAt DESC LIMIT 50")
     suspend fun getRecentSessions(): List<PomodoroSession>
 
     @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
-    suspend fun getWeeklyFocusSeconds(since: LocalDate): Int?
+    suspend fun getWeeklyFocusSeconds(since: String): Int?
 
     @Query("DELETE FROM pomodoro_sessions")
     suspend fun deleteAll()
