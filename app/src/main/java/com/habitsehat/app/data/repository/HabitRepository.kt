@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 
 class HabitRepository(
@@ -19,6 +20,7 @@ class HabitRepository(
     private val challengeProgressDao: ChallengeProgressDao
 ) {
     private fun today() = LocalDate.now()
+    private val isoDateFormat = DateTimeFormatter.ISO_LOCAL_DATE
 
     // ============ HABITS ============
     suspend fun getAllHabits() = habitDao.getAllActive()
@@ -156,11 +158,10 @@ class HabitRepository(
         val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val sunday = monday.plusDays(6)
 
-        val dateFormat = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-        val start = monday.format(dateFormat)
-        val end = sunday.format(dateFormat)
-        val previousWeekStart = monday.minusDays(7).format(dateFormat)
-        val previousWeekEnd = monday.minusDays(1).format(dateFormat)
+        val start = monday.format(isoDateFormat)
+        val end = sunday.format(isoDateFormat)
+        val previousWeekStart = monday.minusDays(7).format(isoDateFormat)
+        val previousWeekEnd = monday.minusDays(1).format(isoDateFormat)
 
         val habits = habitDao.getAllActive()
 
@@ -173,10 +174,10 @@ class HabitRepository(
         var currentDay = monday
         val dailyDoneCounts = mutableMapOf<String, Int>() // date -> done count
         while (!currentDay.isAfter(sunday)) {
-            val dateStr = currentDay.format(dateFormat)
+            val dateStr = currentDay.format(isoDateFormat)
             var done = 0
             for (habit in habits) {
-                if (isHabitChecked(habit.id, dateStr)) done++
+                if (isHabitChecked(habit.id, currentDay)) done++
             }
             dailyDoneCounts[dateStr] = done
             totalPossibleDays++
@@ -189,8 +190,8 @@ class HabitRepository(
             var habitDoneDays = 0
             currentDay = monday
             while (!currentDay.isAfter(sunday)) {
-                val dateStr = currentDay.format(dateFormat)
-                if (isHabitChecked(habit.id, dateStr)) habitDoneDays++
+                val dateStr = currentDay.format(isoDateFormat)
+                if (isHabitChecked(habit.id, currentDay)) habitDoneDays++
                 currentDay = currentDay.plusDays(1)
             }
             habitStats.add(HabitStat(habit.name, habitDoneDays, 7))
