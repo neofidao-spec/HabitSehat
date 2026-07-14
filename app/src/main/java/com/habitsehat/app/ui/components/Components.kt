@@ -20,10 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Habit
-import com.habitsehat.app.ui.theme.StreakGreen
 import com.habitsehat.app.ui.theme.StreakOrange
-import com.habitsehat.app.ui.theme.StreakRed
 import com.habitsehat.app.ui.theme.WaterBlue
+
+private val WaterBlueBg = Color(0xFFB3E5FC)
+private val WaterBlueLight = Color(0xFF81D4FA)
+private val WaterBlue60 = Color(0xFF42A5F5)
 
 @Composable
 fun WaterCard(
@@ -39,50 +41,30 @@ fun WaterCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = WaterBlueBg
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Outlined.WaterDrop,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                Icon(Icons.Outlined.WaterDrop, contentDescription = null, tint = WaterBlue60)
                 Spacer(Modifier.width(8.dp))
-                Text(
-                    "Minum Air",
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                Text("Minum Air", fontWeight = FontWeight.SemiBold, color = Color(0xFF0D47A1))
             }
 
             Spacer(Modifier.height(12.dp))
-
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    "${total}ml",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                Text("${total}ml", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0D47A1))
                 Spacer(Modifier.width(4.dp))
-                Text(
-                    "/ $goal",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                )
+                Text("/ $goal", fontSize = 14.sp, color = Color(0xFF0D47A1).copy(alpha = 0.7f))
             }
 
             Spacer(Modifier.height(8.dp))
-
-            // Progress bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(12.dp)
                     .clip(RoundedCornerShape(6.dp))
-                    .background(WaterBlue.copy(alpha = 0.15f))
+                    .background(WaterBlueLight)
             ) {
                 Box(
                     modifier = Modifier
@@ -94,7 +76,6 @@ fun WaterCard(
             }
 
             Spacer(Modifier.height(12.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -105,8 +86,8 @@ fun WaterCard(
                         modifier = Modifier.height(40.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            containerColor = WaterBlueLight,
+                            contentColor = WaterBlue60
                         )
                     ) {
                         Text("+${ml}ml", fontSize = 13.sp)
@@ -135,13 +116,14 @@ fun HabitItem(
     onArchive: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val primary = MaterialTheme.colorScheme.primary
     val bgColor by animateColorAsState(
-        targetValue = if (isChecked) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        targetValue = if (isChecked) primary.copy(alpha = 0.08f)
         else MaterialTheme.colorScheme.surface,
         label = "bg"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isChecked) MaterialTheme.colorScheme.primary else Color.Transparent,
+        targetValue = if (isChecked) primary else Color.Transparent,
         label = "border"
     )
 
@@ -159,73 +141,48 @@ fun HabitItem(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Check circle
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isChecked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+                        if (isChecked) primary else MaterialTheme.colorScheme.surfaceVariant
                     )
                     .clickable { onCheck() },
                 contentAlignment = Alignment.Center
             ) {
                 if (isChecked) {
-                    Icon(
-                        Icons.Filled.Check,
-                        contentDescription = null,
+                    Icon(Icons.Filled.Check, contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(22.dp)
-                    )
+                        modifier = Modifier.size(22.dp))
                 } else {
-                    Text(
-                        "${habit.targetCount}x",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Text("${habit.targetCount}x", fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
             Spacer(Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    habit.name,
+                Text(habit.name,
                     fontWeight = if (isChecked) FontWeight.SemiBold else FontWeight.Normal,
                     fontSize = 15.sp,
-                    color = if (isChecked) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurface
-                )
+                    color = if (isChecked) primary else MaterialTheme.colorScheme.onSurface)
                 if (habit.reminderEnabled) {
-                    Text(
-                        "${"%02d".format(habit.reminderHour)}:${
-                            "%02d".format(habit.reminderMinute)
-                        }",
+                    Text("${"%02d".format(habit.reminderHour)}:${"%02d".format(habit.reminderMinute)}",
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
-            // Counter
             if (habit.targetCount > 1) {
-                Text(
-                    "$currentCount/${habit.targetCount}",
-                    fontSize = 13.sp,
-                    color = if (isChecked) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("$currentCount/${habit.targetCount}", fontSize = 13.sp,
+                    color = if (isChecked) primary else MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(8.dp))
             }
 
-            // Streak
             if (isChecked) {
-                Icon(
-                    Icons.Filled.LocalFireDepartment,
-                    contentDescription = null,
-                    tint = StreakOrange,
-                    modifier = Modifier.size(18.dp)
-                )
+                Icon(Icons.Filled.LocalFireDepartment, contentDescription = null,
+                    tint = StreakOrange, modifier = Modifier.size(18.dp))
             }
         }
     }
@@ -241,7 +198,7 @@ fun StreakBar(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
         )
     ) {
         Row(
