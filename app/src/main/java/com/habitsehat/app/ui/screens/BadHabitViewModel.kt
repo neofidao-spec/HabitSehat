@@ -10,17 +10,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
+
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    fun loadBadHabits() {
+    init {
+        loadBadHabits()
+    }
+
+    private fun loadBadHabits() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val habits = repository.getAllBadHabits()
             val withStats = mutableListOf<BadHabitWithStats>()
+
             for (h in habits) {
                 val (totalResisted, totalDays) = repository.getBadHabitStats(h.id)
-                val streak = repository.getBadHabitStreak(h.id)
+                val streak = repository.getBadHabitResistedStreak(h.id, "")
                 val moneySaved = repository.getMoneySaved(h)
                 val lastResisted = repository.getLastResistedDate(h.id)
                 withStats.add(BadHabitWithStats(
@@ -33,6 +39,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
                     lastResistedDate = lastResisted
                 ))
             }
+
             _uiState.update { it.copy(badHabits = withStats, isLoading = false) }
         }
     }
@@ -71,9 +78,9 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
             loadBadHabits()
         }
     }
-}
 
-data class UiState(
-    val badHabits: List<BadHabitWithStats> = emptyList(),
-    val isLoading: Boolean = true
-)
+    data class UiState(
+        val badHabits: List<BadHabitWithStats> = emptyList(),
+        val isLoading: Boolean = true
+    )
+}

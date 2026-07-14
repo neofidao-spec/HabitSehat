@@ -138,4 +138,25 @@ class HabitRepository(
     suspend fun getBadHabitResistedStreak(badHabitId: Long, since: String): Int {
         return badHabitLogDao.getResistedStreak(badHabitId, since)
     }
+
+    // Additional methods for BadHabitViewModel
+    suspend fun getBadHabitStats(badHabitId: Long): Pair<Int, Int> {
+        val totalDays = badHabitLogDao.getTotalDaysResisted(badHabitId)
+        val totalOccurrences = badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0
+        return Pair(totalOccurrences, totalDays)
+    }
+
+    suspend fun getBadHabitStreak(badHabitId: Long): Int {
+        val since = LocalDate.now().minusDays(365).format(dateFormat)
+        return badHabitLogDao.getResistedStreak(badHabitId, since)
+    }
+
+    suspend fun getMoneySaved(badHabit: BadHabit): Int {
+        val occurrences = badHabitLogDao.getTotalOccurrencesResisted(badHabit.id) ?: 0
+        return occurrences * badHabit.costPerOccurrence
+    }
+
+    suspend fun getLastResistedDate(badHabitId: Long): String? {
+        return badHabitLogDao.getLastResistedDate(badHabitId)
+    }
 }
