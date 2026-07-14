@@ -5,8 +5,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,13 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Habit
-import com.habitsehat.app.ui.theme.*
+import com.habitsehat.app.ui.theme.StreakGreen
+import com.habitsehat.app.ui.theme.StreakOrange
+import com.habitsehat.app.ui.theme.StreakRed
+import com.habitsehat.app.ui.theme.WaterBlue
 
 @Composable
 fun WaterCard(
@@ -39,13 +38,23 @@ fun WaterCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = BlueContainer)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.WaterDrop, contentDescription = null, tint = Blue40)
+                Icon(
+                    Icons.Outlined.WaterDrop,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
                 Spacer(Modifier.width(8.dp))
-                Text("Minum Air", fontWeight = FontWeight.SemiBold, color = OnBlueContainer)
+                Text(
+                    "Minum Air",
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
             }
 
             Spacer(Modifier.height(12.dp))
@@ -55,13 +64,13 @@ fun WaterCard(
                     "${total}ml",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = OnBlueContainer
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     "/ $goal",
                     fontSize = 14.sp,
-                    color = OnBlueContainer.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                 )
             }
 
@@ -73,7 +82,7 @@ fun WaterCard(
                     .fillMaxWidth()
                     .height(12.dp)
                     .clip(RoundedCornerShape(6.dp))
-                    .background(OnBlueContainer.copy(alpha = 0.2f))
+                    .background(WaterBlue.copy(alpha = 0.15f))
             ) {
                 Box(
                     modifier = Modifier
@@ -96,8 +105,8 @@ fun WaterCard(
                         modifier = Modifier.height(40.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = Blue40.copy(alpha = 0.15f),
-                            contentColor = Blue40
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     ) {
                         Text("+${ml}ml", fontSize = 13.sp)
@@ -127,11 +136,12 @@ fun HabitItem(
     modifier: Modifier = Modifier
 ) {
     val bgColor by animateColorAsState(
-        targetValue = if (isChecked) GreenContainer else CardLight,
+        targetValue = if (isChecked) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        else MaterialTheme.colorScheme.surface,
         label = "bg"
     )
     val borderColor by animateColorAsState(
-        targetValue = if (isChecked) Green40 else Color.Transparent,
+        targetValue = if (isChecked) MaterialTheme.colorScheme.primary else Color.Transparent,
         label = "border"
     )
 
@@ -155,23 +165,23 @@ fun HabitItem(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (isChecked) Green40 else ProgressBg
+                        if (isChecked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
                     )
-                    .clickable { if (isChecked) onCheck() else onCheck() },
+                    .clickable { onCheck() },
                 contentAlignment = Alignment.Center
             ) {
                 if (isChecked) {
                     Icon(
                         Icons.Filled.Check,
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(22.dp)
                     )
                 } else {
                     Text(
                         "${habit.targetCount}x",
                         fontSize = 11.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -183,11 +193,14 @@ fun HabitItem(
                     habit.name,
                     fontWeight = if (isChecked) FontWeight.SemiBold else FontWeight.Normal,
                     fontSize = 15.sp,
-                    color = if (isChecked) OnGreenContainer else MaterialTheme.colorScheme.onSurface
+                    color = if (isChecked) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurface
                 )
                 if (habit.reminderEnabled) {
                     Text(
-                        "${"%02d".format(habit.reminderHour)}:${"%02d".format(habit.reminderMinute)}",
+                        "${"%02d".format(habit.reminderHour)}:${
+                            "%02d".format(habit.reminderMinute)
+                        }",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -199,12 +212,13 @@ fun HabitItem(
                 Text(
                     "$currentCount/${habit.targetCount}",
                     fontSize = 13.sp,
-                    color = if (isChecked) Green40 else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (isChecked) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.width(8.dp))
             }
 
-            // Streak indicator
+            // Streak
             if (isChecked) {
                 Icon(
                     Icons.Filled.LocalFireDepartment,
@@ -226,7 +240,9 @@ fun StreakBar(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = GreenContainer.copy(alpha = 0.5f))
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        )
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -237,7 +253,7 @@ fun StreakBar(
             Text(
                 if (total > 0) "$done dari $total kebiasaan selesai" else "Belum ada kebiasaan",
                 fontSize = 14.sp,
-                color = OnGreenContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }

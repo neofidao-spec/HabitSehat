@@ -4,19 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.BarChart
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,10 +21,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.habitsehat.app.data.db.AppDatabase
+import com.habitsehat.app.data.model.AppTheme
+import com.habitsehat.app.data.preferences.PremiumManager
+import com.habitsehat.app.data.preferences.SettingsManager
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.ui.navigation.Screen
 import com.habitsehat.app.ui.screens.*
 import com.habitsehat.app.ui.theme.HabitSehatTheme
+import kotlinx.coroutines.launch
 
 data class BottomNavItem(
     val label: String,
@@ -44,12 +44,35 @@ class MainActivity : ComponentActivity() {
 
         val db = AppDatabase.getInstance(applicationContext)
         val repository = HabitRepository(db.habitDao(), db.habitLogDao(), db.waterLogDao())
+        val settingsManager = SettingsManager(applicationContext)
+        val premiumManager = PremiumManager(settingsManager)
         val homeViewModel = HomeViewModel(repository)
         val statsViewModel = StatsViewModel(repository)
 
         setContent {
-            HabitSehatTheme {
-                MainApp(homeViewModel, statsViewModel, repository)
+            val currentTheme by settingsManager.currentTheme.collectAsState(initial = AppTheme.getThemeById("mint"))
+            val isPremium by settingsManager.isPremium.collectAsState(initial = false)
+            val darkModeSetting by settingsManager.darkModeSetting.collectAsState(initial = "system")
+            val isDark = when (darkModeSetting) {
+                "dark" -> true
+                "light" -> false
+                else -> isSystemInDarkTheme()
+            }
+
+            HabitSehatTheme(
+                appTheme = currentTheme,
+                darkTheme = isDark
+            ) {
+                MainApp(
+                    homeViewModel = homeViewModel,
+                    statsViewModel = statsViewModel,
+                    repository = repository,
+                    settingsManager = settingsManager,
+                    premiumManager = premiumManager,
+                    isPremium = isPremium,
+                    currentTheme = currentTheme,
+                    darkModeSetting = darkModeSetting
+                )
             }
         }
     }
@@ -59,14 +82,21 @@ class MainActivity : ComponentActivity() {
 fun MainApp(
     homeViewModel: HomeViewModel,
     statsViewModel: StatsViewModel,
-    repository: HabitRepository
+    repository: HabitRepository,
+    settingsManager: SettingsManager,
+    premiumManager: PremiumManager,
+    isPremium: Boolean,
+    currentTheme: AppTheme,
+    darkModeSetting: String
 ) {
     val navController = rememberNavController()
+    val scope = rememberCoroutineScope()
 
     val bottomNavItems = listOf(
         BottomNavItem("Beranda", Icons.Filled.Home, Icons.Outlined.Home, Screen.Home.route),
         BottomNavItem("Statistik", Icons.Filled.BarChart, Icons.Outlined.BarChart, Screen.Stats.route),
-        BottomNavItem("Pengaturan", Icons.Filled.Settings, Icons.Outlined.Settings, Screen.Settings.route)
+        BottomNavItem("Tema", Icons.Filled.Palette, Icons.Outlined.Palette, Screen.Theme.route),
+        BottomNavItem("Lainnya", Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz, Screen.More.route)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -126,6 +156,40 @@ fun MainApp(
             composable(Screen.Stats.route) {
                 StatsScreen(
                     viewModel = statsViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Theme.route) {
+                ThemeScreen(
+                    settingsManager = settingsManager,
+                    currentTheme = currentTheme,
+                    isPremium = isPremium,
+                    onSelectTheme = { theme ->
+                        scope.launch { settingsManager.setTheme(theme.id) }
+                    },
+                    onUpgrade = {
+                        navController.navigate(Screen.Premium.route)
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Premium.route) {
+                PremiumScreen(
+                    onUpgrade = {
+                        scope.launch { premiumManager.unlockPremium() }
+                        navController.popBackStack()
+                    },
+                    onRestore = { /* TODO: implement restore */ },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.More.route) {
+                MoreScreen(
+                    settingsManager = settingsManager,
+                    isPremium = isPremium,
+                    darkModeSetting = darkModeSetting,
+                    onThemeClick = { navController.navigate(Screen.Theme.route) },
+                    onPremiumClick = { navController.navigate(Screen.Premium.route) },
                     onBack = { navController.popBackStack() }
                 )
             }

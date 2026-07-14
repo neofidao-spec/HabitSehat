@@ -3,7 +3,6 @@ package com.habitsehat.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -32,6 +31,7 @@ fun StatsScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val primary = MaterialTheme.colorScheme.primary
 
     Scaffold(
         topBar = {
@@ -85,16 +85,16 @@ fun StatsScreen(
                         Card(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Green40.copy(alpha = 0.1f))
+                            colors = CardDefaults.cardColors(containerColor = primary.copy(alpha = 0.1f))
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, tint = Green40, modifier = Modifier.size(28.dp))
+                                Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, tint = primary, modifier = Modifier.size(28.dp))
                                 Spacer(Modifier.height(4.dp))
-                                Text("${state.totalHabitsCreated}", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Green40)
-                                Text("kebiasaan", fontSize = 12.sp, color = Green40)
+                                Text("${state.totalHabitsCreated}", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = primary)
+                                Text("kebiasaan", fontSize = 12.sp, color = primary)
                             }
                         }
 
@@ -130,7 +130,6 @@ fun StatsScreen(
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            // Day headers
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -144,16 +143,13 @@ fun StatsScreen(
 
                             Spacer(Modifier.height(8.dp))
 
-                            // Bar chart for habits
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly,
                                 verticalAlignment = Alignment.Bottom
                             ) {
                                 state.weekData.forEach { day ->
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         val pct = if (day.habitsTotal > 0) day.habitsDone.toFloat() / day.habitsTotal else 0f
                                         val barHeight = (pct * 60).dp.coerceAtLeast(4.dp)
                                         val color = when {
@@ -188,7 +184,6 @@ fun StatsScreen(
                             HorizontalDivider()
                             Spacer(Modifier.height(8.dp))
 
-                            // Water mini bar
                             Text("Air (ml)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(4.dp))
                             Row(
@@ -216,11 +211,8 @@ fun StatsScreen(
                                 }
                             }
 
-                            // Legend
                             Spacer(Modifier.height(8.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                 LegendItem(color = StreakGreen, label = "Selesai")
                                 LegendItem(color = StreakOrange, label = "Setengah")
                                 LegendItem(color = StreakRed, label = "Sedikit")
