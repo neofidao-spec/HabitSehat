@@ -3,7 +3,6 @@ package com.habitsehat.app.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.habitsehat.app.data.model.BadHabit
-import com.habitsehat.app.data.model.BadHabitWithStats
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,33 +13,29 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    init {
-        loadBadHabits()
-    }
-
-    private fun loadBadHabits() {
+    fun loadBadHabits() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val habits = repository.getAllBadHabits()
-            val withStats = mutableListOf<BadHabitWithStats>()
-
-            for (h in habits) {
-                val (totalResisted, totalDays) = repository.getBadHabitStats(h.id)
-                val streak = repository.getBadHabitResistedStreak(h.id, "")
-                val moneySaved = repository.getMoneySaved(h)
-                val lastResisted = repository.getLastResistedDate(h.id)
-                withStats.add(BadHabitWithStats(
-                    badHabit = h,
+            val statsList = mutableListOf<BadHabitStat>()
+            
+            for (habit in habits) {
+                val (totalResisted, totalDays) = repository.getBadHabitStats(habit.id)
+                val moneySaved = repository.getMoneySaved(habit)
+                val streak = repository.getBadHabitStreak(habit.id)
+                val lastResisted = repository.getLastResistedDate(habit.id)
+                
+                statsList.add(BadHabitStat(
+                    badHabit = habit,
                     currentStreak = streak,
-                    longestStreak = streak,
                     totalDaysResisted = totalDays,
                     totalMoneySaved = moneySaved,
                     totalOccurrencesResisted = totalResisted,
                     lastResistedDate = lastResisted
                 ))
             }
-
-            _uiState.update { it.copy(badHabits = withStats, isLoading = false) }
+            
+            _uiState.update { it.copy(badHabits = statsList, isLoading = false) }
         }
     }
 
@@ -65,14 +60,14 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
         }
     }
 
-    fun resistBadHabit(badHabitId: Long) {
+    fun resist(badHabitId: Long) {
         viewModelScope.launch {
             repository.resistBadHabit(badHabitId)
             loadBadHabits()
         }
     }
 
-    fun giveInBadHabit(badHabitId: Long) {
+    fun giveIn(badHabitId: Long) {
         viewModelScope.launch {
             repository.giveInBadHabit(badHabitId)
             loadBadHabits()
@@ -80,7 +75,16 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
     }
 
     data class UiState(
-        val badHabits: List<BadHabitWithStats> = emptyList(),
+        val badHabits: List<BadHabitStat> = emptyList(),
         val isLoading: Boolean = true
+    )
+
+    data class BadHabitStat(
+        val badHabit: BadHabit,
+        val currentStreak: Int,
+        val totalDaysResisted: Int,
+        val totalMoneySaved: Int,
+        val totalOccurrencesResisted: Int,
+        val lastResistedDate: String?
     )
 }

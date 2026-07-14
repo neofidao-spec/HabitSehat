@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.preferences.PremiumManager
+import com.habitsehat.app.ui.theme.StreakGreen
 import com.habitsehat.app.ui.theme.StreakOrange
 import java.text.NumberFormat
 import java.util.Locale
@@ -36,7 +37,7 @@ fun HabitStopScreen(
     onAddBadHabit: () -> Unit,
     onBack: () -> Unit
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsState()
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply { maximumFractionDigits = 0 }
 
     Scaffold(
@@ -68,13 +69,10 @@ fun HabitStopScreen(
                 CircularProgressIndicator()
             }
         } else if (!isPremium) {
-            // Premium locked screen
             LockedPremiumView(onUpgrade = onUpgrade, modifier = Modifier.padding(padding))
         } else if (state.badHabits.isEmpty()) {
-            // Empty state
             EmptyBadHabitView(onAdd = onAddBadHabit, modifier = Modifier.padding(padding))
         } else {
-            // Main content
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -82,7 +80,6 @@ fun HabitStopScreen(
                     .padding(horizontal = 16.dp, bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Total money saved card
                 item {
                     TotalSavedCard(
                         totalSaved = state.badHabits.sumOf { it.totalMoneySaved },
@@ -90,12 +87,11 @@ fun HabitStopScreen(
                     )
                 }
 
-                // Bad habits list
                 items(state.badHabits) { habitStat ->
                     BadHabitCard(
                         habitStat = habitStat,
-                        onResist = { viewModel.resistBadHabit(habitStat.badHabit.id) },
-                        onGiveIn = { viewModel.giveInBadHabit(habitStat.badHabit.id) },
+                        onResist = { viewModel.resist(habitStat.badHabit.id) },
+                        onGiveIn = { viewModel.giveIn(habitStat.badHabit.id) },
                         currencyFormat = currencyFormat
                     )
                 }
@@ -181,7 +177,7 @@ private fun TotalSavedCard(totalSaved: Int, totalDaysResisted: Int) {
 
 @Composable
 private fun BadHabitCard(
-    habitStat: BadHabitWithStats,
+    habitStat: BadHabitViewModel.BadHabitStat,
     onResist: () -> Unit,
     onGiveIn: () -> Unit,
     currencyFormat: java.text.NumberFormat

@@ -1,6 +1,5 @@
 package com.habitsehat.app.data.repository
 
-import com.habitsehat.app.data.db.AppDatabase
 import com.habitsehat.app.data.db.BadHabitDao
 import com.habitsehat.app.data.db.BadHabitLogDao
 import com.habitsehat.app.data.db.HabitDao
@@ -26,7 +25,7 @@ class HabitRepository(
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private fun today() = LocalDate.now().format(dateFormat)
 
-    // Habits
+    // ============ HABITS ============
     suspend fun getAllHabits() = habitDao.getAllActive()
     suspend fun addHabit(habit: Habit) = habitDao.insert(habit)
     suspend fun updateHabit(habit: Habit) = habitDao.update(habit)
@@ -59,7 +58,7 @@ class HabitRepository(
         emit(done to total)
     }
 
-    // Water
+    // ============ WATER ============
     suspend fun addWater(amountMl: Int, date: String = today()) {
         waterLogDao.insert(WaterLog(date = date, amountMl = amountMl))
     }
@@ -76,7 +75,7 @@ class HabitRepository(
         emit(waterLogDao.getLogs(date))
     }
 
-    // Bad Habits (HabitStop)
+    // ============ BAD HABITS (HABITSTOP) ============
     suspend fun getAllBadHabits() = badHabitDao.getAllActive()
 
     suspend fun addBadHabit(badHabit: BadHabit) = badHabitDao.insert(badHabit)
@@ -119,14 +118,15 @@ class HabitRepository(
         }
     }
 
-    suspend fun getBadHabitStats(badHabitId: Long) {
+    // Stats
+    suspend fun getBadHabitStats(badHabitId: Long): Pair<Int, Int> { // (totalResisted, totalDaysResisted)
         val totalDays = badHabitLogDao.getTotalDaysResisted(badHabitId)
         val totalOccurrences = badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0
-        val lastDate = badHabitLogDao.getLastResistedDate(badHabitId)
+        return totalOccurrences to totalDays
     }
 
     suspend fun getTotalMoneySaved(): Int {
-        val badHabits = badHabitDao.getAllActiveSync()
+        val badHabits = badHabitDao.getAllActive()
         var totalSaved = 0
         for (habit in badHabits) {
             val occurrences = badHabitLogDao.getTotalOccurrencesResisted(habit.id) ?: 0
@@ -139,16 +139,8 @@ class HabitRepository(
         return badHabitLogDao.getResistedStreak(badHabitId, since)
     }
 
-    // Additional methods for BadHabitViewModel
-    suspend fun getBadHabitStats(badHabitId: Long): Pair<Int, Int> {
-        val totalDays = badHabitLogDao.getTotalDaysResisted(badHabitId)
-        val totalOccurrences = badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0
-        return Pair(totalOccurrences, totalDays)
-    }
-
-    suspend fun getBadHabitStreak(badHabitId: Long): Int {
-        val since = LocalDate.now().minusDays(365).format(dateFormat)
-        return badHabitLogDao.getResistedStreak(badHabitId, since)
+    suspend fun getLastResistedDate(badHabitId: Long): String? {
+        return badHabitLogDao.getLastResistedDate(badHabitId)
     }
 
     suspend fun getMoneySaved(badHabit: BadHabit): Int {
@@ -156,7 +148,8 @@ class HabitRepository(
         return occurrences * badHabit.costPerOccurrence
     }
 
-    suspend fun getLastResistedDate(badHabitId: Long): String? {
-        return badHabitLogDao.getLastResistedDate(badHabitId)
+    suspend fun getBadHabitStreak(badHabitId: Long): Int {
+        val since = LocalDate.now().minusDays(365).format(dateFormat)
+        return getBadHabitResistedStreak(badHabitId, since)
     }
 }
