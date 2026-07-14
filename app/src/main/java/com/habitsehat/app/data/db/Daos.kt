@@ -3,6 +3,8 @@ package com.habitsehat.app.data.db
 import androidx.room.*
 import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
+import com.habitsehat.app.data.model.Challenge
+import com.habitsehat.app.data.model.ChallengeProgress
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
 import com.habitsehat.app.data.model.PomodoroSession
@@ -40,6 +42,12 @@ interface HabitLogDao {
     @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE habitId = :habitId AND date >= :since")
     suspend fun getStreakCount(habitId: Long, since: String): Int
 
+    @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date >= :since")
+    suspend fun getTotalActiveDays(since: String): Int
+
+    @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date BETWEEN :start AND :end")
+    suspend fun getActiveDaysInRange(start: String, end: String): Int
+
     @Insert
     suspend fun insert(log: HabitLog)
 
@@ -54,6 +62,9 @@ interface WaterLogDao {
 
     @Query("SELECT SUM(amountMl) FROM water_logs WHERE date = :date")
     suspend fun getTotal(date: String): Int?
+
+    @Query("SELECT AVG(amountMl) FROM water_logs WHERE date BETWEEN :start AND :end")
+    suspend fun getAverageInRange(start: String, end: String): Double?
 
     @Insert
     suspend fun insert(log: WaterLog)
@@ -123,9 +134,51 @@ interface PomodoroDao {
     @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
     suspend fun getTotalFocusSecondsSince(since: String): Int?
 
+    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date BETWEEN :start AND :end")
+    suspend fun getFocusSecondsInRange(start: String, end: String): Int?
+
     @Query("SELECT COUNT(*) FROM pomodoro_sessions WHERE date = :date")
     suspend fun getSessionCount(date: String): Int
 
     @Query("SELECT * FROM pomodoro_sessions ORDER BY createdAt DESC LIMIT 50")
     suspend fun getRecentSessions(): List<PomodoroSession>
+}
+
+@Dao
+interface ChallengeDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(challenge: Challenge): Long
+
+    @Update
+    suspend fun update(challenge: Challenge)
+
+    @Query("SELECT * FROM challenges WHERE isActive = 1 ORDER BY targetDays ASC")
+    suspend fun getAllActive(): List<Challenge>
+
+    @Query("SELECT * FROM challenges ORDER BY id ASC")
+    suspend fun getAll(): List<Challenge>
+
+    @Query("SELECT * FROM challenges WHERE id = :id")
+    suspend fun getById(id: Long): Challenge?
+}
+
+@Dao
+interface ChallengeProgressDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(progress: ChallengeProgress): Long
+
+    @Update
+    suspend fun update(progress: ChallengeProgress)
+
+    @Query("SELECT * FROM challenge_progress WHERE challengeId = :challengeId")
+    suspend fun getProgress(challengeId: Long): ChallengeProgress?
+
+    @Query("SELECT * FROM challenge_progress")
+    suspend fun getAllProgress(): List<ChallengeProgress>
+
+    @Query("SELECT * FROM challenge_progress WHERE completed = 0")
+    suspend fun getActiveProgress(): List<ChallengeProgress>
+
+    @Query("SELECT * FROM challenge_progress WHERE completed = 1")
+    suspend fun getCompletedProgress(): List<ChallengeProgress>
 }

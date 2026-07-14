@@ -1,21 +1,13 @@
 package com.habitsehat.app.data.repository
 
-import com.habitsehat.app.data.db.BadHabitDao
-import com.habitsehat.app.data.db.BadHabitLogDao
-import com.habitsehat.app.data.db.HabitDao
-import com.habitsehat.app.data.db.HabitLogDao
-import com.habitsehat.app.data.db.PomodoroDao
-import com.habitsehat.app.data.db.WaterLogDao
-import com.habitsehat.app.data.model.BadHabit
-import com.habitsehat.app.data.model.BadHabitLog
-import com.habitsehat.app.data.model.Habit
-import com.habitsehat.app.data.model.HabitLog
-import com.habitsehat.app.data.model.PomodoroSession
-import com.habitsehat.app.data.model.WaterLog
+import com.habitsehat.app.data.db.*
+import com.habitsehat.app.data.model.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 class HabitRepository(
     private val habitDao: HabitDao,
@@ -23,7 +15,9 @@ class HabitRepository(
     private val waterLogDao: WaterLogDao,
     private val badHabitDao: BadHabitDao,
     private val badHabitLogDao: BadHabitLogDao,
-    private val pomodoroDao: PomodoroDao
+    private val pomodoroDao: PomodoroDao,
+    private val challengeDao: ChallengeDao,
+    private val challengeProgressDao: ChallengeProgressDao
 ) {
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private fun today() = LocalDate.now().format(dateFormat)
@@ -34,7 +28,6 @@ class HabitRepository(
     suspend fun updateHabit(habit: Habit) = habitDao.update(habit)
     suspend fun archiveHabit(id: Long) = habitDao.archive(id)
 
-    // Habit Logs
     suspend fun checkHabit(habitId: Long, date: String = today()) {
         habitLogDao.insert(HabitLog(habitId = habitId, date = date))
     }
@@ -82,7 +75,7 @@ class HabitRepository(
         emit(waterLogDao.getLogs(date))
     }
 
-    // ============ BAD HABITS (HABITSTOP) ============
+    // ============ BAD HABITS ============
     suspend fun getAllBadHabits() = badHabitDao.getAllActive()
     suspend fun addBadHabit(badHabit: BadHabit) = badHabitDao.insert(badHabit)
     suspend fun updateBadHabit(badHabit: BadHabit) = badHabitDao.update(badHabit)
@@ -151,20 +144,174 @@ class HabitRepository(
 
     // ============ POMODORO ============
     suspend fun savePomodoroSession(session: PomodoroSession) = pomodoroDao.insert(session)
-
-    suspend fun getTotalFocusSeconds(): Int {
-        val todaySec = pomodoroDao.getTotalFocusSeconds(today())
-        return todaySec ?: 0
-    }
-
-    suspend fun getSessionCount(): Int {
-        return pomodoroDao.getSessionCount(today())
-    }
-
+    suspend fun getTotalFocusSeconds(): Int = pomodoroDao.getTotalFocusSeconds(today()) ?: 0
+    suspend fun getSessionCount(): Int = pomodoroDao.getSessionCount(today())
     suspend fun getWeeklyFocusSeconds(): Int {
         val since = LocalDate.now().minusDays(7).format(dateFormat)
         return pomodoroDao.getTotalFocusSecondsSince(since) ?: 0
     }
-
     suspend fun getRecentSessions() = pomodoroDao.getRecentSessions()
+
+    // ============ WEEKLY REPORT ============
+    suspend fun generateWeeklyReport(): WeeklyReport {
+        val now = LocalDate.now()
+        val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val sunday = monday.plusDays(6)
+        val start = monday.format(dateFormat)
+        val end = sunday.format(dateFormat)
+        val previousWeekStart = monday.minusDays(7).format(dateFormat)
+        val previousWeekEnd = monday.minusDays(1).format(dateFormat)
+
+        val habits = habitDao.getAllActive()
+
+        // This week stats
+        var totalDoneDays = 0
+        var totalPossibleDays = 0
+        val habitStats = mutableListOf<HabitStat>()
+
+        // Check each day
+        var currentDay = monday
+        val dailyDoneCounts = mutableMapOf<String, Int>() // date -> done count
+        while (!currentDay.isAfter(sunday)) {
+            val dateStr = currentDay.format(dateFormat)
+            var done = 0
+            for (habit in habits) {
+                if (isHabitChecked(habit.id, dateStr)) done++
+            }
+            dailyDoneCounts[dateStr] = done
+            totalPossibleDays++
+            if (done == habits.size && habits.isNotEmpty()) totalDoneDays++
+            currentDay = currentDay.plusDays(1)
+        }
+
+        // Per-habit stats
+        for (habit in habits) {
+            var habitDoneDays = 0
+            currentDay = monday
+            while (!currentDay.isAfter(sunday)) {
+                val dateStr = currentDay.format(dateFormat)
+                if (isHabitChecked(habit.id, dateStr)) habitDoneDays++
+                currentDay = currentDay.plusDays(1)
+            }
+            habitStats.add(HabitStat(habit.name, habitDoneDays, 7))
+        }
+
+        // Water average
+        val waterAvg = waterLogDao.getAverageInRange(start, end) ?: 0.0
+        val prevWaterAvg = waterLogDao.getAverageInRange(previousWeekStart, previousWeekEnd) ?: 0.0
+
+        // Best & worst day
+        val bestDay = dailyDoneCounts.maxByOrNull { it.value }?.key ?: start
+        val worstDay = dailyDoneCounts.minByOrNull { it.value }?.key ?: start
+
+        // Focus time
+        val focusSeconds = pomodoroDao.getFocusSecondsInRange(start, end) ?: 0
+
+        // Money saved this week
+        val badHabits = badHabitDao.getAllActive()
+        var moneySaved = 0
+        for (habit in badHabits) {
+            val resisted = badHabitLogDao.getTotalOccurrencesResisted(habit.id) ?: 0
+            moneySaved += resisted * habit.costPerOccurrence
+        }
+
+        // Streak
+        val bestStreak = habits.maxOfOrNull {
+            habitLogDao.getStreakCount(it.id, LocalDate.now().minusDays(365).format(dateFormat))
+        } ?: 0
+
+        return WeeklyReport(
+            weekStart = start,
+            weekEnd = end,
+            totalHabits = habits.size,
+            totalPossibleDays = totalPossibleDays,
+            totalDoneDays = totalDoneDays,
+            habitStats = habitStats,
+            averageWaterMl = waterAvg,
+            previousWeekWaterAvg = prevWaterAvg,
+            bestDay = bestDay,
+            worstDay = worstDay,
+            bestStreak = bestStreak,
+            totalWeeklyFocusSeconds = focusSeconds,
+            totalMoneySavedThisWeek = moneySaved
+        )
+    }
+
+    // ============ CHALLENGES ============
+    suspend fun getAllChallenges() = challengeDao.getAllActive()
+
+    suspend fun getChallengeProgress(challengeId: Long) = challengeProgressDao.getProgress(challengeId)
+
+    suspend fun getAllProgress() = challengeProgressDao.getAllProgress()
+
+    suspend fun getActiveProgress() = challengeProgressDao.getActiveProgress()
+
+    suspend fun getCompletedProgress() = challengeProgressDao.getCompletedProgress()
+
+    suspend fun joinChallenge(challengeId: Long) {
+        val existing = challengeProgressDao.getProgress(challengeId)
+        if (existing == null) {
+            challengeProgressDao.insert(ChallengeProgress(
+                challengeId = challengeId,
+                startDate = today(),
+                lastUpdateDate = today()
+            ))
+        }
+    }
+
+    suspend fun updateChallengeProgress(challengeId: Long): Boolean {
+        val progress = challengeProgressDao.getProgress(challengeId) ?: return false
+        val challenge = challengeDao.getById(challengeId) ?: return false
+        val todayStr = today()
+
+        if (progress.lastUpdateDate == todayStr) return true // already updated today
+
+        val updatedDays = progress.currentDays + 1
+        val completed = updatedDays >= challenge.targetDays
+        challengeProgressDao.update(progress.copy(
+            currentDays = updatedDays,
+            lastUpdateDate = todayStr,
+            completed = completed
+        ))
+        return true
+    }
+
+    suspend fun addDefaultChallenges() {
+        val existing = challengeDao.getAll()
+        if (existing.isNotEmpty()) return
+
+        val defaults = listOf(
+            Challenge(name = "Pemula 7 Hari", description = "Catat kebiasaan selama 7 hari berturut-turut", icon = "🌱", targetDays = 7),
+            Challenge(name = "Konsisten 21 Hari", description = "Catat kebiasaan selama 21 hari berturut-turut", icon = "🌿", targetDays = 21),
+            Challenge(name = "Master 30 Hari", description = "Catat kebiasaan selama 30 hari berturut-turut", icon = "🌳", targetDays = 30),
+            Challenge(name = "Rajin Minum 7 Hari", description = "Minum air cukup selama 7 hari", icon = "💧", targetDays = 7, category = "water"),
+            Challenge(name = "Fokus 7 Hari", description = "Selesaikan 1 sesi fokus setiap hari", icon = "🍅", targetDays = 7, category = "focus")
+        )
+        for (c in defaults) challengeDao.insert(c)
+    }
+}
+
+data class HabitStat(
+    val name: String,
+    val doneDays: Int,
+    val totalDays: Int
+)
+
+data class WeeklyReport(
+    val weekStart: String,
+    val weekEnd: String,
+    val totalHabits: Int,
+    val totalPossibleDays: Int,
+    val totalDoneDays: Int,
+    val habitStats: List<HabitStat>,
+    val averageWaterMl: Double,
+    val previousWeekWaterAvg: Double,
+    val bestDay: String,
+    val worstDay: String,
+    val bestStreak: Int,
+    val totalWeeklyFocusSeconds: Int,
+    val totalMoneySavedThisWeek: Int
+) {
+    val consistencyPercent: Int
+        get() = if (totalPossibleDays > 0) (totalDoneDays * 100 / totalPossibleDays) else 0
 }

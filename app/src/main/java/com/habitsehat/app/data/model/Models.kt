@@ -66,9 +66,32 @@ data class BadHabitLog(
 @Entity(tableName = "pomodoro_sessions")
 data class PomodoroSession(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val durationMinutes: Int,          // 25, 50, atau 90
-    val completedSeconds: Int,         // berapa detik benar-benar fokus
-    val habitId: Long? = null,         // habit yang dikerjakan (opsional)
-    val date: String,                  // yyyy-MM-dd
+    val durationMinutes: Int,
+    val completedSeconds: Int,
+    val habitId: Long? = null,
+    val date: String,
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "challenges")
+data class Challenge(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val description: String,
+    val icon: String = "🏆",
+    val targetDays: Int,           // 7, 21, atau 30
+    val category: String = "habit", // "habit", "water", "focus", "bad_habit"
+    val isActive: Boolean = true,
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "challenge_progress")
+data class ChallengeProgress(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val challengeId: Long,
+    val currentDays: Int = 0,
+    val startDate: String,         // yyyy-MM-dd
+    val lastUpdateDate: String,    // yyyy-MM-dd
+    val completed: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )

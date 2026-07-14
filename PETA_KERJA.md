@@ -22,8 +22,8 @@
 | **HabitStop** | ✅ Selesai | Bad habit tracker, money saved, streak |
 | **Widget** | ✅ Selesai | Mini (2×2), Medium (4×2), Large (4×4), WorkManager update, premium gating |
 | **Pomodoro Timer** | ✅ Selesai | Circular countdown, 25/50/90 menit, integrasi habit, premium gating |
-| **Weekly Report** | ❌ Belum | Fase 2 |
-| **Challenges** | ❌ Belum | Fase 2 |
+| **Weekly Report** | ✅ Selesai | Auto-generate dari Room, konsistensi %, habit breakdown, insight |
+| **Challenges** | ✅ Selesai | 7/21/30 hari challenge, progress tracker, badge system, auto-detect |
 | **Release build** | ❌ Belum | Keystore, signing, ProGuard |
 | **Play Store** | ❌ Belum | Listing, assets, screenshots |
 

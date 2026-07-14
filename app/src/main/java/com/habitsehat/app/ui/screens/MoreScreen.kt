@@ -28,16 +28,14 @@ fun MoreScreen(
     onThemeClick: () -> Unit,
     onPremiumClick: () -> Unit,
     onPomodoroClick: () -> Unit = {},
+    onWeeklyReportClick: () -> Unit = {},
+    onChallengesClick: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        TopAppBar(
-            title = { Text("Lainnya", fontWeight = FontWeight.SemiBold) }
-        )
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopAppBar(title = { Text("Lainnya", fontWeight = FontWeight.SemiBold) })
 
         Column(
             modifier = Modifier
@@ -48,14 +46,12 @@ fun MoreScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            // Premium card (if not premium)
+            // Premium card
             if (!isPremium) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                    ),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
                     onClick = onPremiumClick
                 ) {
                     Row(
@@ -66,28 +62,26 @@ fun MoreScreen(
                         Spacer(Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Upgrade ke Premium", fontWeight = FontWeight.SemiBold)
-                            Text("Buka semua fitur eksklusif", fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Buka semua fitur eksklusif", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Icon(Icons.Filled.ChevronRight, contentDescription = null)
                     }
                 }
             }
 
-            // Menu items
+            // Main menu
             Card(shape = RoundedCornerShape(16.dp)) {
                 Column {
-                    MenuItem(Icons.Outlined.Timer, "Fokus (Pomodoro)", "Timer fokus 25/50/90 menit") {
-                        onPomodoroClick()
-                    }
+                    MenuItem(Icons.Outlined.Assessment, "Laporan Mingguan", "Ringkasan progres minggu ini") { onWeeklyReportClick() }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                    MenuItem(Icons.Outlined.Palette, "Studio Tema", "20+ tema premium") {
-                        onThemeClick()
-                    }
+                    MenuItem(Icons.Outlined.EmojiEvents, "Tantangan", "Bangun kebiasaan 7/21/30 hari") { onChallengesClick() }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    MenuItem(Icons.Outlined.Timer, "Fokus (Pomodoro)", "Timer fokus 25/50/90 menit") { onPomodoroClick() }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    MenuItem(Icons.Outlined.Palette, "Studio Tema", "20+ tema premium") { onThemeClick() }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     MenuItem(Icons.Outlined.DarkMode, "Mode Gelap") {
-                        val current = darkModeSetting
-                        val next = when (current) {
+                        val next = when (darkModeSetting) {
                             "system" -> "dark"
                             "dark" -> "light"
                             else -> "system"
@@ -95,32 +89,25 @@ fun MoreScreen(
                         scope.launch { settingsManager.setDarkMode(next) }
                     }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                    MenuItem(Icons.Outlined.WaterDrop, "Target Minum") {
-                        // Todo: quick edit dialog
-                    }
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") {}
                 }
             }
 
+            // Premium status
             if (isPremium) {
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                    )
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("👑", fontSize = 24.sp)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text("Premium Aktif", fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary)
-                            Text("Nikmati semua fitur eksklusif", fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Premium Aktif", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+                            Text("Nikmati semua fitur eksklusif", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -132,8 +119,7 @@ fun MoreScreen(
                     modifier = Modifier.padding(16.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Mode saat ini:", fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Mode saat ini:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         when (darkModeSetting) {
@@ -141,8 +127,7 @@ fun MoreScreen(
                             "light" -> "Terang"
                             else -> "Ikuti sistem"
                         },
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp
+                        fontWeight = FontWeight.Medium, fontSize = 13.sp
                     )
                 }
             }
@@ -153,12 +138,7 @@ fun MoreScreen(
 }
 
 @Composable
-private fun MenuItem(
-    icon: ImageVector,
-    title: String,
-    subtitle: String? = null,
-    onClick: () -> Unit
-) {
+private fun MenuItem(icon: ImageVector, title: String, subtitle: String? = null, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,11 +150,8 @@ private fun MenuItem(
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, fontWeight = FontWeight.Medium, fontSize = 15.sp)
-            if (subtitle != null) {
-                Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            if (subtitle != null) Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(Icons.Filled.ChevronRight, contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
     }
 }

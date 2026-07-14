@@ -45,7 +45,8 @@ class MainActivity : ComponentActivity() {
         val db = AppDatabase.getInstance(applicationContext)
         val repository = HabitRepository(
             db.habitDao(), db.habitLogDao(), db.waterLogDao(),
-            db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao()
+            db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao(),
+            db.challengeDao(), db.challengeProgressDao()
         )
         val settingsManager = SettingsManager(applicationContext)
         val premiumManager = PremiumManager(settingsManager)
@@ -53,6 +54,8 @@ class MainActivity : ComponentActivity() {
         val statsViewModel = StatsViewModel(repository)
         val badHabitViewModel = BadHabitViewModel(repository)
         val pomodoroViewModel = PomodoroViewModel(repository)
+        val weeklyReportViewModel = WeeklyReportViewModel(repository)
+        val challengesViewModel = ChallengesViewModel(repository)
 
         setContent {
             val currentTheme by settingsManager.currentTheme.collectAsState(initial = AppTheme.getThemeById("mint"))
@@ -73,6 +76,8 @@ class MainActivity : ComponentActivity() {
                     statsViewModel = statsViewModel,
                     badHabitViewModel = badHabitViewModel,
                     pomodoroViewModel = pomodoroViewModel,
+                    weeklyReportViewModel = weeklyReportViewModel,
+                    challengesViewModel = challengesViewModel,
                     repository = repository,
                     settingsManager = settingsManager,
                     premiumManager = premiumManager,
@@ -91,6 +96,8 @@ fun MainApp(
     statsViewModel: StatsViewModel,
     badHabitViewModel: BadHabitViewModel,
     pomodoroViewModel: PomodoroViewModel,
+    weeklyReportViewModel: WeeklyReportViewModel,
+    challengesViewModel: ChallengesViewModel,
     repository: HabitRepository,
     settingsManager: SettingsManager,
     premiumManager: PremiumManager,
@@ -174,7 +181,7 @@ fun MainApp(
                     viewModel = badHabitViewModel,
                     isPremium = isPremium,
                     onUpgrade = { navController.navigate(Screen.Premium.route) },
-                    onAddBadHabit = { /* TODO: screen AddBadHabit */ },
+                    onAddBadHabit = { /* TODO */ },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -186,9 +193,7 @@ fun MainApp(
                     onSelectTheme = { theme ->
                         scope.launch { settingsManager.setTheme(theme.id) }
                     },
-                    onUpgrade = {
-                        navController.navigate(Screen.Premium.route)
-                    },
+                    onUpgrade = { navController.navigate(Screen.Premium.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -198,7 +203,7 @@ fun MainApp(
                         scope.launch { premiumManager.unlockPremium() }
                         navController.popBackStack()
                     },
-                    onRestore = { /* TODO: restore */ },
+                    onRestore = { /* TODO */ },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -210,6 +215,8 @@ fun MainApp(
                     onThemeClick = { navController.navigate(Screen.Theme.route) },
                     onPremiumClick = { navController.navigate(Screen.Premium.route) },
                     onPomodoroClick = { navController.navigate(Screen.Pomodoro.route) },
+                    onWeeklyReportClick = { navController.navigate(Screen.WeeklyReport.route) },
+                    onChallengesClick = { navController.navigate(Screen.Challenges.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -224,6 +231,18 @@ fun MainApp(
                     viewModel = pomodoroViewModel,
                     isPremium = isPremium,
                     onUpgrade = { navController.navigate(Screen.Premium.route) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.WeeklyReport.route) {
+                WeeklyReportScreen(
+                    viewModel = weeklyReportViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Challenges.route) {
+                ChallengesScreen(
+                    viewModel = challengesViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
