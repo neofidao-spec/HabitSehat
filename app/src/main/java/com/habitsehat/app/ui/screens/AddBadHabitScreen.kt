@@ -1,5 +1,7 @@
 package com.habitsehat.app.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardOptions
@@ -232,14 +235,14 @@ fun AddBadHabitScreen(
                         .height(300.dp)
                         .padding(16.dp)
                 ) {
-                    items(emojiOptions) { emoji ->
+                    items(emojiOptions) { selectedEmoji ->
                         Text(
-                            text = emoji,
+                            text = selectedEmoji,
                             fontSize = 32.sp,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { emoji = emoji; showEmojiPicker = false }
+                                .clickable { emoji = selectedEmoji; showEmojiPicker = false }
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         )
                     }
@@ -261,22 +264,22 @@ fun AddBadHabitScreen(
                         .height(300.dp)
                         .padding(16.dp)
                 ) {
-                    items(colorOptions) { color ->
+                    items(colorOptions) { selectedColor ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { colorHex = color; showColorPicker = false }
+                                .clickable { colorHex = selectedColor; showColorPicker = false }
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(android.graphics.Color.parseColor(color)))
+                                    .background(Color(android.graphics.Color.parseColor(selectedColor)))
                             )
                             Spacer(Modifier.width(16.dp))
-                            Text(color, fontSize = 16.sp)
+                            Text(selectedColor, fontSize = 16.sp)
                         }
                     }
                 }
