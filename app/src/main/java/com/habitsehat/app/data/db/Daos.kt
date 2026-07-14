@@ -5,6 +5,7 @@ import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
+import com.habitsehat.app.data.model.PomodoroSession
 import com.habitsehat.app.data.model.WaterLog
 
 @Dao
@@ -109,4 +110,22 @@ interface BadHabitLogDao {
 
     @Query("SELECT MAX(date) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND resistedCount > 0")
     suspend fun getLastResistedDate(badHabitId: Long): String?
+}
+
+@Dao
+interface PomodoroDao {
+    @Insert
+    suspend fun insert(session: PomodoroSession): Long
+
+    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date = :date")
+    suspend fun getTotalFocusSeconds(date: String): Int?
+
+    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
+    suspend fun getTotalFocusSecondsSince(since: String): Int?
+
+    @Query("SELECT COUNT(*) FROM pomodoro_sessions WHERE date = :date")
+    suspend fun getSessionCount(date: String): Int
+
+    @Query("SELECT * FROM pomodoro_sessions ORDER BY createdAt DESC LIMIT 50")
+    suspend fun getRecentSessions(): List<PomodoroSession>
 }

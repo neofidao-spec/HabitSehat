@@ -22,7 +22,7 @@ data class Habit(
 data class HabitLog(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val habitId: Long,
-    val date: String, // yyyy-MM-dd
+    val date: String,
     val count: Int = 1,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -30,7 +30,7 @@ data class HabitLog(
 @Entity(tableName = "water_logs")
 data class WaterLog(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val date: String, // yyyy-MM-dd
+    val date: String,
     val amountMl: Int,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -40,14 +40,14 @@ data class BadHabit(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val emoji: String = "🚫",
-    val colorHex: String = "#F44336",       // warna tema kebiasaan
-    val costPerOccurrence: Int = 0,        // biaya per kali (Rupiah)
-    val frequencyPerDay: Int = 1,          // estimasi frekuensi harian
-    val healthImpact: String = "",         // dampak kesehatan
-    val trigger: String = "",              // pemicu
-    val replacementHabit: String = "",     // kebiasaan pengganti
+    val colorHex: String = "#F44336",
+    val costPerOccurrence: Int = 0,
+    val frequencyPerDay: Int = 1,
+    val healthImpact: String = "",
+    val trigger: String = "",
+    val replacementHabit: String = "",
     val isActive: Boolean = true,
-    val startDate: String = "",            // yyyy-MM-dd (tanggal mulai stop)
+    val startDate: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )
 
@@ -55,10 +55,20 @@ data class BadHabit(
 data class BadHabitLog(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val badHabitId: Long,
-    val date: String,                      // yyyy-MM-dd
-    val resistedCount: Int = 0,            // berapa kali berhasil menolak
-    val gaveInCount: Int = 0,              // berapa kali menyerah
-    val mood: Int = 3,                     // 1-5 (skala mood)
+    val date: String,
+    val resistedCount: Int = 0,
+    val gaveInCount: Int = 0,
+    val mood: Int = 3,
     val note: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "pomodoro_sessions")
+data class PomodoroSession(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val durationMinutes: Int,          // 25, 50, atau 90
+    val completedSeconds: Int,         // berapa detik benar-benar fokus
+    val habitId: Long? = null,         // habit yang dikerjakan (opsional)
+    val date: String,                  // yyyy-MM-dd
     val createdAt: Long = System.currentTimeMillis()
 )

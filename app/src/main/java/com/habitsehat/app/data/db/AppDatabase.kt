@@ -8,11 +8,12 @@ import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
+import com.habitsehat.app.data.model.PomodoroSession
 import com.habitsehat.app.data.model.WaterLog
 
 @Database(
-    entities = [Habit::class, HabitLog::class, WaterLog::class, BadHabit::class, BadHabitLog::class],
-    version = 1,
+    entities = [Habit::class, HabitLog::class, WaterLog::class, BadHabit::class, BadHabitLog::class, PomodoroSession::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -21,6 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun waterLogDao(): WaterLogDao
     abstract fun badHabitDao(): BadHabitDao
     abstract fun badHabitLogDao(): BadHabitLogDao
+    abstract fun pomodoroDao(): PomodoroDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -31,7 +33,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "habitsehat.db"
-                ).build().also { INSTANCE = it }
+                )
+                    .fallbackToDestructiveMigration()
+                    .build().also { INSTANCE = it }
             }
         }
     }

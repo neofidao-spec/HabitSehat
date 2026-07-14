@@ -4,11 +4,13 @@ import com.habitsehat.app.data.db.BadHabitDao
 import com.habitsehat.app.data.db.BadHabitLogDao
 import com.habitsehat.app.data.db.HabitDao
 import com.habitsehat.app.data.db.HabitLogDao
+import com.habitsehat.app.data.db.PomodoroDao
 import com.habitsehat.app.data.db.WaterLogDao
 import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
+import com.habitsehat.app.data.model.PomodoroSession
 import com.habitsehat.app.data.model.WaterLog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -20,7 +22,8 @@ class HabitRepository(
     private val habitLogDao: HabitLogDao,
     private val waterLogDao: WaterLogDao,
     private val badHabitDao: BadHabitDao,
-    private val badHabitLogDao: BadHabitLogDao
+    private val badHabitLogDao: BadHabitLogDao,
+    private val pomodoroDao: PomodoroDao
 ) {
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private fun today() = LocalDate.now().format(dateFormat)
@@ -77,16 +80,11 @@ class HabitRepository(
 
     // ============ BAD HABITS (HABITSTOP) ============
     suspend fun getAllBadHabits() = badHabitDao.getAllActive()
-
     suspend fun addBadHabit(badHabit: BadHabit) = badHabitDao.insert(badHabit)
-
     suspend fun updateBadHabit(badHabit: BadHabit) = badHabitDao.update(badHabit)
-
     suspend fun deactivateBadHabit(id: Long) = badHabitDao.deactivate(id)
-
     suspend fun getBadHabitById(id: Long) = badHabitDao.getById(id)
 
-    // Bad Habit Logs - Resist (berhasil menolak)
     suspend fun resistBadHabit(badHabitId: Long, date: String = today()) {
         val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
         if (existingLogs.isNotEmpty()) {
@@ -94,15 +92,12 @@ class HabitRepository(
             badHabitLogDao.update(log)
         } else {
             badHabitLogDao.insert(BadHabitLog(
-                badHabitId = badHabitId,
-                date = date,
-                resistedCount = 1,
-                gaveInCount = 0
+                badHabitId = badHabitId, date = date,
+                resistedCount = 1, gaveInCount = 0
             ))
         }
     }
 
-    // Bad Habit Logs - Give In (serah/mengalah)
     suspend fun giveInBadHabit(badHabitId: Long, date: String = today()) {
         val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
         if (existingLogs.isNotEmpty()) {
@@ -110,16 +105,13 @@ class HabitRepository(
             badHabitLogDao.update(log)
         } else {
             badHabitLogDao.insert(BadHabitLog(
-                badHabitId = badHabitId,
-                date = date,
-                resistedCount = 0,
-                gaveInCount = 1
+                badHabitId = badHabitId, date = date,
+                resistedCount = 0, gaveInCount = 1
             ))
         }
     }
 
-    // Stats
-    suspend fun getBadHabitStats(badHabitId: Long): Pair<Int, Int> { // (totalResisted, totalDaysResisted)
+    suspend fun getBadHabitStats(badHabitId: Long): Pair<Int, Int> {
         val totalDays = badHabitLogDao.getTotalDaysResisted(badHabitId)
         val totalOccurrences = badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0
         return totalOccurrences to totalDays
@@ -152,4 +144,23 @@ class HabitRepository(
         val since = LocalDate.now().minusDays(365).format(dateFormat)
         return getBadHabitResistedStreak(badHabitId, since)
     }
+
+    // ============ POMODORO ============
+    suspend fun savePomodoroSession(session: PomodoroSession) = pomodoroDao.insert(session)
+
+    suspend fun getTotalFocusSeconds(): Int {
+        val todaySec = pomodoroDao.getTotalFocusSeconds(today())
+        return todaySec ?: 0
+    }
+
+    suspend fun getSessionCount(): Int {
+        return pomodoroDao.getSessionCount(today())
+    }
+
+    suspend fun getWeeklyFocusSeconds(): Int {
+        val since = LocalDate.now().minusDays(7).format(dateFormat)
+        return pomodoroDao.getTotalFocusSecondsSince(since) ?: 0
+    }
+
+    suspend fun getRecentSessions() = pomodoroDao.getRecentSessions()
 }

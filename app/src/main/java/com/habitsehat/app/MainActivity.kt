@@ -45,13 +45,14 @@ class MainActivity : ComponentActivity() {
         val db = AppDatabase.getInstance(applicationContext)
         val repository = HabitRepository(
             db.habitDao(), db.habitLogDao(), db.waterLogDao(),
-            db.badHabitDao(), db.badHabitLogDao()
+            db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao()
         )
         val settingsManager = SettingsManager(applicationContext)
         val premiumManager = PremiumManager(settingsManager)
         val homeViewModel = HomeViewModel(repository)
         val statsViewModel = StatsViewModel(repository)
         val badHabitViewModel = BadHabitViewModel(repository)
+        val pomodoroViewModel = PomodoroViewModel(repository)
 
         setContent {
             val currentTheme by settingsManager.currentTheme.collectAsState(initial = AppTheme.getThemeById("mint"))
@@ -71,6 +72,7 @@ class MainActivity : ComponentActivity() {
                     homeViewModel = homeViewModel,
                     statsViewModel = statsViewModel,
                     badHabitViewModel = badHabitViewModel,
+                    pomodoroViewModel = pomodoroViewModel,
                     repository = repository,
                     settingsManager = settingsManager,
                     premiumManager = premiumManager,
@@ -88,6 +90,7 @@ fun MainApp(
     homeViewModel: HomeViewModel,
     statsViewModel: StatsViewModel,
     badHabitViewModel: BadHabitViewModel,
+    pomodoroViewModel: PomodoroViewModel,
     repository: HabitRepository,
     settingsManager: SettingsManager,
     premiumManager: PremiumManager,
@@ -171,7 +174,7 @@ fun MainApp(
                     viewModel = badHabitViewModel,
                     isPremium = isPremium,
                     onUpgrade = { navController.navigate(Screen.Premium.route) },
-                    onAddBadHabit = { /* TODO: buat screen AddBadHabit atau navigate ke AddHabit */ },
+                    onAddBadHabit = { /* TODO: screen AddBadHabit */ },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -195,7 +198,7 @@ fun MainApp(
                         scope.launch { premiumManager.unlockPremium() }
                         navController.popBackStack()
                     },
-                    onRestore = { /* TODO: implement restore */ },
+                    onRestore = { /* TODO: restore */ },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -206,12 +209,21 @@ fun MainApp(
                     darkModeSetting = darkModeSetting,
                     onThemeClick = { navController.navigate(Screen.Theme.route) },
                     onPremiumClick = { navController.navigate(Screen.Premium.route) },
+                    onPomodoroClick = { navController.navigate(Screen.Pomodoro.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     repository = repository,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Pomodoro.route) {
+                PomodoroScreen(
+                    viewModel = pomodoroViewModel,
+                    isPremium = isPremium,
+                    onUpgrade = { navController.navigate(Screen.Premium.route) },
                     onBack = { navController.popBackStack() }
                 )
             }

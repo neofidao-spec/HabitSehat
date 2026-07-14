@@ -27,6 +27,7 @@ fun MoreScreen(
     darkModeSetting: String,
     onThemeClick: () -> Unit,
     onPremiumClick: () -> Unit,
+    onPomodoroClick: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -76,6 +77,10 @@ fun MoreScreen(
             // Menu items
             Card(shape = RoundedCornerShape(16.dp)) {
                 Column {
+                    MenuItem(Icons.Outlined.Timer, "Fokus (Pomodoro)", "Timer fokus 25/50/90 menit") {
+                        onPomodoroClick()
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     MenuItem(Icons.Outlined.Palette, "Studio Tema", "20+ tema premium") {
                         onThemeClick()
                     }

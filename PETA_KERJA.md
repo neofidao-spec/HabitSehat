@@ -21,7 +21,7 @@
 | **Settings screen** | ✅ Selesai | Water goal, about, delete data |
 | **HabitStop** | ✅ Selesai | Bad habit tracker, money saved, streak |
 | **Widget** | ❌ Belum | Fase 1 prioritas |
-| **Pomodoro Timer** | ❌ Belum | Fase 1 prioritas |
+| **Pomodoro Timer** | ✅ Selesai | Circular countdown, 25/50/90 menit, integrasi habit, premium gating |
 | **Weekly Report** | ❌ Belum | Fase 2 |
 | **Challenges** | ❌ Belum | Fase 2 |
 | **Release build** | ❌ Belum | Keystore, signing, ProGuard |
