@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -48,7 +47,7 @@ fun AppNavigation(homeViewModel: HomeViewModel) {
         composable(Screen.AddHabit.route) {
             AddHabitScreen(
                 onSave = { habit ->
-                    // TODO: save via viewModel
+                    homeViewModel.saveHabit(habit)
                     navController.popBackStack()
                 },
                 onBack = { navController.popBackStack() }

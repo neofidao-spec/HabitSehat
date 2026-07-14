@@ -14,16 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.ui.components.HabitItem
 import com.habitsehat.app.ui.components.StreakBar
 import com.habitsehat.app.ui.components.WaterCard
-
-data class HabitWithState(
-    val habit: Habit,
-    val isCheckedToday: Boolean = false,
-    val todayCount: Int = 0
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +25,7 @@ fun HomeScreen(
     onAddHabit: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val checkedStates by viewModel.checkedStates.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -153,9 +147,9 @@ fun HomeScreen(
                 items(state.habits, key = { it.id }) { habit ->
                     HabitItem(
                         habit = habit,
-                        isChecked = false,
+                        isChecked = checkedStates[habit.id] == true,
                         currentCount = 0,
-                        onCheck = { viewModel.checkHabit(habit.id) },
+                        onCheck = { viewModel.toggleHabit(habit.id) },
                         onArchive = { viewModel.archiveHabit(habit.id) }
                     )
                 }

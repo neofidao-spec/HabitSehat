@@ -2,7 +2,6 @@ package com.habitsehat.app.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.habitsehat.app.data.db.AppDatabase
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.flow.*
@@ -19,6 +18,10 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         val isLoading: Boolean = true
     )
 
+    // Track per-habit checked state for today
+    private val _checkedStates = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
+    val checkedStates: StateFlow<Map<Long, Boolean>> = _checkedStates.asStateFlow()
+
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
@@ -34,11 +37,15 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
                 java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
             )
 
+            val checked = mutableMapOf<Long, Boolean>()
             var done = 0
             for (h in habits) {
                 val count = repository.getHabitCount(h.id, todayStr)
-                if (count >= h.targetCount) done++
+                val isDone = count >= h.targetCount
+                checked[h.id] = isDone
+                if (isDone) done++
             }
+            _checkedStates.value = checked
 
             _uiState.update {
                 it.copy(
@@ -52,6 +59,13 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         }
     }
 
+    fun saveHabit(habit: Habit) {
+        viewModelScope.launch {
+            repository.addHabit(habit)
+            refresh()
+        }
+    }
+
     fun checkHabit(habitId: Long) {
         viewModelScope.launch {
             repository.checkHabit(habitId)
@@ -62,6 +76,21 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
     fun uncheckHabit(habitId: Long) {
         viewModelScope.launch {
             repository.uncheckHabit(habitId)
+            refresh()
+        }
+    }
+
+    fun toggleHabit(habitId: Long) {
+        viewModelScope.launch {
+            val todayStr = java.time.LocalDate.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            )
+            val currentlyDone = repository.getHabitCount(habitId, todayStr) > 0
+            if (currentlyDone) {
+                repository.uncheckHabit(habitId)
+            } else {
+                repository.checkHabit(habitId)
+            }
             refresh()
         }
     }
