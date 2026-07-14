@@ -40,6 +40,7 @@ data class BadHabit(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val emoji: String = "🚫",
+    val colorHex: String = "#F44336",       // warna tema kebiasaan
     val costPerOccurrence: Int = 0,        // biaya per kali (Rupiah)
     val frequencyPerDay: Int = 1,          // estimasi frekuensi harian
     val healthImpact: String = "",         // dampak kesehatan
