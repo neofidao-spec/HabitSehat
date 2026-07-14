@@ -19,7 +19,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
 
     fun loadBadHabits() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.value = _uiState.value.copy(isLoading = true)
             val habits = repository.getAllBadHabits()
             val statsList = mutableListOf<BadHabitStat>()
             
@@ -39,7 +39,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
                 ))
             }
             
-            _uiState.update { it.copy(badHabits = statsList, isLoading = false) }
+            _uiState.value = _uiState.value.copy(badHabits = statsList, isLoading = false)
         }
     }
 
