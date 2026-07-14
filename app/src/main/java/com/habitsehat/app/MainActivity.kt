@@ -181,7 +181,7 @@ fun MainApp(
                     viewModel = badHabitViewModel,
                     isPremium = isPremium,
                     onUpgrade = { navController.navigate(Screen.Premium.route) },
-                    onAddBadHabit = { /* TODO */ },
+                    onAddBadHabit = { navController.navigate(Screen.AddBadHabit.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -244,6 +244,12 @@ fun MainApp(
             composable(Screen.Challenges.route) {
                 ChallengesScreen(
                     viewModel = challengesViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.AddBadHabit.route) {
+                AddBadHabitScreen(
+                    repository = repository,
                     onBack = { navController.popBackStack() }
                 )
             }

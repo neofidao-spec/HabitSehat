@@ -13,6 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Habit
+import com.habitsehat.app.data.repository.HabitRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +28,8 @@ fun AddHabitScreen(
     var reminderHour by remember { mutableIntStateOf(8) }
     var reminderMinute by remember { mutableIntStateOf(0) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showTimePicker by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -105,19 +109,15 @@ fun AddHabitScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text("Jam:")
-                    ExposedDropdownMenuBox(
-                        expanded = false,
-                        onExpandedChange = {}
-                    ) {
-                        OutlinedTextField(
-                            value = "%02d:%02d".format(reminderHour, reminderMinute),
-                            onValueChange = {},
-                            readOnly = true,
-                            modifier = Modifier.width(100.dp),
-                            singleLine = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(false) }
-                        )
-                    }
+                    OutlinedTextField(
+                        value = "%02d:%02d".format(reminderHour, reminderMinute),
+                        onValueChange = { showTimePicker = true },
+                        readOnly = true,
+                        modifier = Modifier.width(100.dp),
+                        singleLine = true,
+                        label = { Text("Waktu pengingat") },
+                        trailingIcon = { Icon(Icons.Filled.AccessTime, contentDescription = null) }
+                    )
                 }
             }
 
@@ -149,5 +149,65 @@ fun AddHabitScreen(
                 Text("Simpan Kebiasaan", fontSize = 16.sp)
             }
         }
+    }
+
+    // Time picker dialog
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            title = { Text("Pilih Waktu Pengingat") },
+            text = {
+                Column(
+                    modifier = Modifier.padding(16.dp).height(300.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        // Hour picker
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Jam", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = "%02d".format(reminderHour),
+                                onValueChange = { reminderHour = it.toIntOrNull() ?: reminderHour },
+                                modifier = Modifier.width(80.dp),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                label = { Text("Jam") }
+                            )
+                        }
+                        // Minute picker
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Menit", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = "%02d".format(reminderMinute),
+                                onValueChange = { reminderMinute = it.toIntOrNull() ?: reminderMinute },
+                                modifier = Modifier.width(80.dp),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                label = { Text("Menit") }
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showTimePicker = false }) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 }
