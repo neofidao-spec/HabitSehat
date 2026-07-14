@@ -18,9 +18,12 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         val isLoading: Boolean = true
     )
 
-    // Track per-habit checked state for today
+    // Track per-habit checked state and count for today
     private val _checkedStates = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
     val checkedStates: StateFlow<Map<Long, Boolean>> = _checkedStates.asStateFlow()
+
+    private val _habitCounts = MutableStateFlow<Map<Long, Int>>(emptyMap())
+    val habitCounts: StateFlow<Map<Long, Int>> = _habitCounts.asStateFlow()
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -38,14 +41,17 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
             )
 
             val checked = mutableMapOf<Long, Boolean>()
+            val counts = mutableMapOf<Long, Int>()
             var done = 0
             for (h in habits) {
                 val count = repository.getHabitCount(h.id, todayStr)
+                counts[h.id] = count
                 val isDone = count >= h.targetCount
                 checked[h.id] = isDone
                 if (isDone) done++
             }
             _checkedStates.value = checked
+            _habitCounts.value = counts
 
             _uiState.update {
                 it.copy(
@@ -62,20 +68,6 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
     fun saveHabit(habit: Habit) {
         viewModelScope.launch {
             repository.addHabit(habit)
-            refresh()
-        }
-    }
-
-    fun checkHabit(habitId: Long) {
-        viewModelScope.launch {
-            repository.checkHabit(habitId)
-            refresh()
-        }
-    }
-
-    fun uncheckHabit(habitId: Long) {
-        viewModelScope.launch {
-            repository.uncheckHabit(habitId)
             refresh()
         }
     }

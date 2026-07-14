@@ -26,17 +26,18 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val checkedStates by viewModel.checkedStates.collectAsStateWithLifecycle()
+    val habitCounts by viewModel.habitCounts.collectAsStateWithLifecycle()
+
+    // Refresh when screen becomes visible
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text("HabitSehat", fontWeight = FontWeight.Bold)
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Outlined.Settings, contentDescription = "Settings")
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -148,7 +149,7 @@ fun HomeScreen(
                     HabitItem(
                         habit = habit,
                         isChecked = checkedStates[habit.id] == true,
-                        currentCount = 0,
+                        currentCount = habitCounts[habit.id] ?: 0,
                         onCheck = { viewModel.toggleHabit(habit.id) },
                         onArchive = { viewModel.archiveHabit(habit.id) }
                     )
