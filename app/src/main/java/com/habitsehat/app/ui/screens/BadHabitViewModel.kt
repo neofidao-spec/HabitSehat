@@ -13,6 +13,10 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        loadBadHabits()
+    }
+
     fun loadBadHabits() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -22,7 +26,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
             for (habit in habits) {
                 val (totalResisted, totalDays) = repository.getBadHabitStats(habit.id)
                 val moneySaved = repository.getMoneySaved(habit)
-                val streak = repository.getBadHabitStreak(habit.id)
+                val streak = repository.getBadHabitResistedStreak(habit.id, "")
                 val lastResisted = repository.getLastResistedDate(habit.id)
                 
                 statsList.add(BadHabitStat(

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.BadHabit
-import com.habitsehat.app.data.preferences.PremiumManager
 import com.habitsehat.app.ui.theme.StreakGreen
 import com.habitsehat.app.ui.theme.StreakOrange
 import java.text.NumberFormat
@@ -119,7 +118,7 @@ private fun LockedPremiumView(onUpgrade: () -> Unit, modifier: Modifier = Modifi
             modifier = Modifier.padding(horizontal = 32.dp)
         )
         Spacer(Modifier.height(24.dp))
-        FilledButton(onClick = onUpgrade) {
+        Button(onClick = onUpgrade) {
             Text("Upgrade ke Premium", fontWeight = FontWeight.SemiBold)
         }
     }
@@ -140,7 +139,7 @@ private fun EmptyBadHabitView(onAdd: () -> Unit, modifier: Modifier = Modifier) 
             fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 32.dp))
         Spacer(Modifier.height(24.dp))
-        FilledButton(onClick = onAdd) {
+        Button(onClick = onAdd) {
             Text("Tambah Kebiasaan Buruk", fontWeight = FontWeight.SemiBold)
         }
     }
@@ -246,7 +245,7 @@ private fun BadHabitCard(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
-                        outlinedBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                        outlinedBorder = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f))
                     )
                 ) {
                     Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -254,11 +253,11 @@ private fun BadHabitCard(
                     Text("Serah", fontWeight = FontWeight.Medium)
                 }
 
-                FilledButton(
+                Button(
                     onClick = onResist,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.filledButtonColors(
+                    colors = ButtonDefaults.buttonColors(
                         containerColor = primaryColor,
                         contentColor = Color.White
                     )
