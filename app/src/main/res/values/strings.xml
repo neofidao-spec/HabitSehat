@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HabitSehat</string>
+    <string name="habit_tracker">Kebiasaan Sehat</string>
+    <string name="water_tracker">Minum Air</string>
+    <string name="add_habit">Tambah Kebiasaan</string>
+    <string name="save">Simpan</string>
+    <string name="cancel">Batal</string>
+    <string name="delete">Hapus</string>
+    <string name="settings">Pengaturan</string>
+    <string name="empty_habits">Belum ada kebiasaan. Tambahkan sekarang!</string>
+    <string name="done">Selesai</string>
+    <string name="streak">Konsisten</string>
+    <string name="premium">Premium</string>
+</resources>
