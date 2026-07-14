@@ -5,16 +5,13 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
-class DateConverters {
-    companion object {
-        @TypeConverter
-        fun fromDate(date: LocalDate?): String? = date?.toString()
+object DateConverters {
+    @TypeConverter
+    fun fromDate(date: LocalDate?): String? = date?.toString()
 
-        @TypeConverter
-        fun toDate(dateString: String?): LocalDate? = dateString?.let { LocalDate.parse(it) }
-    }
+    @TypeConverter
+    fun toDate(dateString: String?): LocalDate? = dateString?.let { LocalDate.parse(it) }
 }
 
 @TypeConverters(DateConverters::class)
