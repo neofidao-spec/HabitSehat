@@ -76,7 +76,8 @@ fun HabitStopScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp, bottom = 100.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 100.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
@@ -182,7 +183,7 @@ private fun BadHabitCard(
     currencyFormat: java.text.NumberFormat
 ) {
     val habit = habitStat.badHabit
-    val primaryColor = Color(habit.colorHex)
+    val primaryColor = Color(android.graphics.Color.parseColor(habit.colorHex))
 
     Card(
         modifier = Modifier.fillMaxWidth(),
