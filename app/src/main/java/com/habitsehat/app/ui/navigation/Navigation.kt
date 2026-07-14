@@ -9,5 +9,4 @@ sealed class Screen(val route: String) {
     data object More : Screen("more")
     data object Settings : Screen("settings")
     data object HabitStop : Screen("habit_stop")
-    data object AddBadHabit : Screen("add_bad_habit")
 }

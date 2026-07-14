@@ -171,7 +171,7 @@ fun MainApp(
                     viewModel = badHabitViewModel,
                     isPremium = isPremium,
                     onUpgrade = { navController.navigate(Screen.Premium.route) },
-                    onAddBadHabit = { navController.navigate(Screen.AddBadHabit.route) },
+                    onAddBadHabit = { /* TODO: buat screen AddBadHabit atau navigate ke AddHabit */ },
                     onBack = { navController.popBackStack() }
                 )
             }
