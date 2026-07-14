@@ -51,6 +51,10 @@ class HabitRepository(
         return habitLogDao.getTotalCount(habitId, date) ?: 0
     }
 
+    suspend fun getStreak(habitId: Long, since: String): Int {
+        return habitLogDao.getStreakCount(habitId, since)
+    }
+
     fun getTodayProgress(): Flow<Pair<Int, Int>> = flow {
         val habits = habitDao.getAllActive()
         var done = 0

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/widget_bg">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="HabitSehat"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_streak_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔥 5"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Today progress bar area -->
+    <TextView
+        android:id="@+id/widget_today_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="✅ 3/5 selesai"
+        android:textSize="13sp"
+        android:textColor="#B0BEC5" />
+
+    <!-- Progress bar -->
+    <ProgressBar
+        android:id="@+id/widget_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginTop="4dp"
+        android:max="100"
+        android:progress="60"
+        android:progressDrawable="@drawable/widget_progress" />
+
+    <!-- Habits list (max 5 items) -->
+    <TextView
+        android:id="@+id/widget_habit_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="• Olahraga 30 menit"
+        android:textSize="12sp"
+        android:textColor="#CFD8DC" />
+    <TextView
+        android:id="@+id/widget_habit_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Baca buku"
+        android:textSize="12sp"
+        android:textColor="#CFD8DC" />
+    <TextView
+        android:id="@+id/widget_habit_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Minum air 2L"
+        android:textSize="12sp"
+        android:textColor="#CFD8DC" />
+    <TextView
+        android:id="@+id/widget_habit_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Meditasi 10 menit"
+        android:textSize="12sp"
+        android:textColor="#607D8B" />
+    <TextView
+        android:id="@+id/widget_habit_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="• Journaling"
+        android:textSize="12sp"
+        android:textColor="#607D8B" />
+
+    <!-- Water -->
+    <TextView
+        android:id="@+id/widget_water_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="💧 1.200 / 2.500 ml"
+        android:textSize="11sp"
+        android:textColor="#81D4FA" />
+
+    <TextView
+        android:id="@+id/widget_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="14 Juli 2026"
+        android:textSize="9sp"
+        android:textColor="#546E7A" />
+
+</LinearLayout>

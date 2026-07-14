@@ -12,4 +12,8 @@
     <string name="done">Selesai</string>
     <string name="streak">Konsisten</string>
     <string name="premium">Premium</string>
+    <string name="widget_mini_desc">Mini widget — streak & progress</string>
+    <string name="widget_medium_desc">Medium widget — habit list</string>
+    <string name="widget_large_desc">Large widget — full habit list & water</string>
+    <string name="widget_update">Update widget</string>
 </resources>

@@ -20,7 +20,7 @@
 | **More screen** | ✅ Selesai | Settings menu |
 | **Settings screen** | ✅ Selesai | Water goal, about, delete data |
 | **HabitStop** | ✅ Selesai | Bad habit tracker, money saved, streak |
-| **Widget** | ❌ Belum | Fase 1 prioritas |
+| **Widget** | ✅ Selesai | Mini (2×2), Medium (4×2), Large (4×4), WorkManager update, premium gating |
 | **Pomodoro Timer** | ✅ Selesai | Circular countdown, 25/50/90 menit, integrasi habit, premium gating |
 | **Weekly Report** | ❌ Belum | Fase 2 |
 | **Challenges** | ❌ Belum | Fase 2 |
