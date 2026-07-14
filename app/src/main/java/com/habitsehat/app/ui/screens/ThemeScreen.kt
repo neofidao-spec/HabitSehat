@@ -5,8 +5,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.AppTheme
 import com.habitsehat.app.data.preferences.SettingsManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,143 +40,109 @@ fun ThemeScreen(
     onUpgrade: () -> Unit,
     onBack: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Custom top bar
-        TopAppBar(
-            title = { Text("Studio Tema", fontWeight = FontWeight.SemiBold) },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Studio Tema", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            // Current theme preview
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(currentTheme.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Spacer(Modifier.height(4.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            ColorDot(currentTheme.lightPrimary)
+                            ColorDot(currentTheme.lightSecondary)
+                            ColorDot(currentTheme.lightTertiary)
+                            if (isSystemInDarkTheme()) {
+                                ColorDot(currentTheme.darkPrimary)
+                                ColorDot(currentTheme.darkSecondary)
+                                ColorDot(currentTheme.darkTertiary)
+                            }
+                        }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    Text(currentTheme.emoji, fontSize = 28.sp)
                 }
             }
-        )
-
+        }
+    ) { padding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 32.dp)
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // FREE themes section header
             item(span = { GridItemSpan(2) }) {
-                Text(
-                    "Tema Gratis",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
+                Text("Tema Gratis", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+                    modifier = Modifier.padding(top = 8.dp))
             }
 
             items(AppTheme.FREE_THEMES) { theme ->
-                ThemeCard(
-                    theme = theme,
-                    isSelected = theme.id == currentTheme.id,
-                    isLocked = false,
-                    onSelect = { onSelectTheme(theme) }
-                )
+                ThemeGridCard(theme, theme.id == currentTheme.id, false) {
+                    onSelectTheme(theme)
+                }
             }
 
-            // PREMIUM themes section header
             item(span = { GridItemSpan(2) }) {
-                Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "Tema Premium",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        Icons.Filled.Lock,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = Color(0xFFFFD700)
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 8.dp)) {
+                    Text("Tema Premium", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(4.dp))
+                    Icon(Icons.Filled.Lock, contentDescription = null,
+                        modifier = Modifier.size(14.dp), tint = Color(0xFFFFD700))
                 }
             }
 
             items(AppTheme.PREMIUM_THEMES) { theme ->
-                ThemeCard(
-                    theme = theme,
-                    isSelected = theme.id == currentTheme.id && isPremium,
-                    isLocked = !isPremium,
-                    onSelect = {
-                        if (isPremium) {
-                            onSelectTheme(theme)
-                        } else {
-                            onUpgrade()
-                        }
-                    }
-                )
-            }
-        }
-    }
-
-    // Mini preview at bottom when a theme is selected
-    if (isPremium || AppTheme.FREE_THEMES.any { it.id == currentTheme.id }) {
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = currentTheme.lightPrimary.copy(alpha = 0.1f)
-            )
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Color dots
-                Column {
-                    Text(currentTheme.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Spacer(Modifier.height(4.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Dot(currentTheme.lightPrimary)
-                        Dot(currentTheme.lightSecondary)
-                        Dot(currentTheme.lightTertiary)
-                        if (isSystemInDarkTheme()) {
-                            Dot(currentTheme.darkPrimary)
-                            Dot(currentTheme.darkSecondary)
-                            Dot(currentTheme.darkTertiary)
-                        }
-                    }
+                ThemeGridCard(theme, theme.id == currentTheme.id && isPremium, !isPremium) {
+                    if (isPremium) onSelectTheme(theme) else onUpgrade()
                 }
-                Spacer(Modifier.weight(1f))
-                Text(currentTheme.emoji, fontSize = 32.sp)
             }
         }
     }
 }
 
 @Composable
-private fun Dot(color: Color) {
-    Box(
-        modifier = Modifier
-            .size(20.dp)
-            .clip(CircleShape)
-            .background(color)
-    )
+private fun ColorDot(color: Color) {
+    Box(modifier = Modifier.size(20.dp).clip(CircleShape).background(color))
 }
 
 @Composable
-private fun ThemeCard(
+private fun ThemeGridCard(
     theme: AppTheme,
     isSelected: Boolean,
     isLocked: Boolean,
-    onSelect: () -> Unit
+    onClick: () -> Unit
 ) {
     val borderColor by animateColorAsState(
         targetValue = if (isSelected) theme.lightPrimary else Color.Transparent,
-        animationSpec = tween(200),
-        label = "border"
+        animationSpec = tween(200), label = "border"
     )
 
     Card(
@@ -183,7 +152,7 @@ private fun ThemeCard(
                 if (isSelected) Modifier.border(2.dp, borderColor, RoundedCornerShape(16.dp))
                 else Modifier
             )
-            .clickable { onSelect() },
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isLocked) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -194,43 +163,25 @@ private fun ThemeCard(
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Preview row: 3 color dots
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Dot(theme.lightPrimary)
-                Dot(theme.lightSecondary)
-                Dot(theme.lightTertiary)
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                ColorDot(theme.lightPrimary)
+                ColorDot(theme.lightSecondary)
+                ColorDot(theme.lightTertiary)
             }
-
             Spacer(Modifier.height(8.dp))
-
             Text(theme.emoji, fontSize = 24.sp)
-
             Spacer(Modifier.height(4.dp))
-
-            Text(
-                theme.name,
-                fontSize = 12.sp,
+            Text(theme.name, fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                textAlign = TextAlign.Center,
-                maxLines = 1
-            )
+                textAlign = TextAlign.Center, maxLines = 1)
 
             if (isLocked) {
-                Spacer(Modifier.height(2.dp))
-                Icon(
-                    Icons.Filled.Lock,
-                    contentDescription = "Premium",
-                    modifier = Modifier.size(12.dp),
-                    tint = Color(0xFFFFD700)
-                )
+                Icon(Icons.Filled.Lock, contentDescription = "Premium",
+                    modifier = Modifier.size(12.dp), tint = Color(0xFFFFD700))
             }
-
             if (isSelected && !isLocked) {
-                Spacer(Modifier.height(2.dp))
-                Text("Aktif", fontSize = 10.sp, color = theme.lightPrimary, fontWeight = FontWeight.Medium)
+                Text("Aktif", fontSize = 10.sp, color = theme.lightPrimary,
+                    fontWeight = FontWeight.Medium)
             }
         }
     }
