@@ -5,11 +5,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Habit
@@ -116,7 +119,7 @@ fun AddHabitScreen(
                         modifier = Modifier.width(100.dp),
                         singleLine = true,
                         label = { Text("Waktu pengingat") },
-                        trailingIcon = { Icon(Icons.Filled.AccessTime, contentDescription = null) }
+                        trailingIcon = { Icon(AccessTime, contentDescription = null) }
                     )
                 }
             }

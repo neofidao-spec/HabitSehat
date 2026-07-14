@@ -206,7 +206,7 @@ fun AddBadHabitScreen(
                         if (isEditing) {
                             repository.updateBadHabit(habit)
                         } else {
-                            repository.insertBadHabit(habit)
+                            repository.addBadHabit(habit)
                         }
                     }
                     onBack()
