@@ -250,7 +250,14 @@ fun AddBadHabitScreen(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showEmojiPicker = false }) { Text("Batal") } }
+            confirmButton = {
+                Button(onClick = { showEmojiPicker = false }) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEmojiPicker = false }) { Text("Batal") }
+            }
         )
     }
 
@@ -286,7 +293,14 @@ fun AddBadHabitScreen(
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showColorPicker = false }) { Text("Batal") } }
+            confirmButton = {
+                Button(onClick = { showColorPicker = false }) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showColorPicker = false }) { Text("Batal") }
+            }
         )
     }
 }

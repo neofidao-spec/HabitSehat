@@ -111,19 +111,25 @@ fun AddHabitScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text("Jam:")
-                    OutlinedTextField(
-                        value = "%02d:%02d".format(reminderHour, reminderMinute),
-                        onValueChange = {
-                            showTimePicker = true
-                            editHour = reminderHour
-                            editMinute = reminderMinute
-                        },
-                        readOnly = true,
-                        modifier = Modifier.width(100.dp),
-                        singleLine = true,
-                        label = { Text("Waktu pengingat") },
-                        trailingIcon = { Icon(Icons.Filled.Schedule, contentDescription = null) }
+                    Text(
+                        text = "%02d:%02d".format(reminderHour, reminderMinute),
+                        fontSize = 16.sp,
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(48.dp)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clip(RoundedCornerShape(12.dp))
+                            .padding(horizontal = 16.dp)
+                            .clickable { 
+                                showTimePicker = true
+                                editHour = reminderHour
+                                editMinute = reminderMinute
+                            }
+                            .wrapContentSize(Alignment.Center),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
+                    Icon(Icons.Filled.Schedule, contentDescription = "Waktu pengingat", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp))
                 }
             }
 
