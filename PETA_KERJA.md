@@ -24,7 +24,7 @@
 | **Pomodoro Timer** | ✅ Selesai | Circular countdown, 25/50/90 menit, integrasi habit, premium gating |
 | **Weekly Report** | ✅ Selesai | Auto-generate dari Room, konsistensi %, habit breakdown, insight |
 | **Challenges** | ✅ Selesai | 7/21/30 hari challenge, progress tracker, badge system, auto-detect |
-| **Release build** | ❌ Belum | Keystore, signing, ProGuard |
+| **Release build** | 🔄 In Progress | Signing config done, keystore in GH Secrets, CI/CD siap |
 | **Play Store** | ❌ Belum | Listing, assets, screenshots |
 
 ---
