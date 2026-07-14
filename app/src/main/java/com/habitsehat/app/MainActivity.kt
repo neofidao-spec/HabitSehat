@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -95,7 +96,7 @@ fun MainApp(
                                     contentDescription = item.label
                                 )
                             },
-                            label = { Text(item.label, fontSize = androidx.compose.ui.unit.sp(11)) }
+                            label = { Text(item.label, fontSize = 11.sp) }
                         )
                     }
                 }
