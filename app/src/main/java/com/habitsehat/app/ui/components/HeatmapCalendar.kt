@@ -1,7 +1,6 @@
 package com.habitsehat.app.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,21 +10,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.ui.theme.StreakGreen
 import com.habitsehat.app.ui.theme.StreakOrange
-import com.habitsehat.app.ui.theme.StreakRed
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 val dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
 @Composable
 fun HeatmapCalendar(
-    dateToLevel: Map<String, Int>, // "2026-07-14" -> 0..4
+    dateToLevel: Map<String, Int>,
     streakCount: Int,
     monthsToShow: Int = 3
 ) {
@@ -34,7 +30,7 @@ fun HeatmapCalendar(
 
     val weeks = mutableListOf<List<LocalDate?>>()
     var cursor = startDate
-    val dayOfWeek = cursor.dayOfWeek.value // 1=Mon
+    val dayOfWeek = cursor.dayOfWeek.value
     cursor = cursor.minusDays((dayOfWeek - 1).toLong())
 
     while (cursor <= today) {
@@ -51,17 +47,14 @@ fun HeatmapCalendar(
     }
 
     Column {
-        // Month labels
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 28.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 28.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            val months = weeks.flatten().filterNotNull().map { it.month.take(3).toString() }.distinct().take(6)
+            val months = weeks.flatten().filterNotNull().map { it.month.name.take(3) }.distinct().take(6)
             months.forEach { label ->
                 Text(label, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.width(28.dp), textAlign = TextAlign.Center)
+                    modifier = Modifier.width(28.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         }
 
@@ -73,25 +66,24 @@ fun HeatmapCalendar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 val firstNonNull = week.firstOrNull { it != null }
-                Text(
-                    if (firstNonNull != null && firstNonNull.dayOfWeek.value == 1) ""
-                    else firstNonNull?.let { dayNames[it.dayOfWeek.value] } ?: "",
-                    fontSize = 8.sp,
+                val dayLabel = if (firstNonNull != null && firstNonNull.dayOfWeek.value == 1) ""
+                else firstNonNull?.let { dayNames[it.dayOfWeek.value] } ?: ""
+
+                Text(dayLabel, fontSize = 8.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.width(24.dp)
-                )
+                    modifier = Modifier.width(24.dp))
 
                 for (d in week) {
+                    val boxColor = if (d == null) Color.Transparent
+                    else if (d == today) StreakGreen
+                    else dateLevelColor(dateToLevel[d.format(dateFmt)] ?: 0)
+
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
                             .size(14.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(
-                                if (d == null) Color.Transparent
-                                else if (d == today) StreakGreen.copy(alpha = 0.8f)
-                                else levelToColor(dateToLevel[d.format(dateFmt)] ?: 0)
-                            )
+                            .background(boxColor)
                     )
                 }
             }
@@ -114,7 +106,7 @@ fun HeatmapCalendar(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(levelToColor(level))
+                            .background(dateLevelColor(level))
                     )
                 }
                 Text("Baik", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -136,7 +128,7 @@ private val dayNames = mapOf(
     1 to "S", 2 to "S", 3 to "R", 4 to "K", 5 to "J", 6 to "S", 7 to "M"
 )
 
-private fun levelToColor(level: Int): Color = when (level) {
+private fun dateLevelColor(level: Int): Color = when (level) {
     0 -> Color(0xFFEBEDF0)
     1 -> Color(0xFF9BE9A8)
     2 -> Color(0xFF40C463)

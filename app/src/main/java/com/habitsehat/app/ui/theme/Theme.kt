@@ -1,7 +1,6 @@
 package com.habitsehat.app.ui.theme
 
 import android.app.Activity
-import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
@@ -15,13 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.habitsehat.app.data.model.AppTheme
-
-// Default fallback colors — also used by other components directly
-val StreakGreen = Color(0xFF4CAF50)
-val StreakOrange = Color(0xFFFF9800)
-val StreakRed = Color(0xFFF44336)
-val WaterBlue = Color(0xFF2196F3)
-val ProgressBg = Color(0xFFE0E0E0)
 
 @Composable
 fun HabitSehatTheme(
