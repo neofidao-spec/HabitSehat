@@ -5,7 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -122,7 +122,7 @@ fun AddHabitScreen(
                         modifier = Modifier.width(100.dp),
                         singleLine = true,
                         label = { Text("Waktu pengingat") },
-                        trailingIcon = { Icon(AccessTime, contentDescription = null) }
+                        trailingIcon = { Icon(Icons.Filled.Schedule, contentDescription = null) }
                     )
                 }
             }
