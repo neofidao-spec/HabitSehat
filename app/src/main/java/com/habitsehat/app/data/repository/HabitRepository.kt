@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 
 class HabitRepository(
@@ -19,8 +18,7 @@ class HabitRepository(
     private val challengeDao: ChallengeDao,
     private val challengeProgressDao: ChallengeProgressDao
 ) {
-    private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    private fun today() = LocalDate.now().format(dateFormat)
+    private fun today() = LocalDate.now()
 
     // ============ HABITS ============
     suspend fun getAllHabits() = habitDao.getAllActive()
@@ -28,23 +26,23 @@ class HabitRepository(
     suspend fun updateHabit(habit: Habit) = habitDao.update(habit)
     suspend fun archiveHabit(id: Long) = habitDao.archive(id)
 
-    suspend fun checkHabit(habitId: Long, date: String = today()) {
+    suspend fun checkHabit(habitId: Long, date: LocalDate = today()) {
         habitLogDao.insert(HabitLog(habitId = habitId, date = date))
     }
 
-    suspend fun uncheckHabit(habitId: Long, date: String = today()) {
+    suspend fun uncheckHabit(habitId: Long, date: LocalDate = today()) {
         habitLogDao.undoLast(habitId, date)
     }
 
-    suspend fun isHabitChecked(habitId: Long, date: String = today()): Boolean {
+    suspend fun isHabitChecked(habitId: Long, date: LocalDate = today()): Boolean {
         return (habitLogDao.getTotalCount(habitId, date) ?: 0) > 0
     }
 
-    suspend fun getHabitCount(habitId: Long, date: String = today()): Int {
+    suspend fun getHabitCount(habitId: Long, date: LocalDate = today()): Int {
         return habitLogDao.getTotalCount(habitId, date) ?: 0
     }
 
-    suspend fun getStreak(habitId: Long, since: String): Int {
+    suspend fun getStreak(habitId: Long, since: LocalDate): Int {
         return habitLogDao.getStreakCount(habitId, since)
     }
 
@@ -59,19 +57,19 @@ class HabitRepository(
     }
 
     // ============ WATER ============
-    suspend fun addWater(amountMl: Int, date: String = today()) {
+    suspend fun addWater(amountMl: Int, date: LocalDate = today()) {
         waterLogDao.insert(WaterLog(date = date, amountMl = amountMl))
     }
 
-    suspend fun undoWater(date: String = today()) {
+    suspend fun undoWater(date: LocalDate = today()) {
         waterLogDao.undoLast(date)
     }
 
-    suspend fun getWaterTotal(date: String = today()): Int {
+    suspend fun getWaterTotal(date: LocalDate = today()): Int {
         return waterLogDao.getTotal(date) ?: 0
     }
 
-    fun getWaterLogs(date: String = today()): Flow<List<WaterLog>> = flow {
+    fun getWaterLogs(date: LocalDate = today()): Flow<List<WaterLog>> = flow {
         emit(waterLogDao.getLogs(date))
     }
 
@@ -82,7 +80,7 @@ class HabitRepository(
     suspend fun deactivateBadHabit(id: Long) = badHabitDao.deactivate(id)
     suspend fun getBadHabitById(id: Long) = badHabitDao.getById(id)
 
-    suspend fun resistBadHabit(badHabitId: Long, date: String = today()) {
+    suspend fun resistBadHabit(badHabitId: Long, date: LocalDate = today()) {
         val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
         if (existingLogs.isNotEmpty()) {
             val log = existingLogs[0].copy(resistedCount = existingLogs[0].resistedCount + 1)
@@ -95,7 +93,7 @@ class HabitRepository(
         }
     }
 
-    suspend fun giveInBadHabit(badHabitId: Long, date: String = today()) {
+    suspend fun giveInBadHabit(badHabitId: Long, date: LocalDate = today()) {
         val existingLogs = badHabitLogDao.getLogs(badHabitId, date)
         if (existingLogs.isNotEmpty()) {
             val log = existingLogs[0].copy(gaveInCount = existingLogs[0].gaveInCount + 1)
@@ -124,11 +122,11 @@ class HabitRepository(
         return totalSaved
     }
 
-    suspend fun getBadHabitResistedStreak(badHabitId: Long, since: String): Int {
+    suspend fun getBadHabitResistedStreak(badHabitId: Long, since: LocalDate): Int {
         return badHabitLogDao.getResistedStreak(badHabitId, since)
     }
 
-    suspend fun getLastResistedDate(badHabitId: Long): String? {
+    suspend fun getLastResistedDate(badHabitId: Long): LocalDate? {
         return badHabitLogDao.getLastResistedDate(badHabitId)
     }
 
@@ -138,7 +136,7 @@ class HabitRepository(
     }
 
     suspend fun getBadHabitStreak(badHabitId: Long): Int {
-        val since = LocalDate.now().minusDays(365).format(dateFormat)
+        val since = LocalDate.now().minusDays(365)
         return getBadHabitResistedStreak(badHabitId, since)
     }
 
@@ -147,8 +145,8 @@ class HabitRepository(
     suspend fun getTotalFocusSeconds(): Int = pomodoroDao.getTotalFocusSeconds(today()) ?: 0
     suspend fun getSessionCount(): Int = pomodoroDao.getSessionCount(today())
     suspend fun getWeeklyFocusSeconds(): Int {
-        val since = LocalDate.now().minusDays(7).format(dateFormat)
-        return pomodoroDao.getTotalFocusSecondsSince(since) ?: 0
+        val since = LocalDate.now().minusDays(7)
+        return pomodoroDao.getWeeklyFocusSeconds(since) ?: 0
     }
     suspend fun getRecentSessions() = pomodoroDao.getRecentSessions()
 
@@ -157,6 +155,8 @@ class HabitRepository(
         val now = LocalDate.now()
         val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val sunday = monday.plusDays(6)
+
+        val dateFormat = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
         val start = monday.format(dateFormat)
         val end = sunday.format(dateFormat)
         val previousWeekStart = monday.minusDays(7).format(dateFormat)
@@ -217,7 +217,7 @@ class HabitRepository(
 
         // Streak
         val bestStreak = habits.maxOfOrNull {
-            habitLogDao.getStreakCount(it.id, LocalDate.now().minusDays(365).format(dateFormat))
+            habitLogDao.getStreakCount(it.id, LocalDate.now().minusDays(365))
         } ?: 0
 
         return WeeklyReport(
@@ -262,7 +262,7 @@ class HabitRepository(
     suspend fun updateChallengeProgress(challengeId: Long): Boolean {
         val progress = challengeProgressDao.getProgress(challengeId) ?: return false
         val challenge = challengeDao.getById(challengeId) ?: return false
-        val todayStr = today()
+        val todayStr = today().toString()
 
         if (progress.lastUpdateDate == todayStr) return true // already updated today
 

@@ -3,6 +3,7 @@ package com.habitsehat.app.data.preferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * Manages feature gating for premium vs free.
@@ -13,11 +14,25 @@ class PremiumManager(
 ) {
     val isPremium: Flow<Boolean> = settingsManager.isPremium
 
-    // Feature availability checks
+    // Feature availability checks with real-time premium status
     fun canUseTheme(themeId: String): Boolean {
         val theme = com.habitsehat.app.data.model.AppTheme.getThemeById(themeId)
         return !theme.isPremium // free themes always available
-        // For premium themes, checked at runtime via isPremium
+        // For premium themes, checked at runtime via isPremium flow
+    }
+
+    suspend fun canUseTheme(themeId: String, isPremiumNow: Boolean): Boolean {
+        val theme = com.habitsehat.app.data.model.AppTheme.getThemeById(themeId)
+        return !theme.isPremium || isPremiumNow
+    }
+
+    fun canUseThemeFlow(themeId: String): Flow<Boolean> {
+        val theme = com.habitsehat.app.data.model.AppTheme.getThemeById(themeId)
+        return if (theme.isPremium) {
+            isPremium
+        } else {
+            flowOf(true)
+        }
     }
 
     suspend fun unlockPremium() {

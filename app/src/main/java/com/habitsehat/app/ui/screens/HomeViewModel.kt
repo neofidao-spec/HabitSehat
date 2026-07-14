@@ -6,6 +6,7 @@ import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
 
@@ -15,7 +16,8 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         val habitsTotal: Int = 0,
         val waterTotal: Int = 0,
         val waterGoal: Int = 2500,
-        val isLoading: Boolean = true
+        val isLoading: Boolean = true,
+        val error: String? = null
     )
 
     // Track per-habit checked state and count for today
@@ -34,77 +36,117 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
 
     fun refresh() {
         viewModelScope.launch {
-            val habits = repository.getAllHabits()
-            val water = repository.getWaterTotal()
-            val todayStr = java.time.LocalDate.now().format(
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            )
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            try {
+                val habits = repository.getAllHabits()
+                val water = repository.getWaterTotal()
+                val today = LocalDate.now()
 
-            val checked = mutableMapOf<Long, Boolean>()
-            val counts = mutableMapOf<Long, Int>()
-            var done = 0
-            for (h in habits) {
-                val count = repository.getHabitCount(h.id, todayStr)
-                counts[h.id] = count
-                val isDone = count >= h.targetCount
-                checked[h.id] = isDone
-                if (isDone) done++
-            }
-            _checkedStates.value = checked
-            _habitCounts.value = counts
+                val checked = mutableMapOf<Long, Boolean>()
+                val counts = mutableMapOf<Long, Int>()
+                var done = 0
+                for (h in habits) {
+                    val count = repository.getHabitCount(h.id, today)
+                    counts[h.id] = count
+                    val isDone = count >= h.targetCount
+                    checked[h.id] = isDone
+                    if (isDone) done++
+                }
+                _checkedStates.value = checked
+                _habitCounts.value = counts
 
-            _uiState.update {
-                it.copy(
-                    habits = habits,
-                    habitsDone = done,
-                    habitsTotal = habits.size,
-                    waterTotal = water,
-                    isLoading = false
-                )
+                _uiState.update {
+                    it.copy(
+                        habits = habits,
+                        habitsDone = done,
+                        habitsTotal = habits.size,
+                        waterTotal = water,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        error = e.message ?: "Failed to load data",
+                        isLoading = false
+                    )
+                }
             }
         }
     }
 
     fun saveHabit(habit: Habit) {
         viewModelScope.launch {
-            repository.addHabit(habit)
-            refresh()
+            try {
+                repository.addHabit(habit)
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to save habit: ${e.message}")
+                }
+            }
         }
     }
 
     fun toggleHabit(habitId: Long) {
         viewModelScope.launch {
-            val todayStr = java.time.LocalDate.now().format(
-                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            )
-            val currentlyDone = repository.getHabitCount(habitId, todayStr) > 0
-            if (currentlyDone) {
-                repository.uncheckHabit(habitId)
-            } else {
-                repository.checkHabit(habitId)
+            try {
+                val today = LocalDate.now()
+                val currentlyDone = repository.getHabitCount(habitId, today) > 0
+                if (currentlyDone) {
+                    repository.uncheckHabit(habitId, today)
+                } else {
+                    repository.checkHabit(habitId, today)
+                }
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to toggle habit: ${e.message}")
+                }
             }
-            refresh()
         }
     }
 
     fun addWater(amountMl: Int = 200) {
         viewModelScope.launch {
-            repository.addWater(amountMl)
-            refresh()
+            try {
+                repository.addWater(amountMl)
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to add water: ${e.message}")
+                }
+            }
         }
     }
 
     fun undoWater() {
         viewModelScope.launch {
-            repository.undoWater()
-            refresh()
+            try {
+                repository.undoWater()
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to undo water: ${e.message}")
+                }
+            }
         }
     }
 
     fun archiveHabit(habitId: Long) {
         viewModelScope.launch {
-            repository.archiveHabit(habitId)
-            refresh()
+            try {
+                repository.archiveHabit(habitId)
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Failed to archive habit: ${e.message}")
+                }
+            }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(error = null) }
     }
 }
