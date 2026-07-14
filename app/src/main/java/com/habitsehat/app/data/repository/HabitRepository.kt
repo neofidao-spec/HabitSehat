@@ -289,6 +289,24 @@ class HabitRepository(
         )
         for (c in defaults) challengeDao.insert(c)
     }
+
+    // ============ CLEAR ALL ============
+    suspend fun clearAllData() {
+        val habits = habitDao.getAll()
+        for (h in habits) {
+            habitLogDao.deleteByHabitId(h.id)
+            habitDao.delete(h)
+        }
+        waterLogDao.deleteAll()
+        val badHabits = badHabitDao.getAll()
+        for (bh in badHabits) {
+            badHabitLogDao.deleteByBadHabitId(bh.id)
+            badHabitDao.delete(bh)
+        }
+        pomodoroDao.deleteAll()
+        challengeProgressDao.deleteAll()
+        challengeDao.deleteAll()
+    }
 }
 
 data class HabitStat(

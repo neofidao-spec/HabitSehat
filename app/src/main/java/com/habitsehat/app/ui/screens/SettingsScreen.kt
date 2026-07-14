@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.habitsehat.app.data.preferences.SettingsManager
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.launch
 
@@ -19,9 +20,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsScreen(
     repository: HabitRepository,
+    settingsManager: SettingsManager,
     onBack: () -> Unit
 ) {
-    var waterGoal by remember { mutableStateOf("2500") }
+    val waterGoalValue by settingsManager.waterGoal.collectAsState(initial = 2500)
+    var waterGoalText by remember(waterGoalValue) { mutableStateOf(waterGoalValue.toString()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -45,9 +48,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Water goal
-            Card(
-                shape = RoundedCornerShape(16.dp)
-            ) {
+            Card(shape = RoundedCornerShape(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.WaterDrop, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -56,8 +57,14 @@ fun SettingsScreen(
                     }
                     Spacer(Modifier.height(12.dp))
                     OutlinedTextField(
-                        value = waterGoal,
-                        onValueChange = { waterGoal = it.filter { c -> c.isDigit() } },
+                        value = waterGoalText,
+                        onValueChange = { newVal ->
+                            waterGoalText = newVal.filter { c -> c.isDigit() }
+                            val ml = waterGoalText.toIntOrNull()
+                            if (ml != null && ml in 500..10000) {
+                                scope.launch { settingsManager.setWaterGoal(ml) }
+                            }
+                        },
                         label = { Text("ml/hari") },
                         supportingText = { Text("Rekomendasi: 2000-3000 ml") },
                         singleLine = true,
@@ -67,9 +74,7 @@ fun SettingsScreen(
             }
 
             // About
-            Card(
-                shape = RoundedCornerShape(16.dp)
-            ) {
+            Card(shape = RoundedCornerShape(16.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Tentang", fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(8.dp))
@@ -109,11 +114,11 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             title = { Text("Hapus semua data?") },
-            text = { Text("Semua kebiasaan dan history akan dihapus permanen.") },
+            text = { Text("Semua kebiasaan, history minum, session fokus, dan progress challenge akan dihapus permanen.") },
             confirmButton = {
                 TextButton(onClick = {
                     scope.launch {
-                        // TODO: implement clear all
+                        repository.clearAllData()
                         showDeleteConfirm = false
                     }
                 }) {

@@ -223,6 +223,7 @@ fun MainApp(
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     repository = repository,
+                    settingsManager = settingsManager,
                     onBack = { navController.popBackStack() }
                 )
             }

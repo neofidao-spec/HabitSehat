@@ -29,6 +29,12 @@ interface HabitDao {
 
     @Query("UPDATE habits SET isArchived = 1 WHERE id = :id")
     suspend fun archive(id: Long)
+
+    @Query("DELETE FROM habits")
+    suspend fun deleteAll()
+
+    @Query("SELECT * FROM habits")
+    suspend fun getAll(): List<Habit>
 }
 
 @Dao
@@ -53,6 +59,9 @@ interface HabitLogDao {
 
     @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date AND id IN (SELECT id FROM habit_logs WHERE habitId = :habitId AND date = :date LIMIT 1)")
     suspend fun undoLast(habitId: Long, date: String)
+
+    @Query("DELETE FROM habit_logs WHERE habitId = :habitId")
+    suspend fun deleteByHabitId(habitId: Long)
 }
 
 @Dao
@@ -74,6 +83,9 @@ interface WaterLogDao {
 
     @Query("DELETE FROM water_logs WHERE date = :date AND id IN (SELECT id FROM water_logs WHERE date = :date ORDER BY createdAt DESC LIMIT 1)")
     suspend fun undoLast(date: String)
+
+    @Query("DELETE FROM water_logs")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -92,6 +104,18 @@ interface BadHabitDao {
 
     @Query("SELECT * FROM bad_habits WHERE id = :id")
     suspend fun getById(id: Long): BadHabit?
+
+    @Query("SELECT * FROM bad_habits")
+    suspend fun getAll(): List<BadHabit>
+
+    @Delete
+    suspend fun delete(badHabit: BadHabit)
+
+    @Query("DELETE FROM bad_habits WHERE isActive = 0")
+    suspend fun deleteInactive()
+
+    @Query("DELETE FROM bad_habits")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -121,6 +145,12 @@ interface BadHabitLogDao {
 
     @Query("SELECT MAX(date) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND resistedCount > 0")
     suspend fun getLastResistedDate(badHabitId: Long): String?
+
+    @Query("DELETE FROM bad_habit_logs WHERE badHabitId = :badHabitId")
+    suspend fun deleteByBadHabitId(badHabitId: Long)
+
+    @Query("DELETE FROM bad_habit_logs")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -142,6 +172,9 @@ interface PomodoroDao {
 
     @Query("SELECT * FROM pomodoro_sessions ORDER BY createdAt DESC LIMIT 50")
     suspend fun getRecentSessions(): List<PomodoroSession>
+
+    @Query("DELETE FROM pomodoro_sessions")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -160,6 +193,12 @@ interface ChallengeDao {
 
     @Query("SELECT * FROM challenges WHERE id = :id")
     suspend fun getById(id: Long): Challenge?
+
+    @Delete
+    suspend fun delete(challenge: Challenge)
+
+    @Query("DELETE FROM challenges")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -181,4 +220,7 @@ interface ChallengeProgressDao {
 
     @Query("SELECT * FROM challenge_progress WHERE completed = 1")
     suspend fun getCompletedProgress(): List<ChallengeProgress>
+
+    @Query("DELETE FROM challenge_progress")
+    suspend fun deleteAll()
 }
