@@ -11,12 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Habit
-import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +29,8 @@ fun AddHabitScreen(
     var reminderMinute by remember { mutableIntStateOf(0) }
     var error by remember { mutableStateOf<String?>(null) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var editHour by remember { mutableIntStateOf(8) }
+    var editMinute by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
 
     Scaffold(
@@ -114,7 +113,11 @@ fun AddHabitScreen(
                     Text("Jam:")
                     OutlinedTextField(
                         value = "%02d:%02d".format(reminderHour, reminderMinute),
-                        onValueChange = { showTimePicker = true },
+                        onValueChange = {
+                            showTimePicker = true
+                            editHour = reminderHour
+                            editMinute = reminderMinute
+                        },
                         readOnly = true,
                         modifier = Modifier.width(100.dp),
                         singleLine = true,
@@ -154,55 +157,83 @@ fun AddHabitScreen(
         }
     }
 
-    // Time picker dialog
+    // Time picker dialog - using simple +/- buttons (no KeyboardOptions dependency)
     if (showTimePicker) {
         AlertDialog(
             onDismissRequest = { showTimePicker = false },
             title = { Text("Pilih Waktu Pengingat") },
             text = {
                 Column(
-                    modifier = Modifier.padding(16.dp).height(300.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(24.dp)
                     ) {
-                        // Hour picker
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Jam", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = "%02d".format(reminderHour),
-                                onValueChange = { reminderHour = it.toIntOrNull() ?: reminderHour },
-                                modifier = Modifier.width(80.dp),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                label = { Text("Jam") }
+                        // Hour selector
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Jam", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(4.dp))
+                            FilledTonalButton(
+                                onClick = { editHour = (editHour + 1) % 24 },
+                                modifier = Modifier.size(36.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("▲", fontSize = 12.sp)
+                            }
+                            Text(
+                                "%02d".format(editHour),
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 4.dp)
                             )
+                            FilledTonalButton(
+                                onClick = { editHour = if (editHour > 0) editHour - 1 else 23 },
+                                modifier = Modifier.size(36.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("▼", fontSize = 12.sp)
+                            }
                         }
-                        // Minute picker
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Menit", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = "%02d".format(reminderMinute),
-                                onValueChange = { reminderMinute = it.toIntOrNull() ?: reminderMinute },
-                                modifier = Modifier.width(80.dp),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                label = { Text("Menit") }
+
+                        Text(":", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+
+                        // Minute selector
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Menit", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(4.dp))
+                            FilledTonalButton(
+                                onClick = { editMinute = (editMinute + 5) % 60 },
+                                modifier = Modifier.size(36.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("▲", fontSize = 12.sp)
+                            }
+                            Text(
+                                "%02d".format(editMinute),
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(vertical = 4.dp)
                             )
+                            FilledTonalButton(
+                                onClick = { editMinute = if (editMinute >= 5) editMinute - 5 else 55 },
+                                modifier = Modifier.size(36.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text("▼", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { showTimePicker = false }) {
+                Button(onClick = {
+                    reminderHour = editHour
+                    reminderMinute = editMinute
+                    showTimePicker = false
+                }) {
                     Text("OK", fontWeight = FontWeight.SemiBold)
                 }
             },

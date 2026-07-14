@@ -15,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.BadHabit
@@ -76,7 +74,7 @@ fun AddBadHabitScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 isError = error != null,
-                supportingText = if (error != null) { Text(error!!) } else null
+                supportingText = if (error != null) {{ Text(error!!) }} else null
             )
 
             // Emoji picker
@@ -110,14 +108,22 @@ fun AddBadHabitScreen(
 
             // Biaya per kejadian
             Text("Biaya per kejadian (Rp)", fontWeight = FontWeight.Medium)
-            OutlinedTextField(
-                value = costPerOccurrence.toString(),
-                onValueChange = { costPerOccurrence = it.toIntOrNull() ?: 0 },
-                label = { Text("Biaya") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                FilledTonalButton(
+                    onClick = { if (costPerOccurrence >= 1000) costPerOccurrence -= 1000 },
+                    modifier = Modifier.size(36.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) { Text("-", fontSize = 16.sp) }
+                Text("Rp $costPerOccurrence", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                FilledTonalButton(
+                    onClick = { costPerOccurrence += 1000 },
+                    modifier = Modifier.size(36.dp),
+                    shape = RoundedCornerShape(8.dp)
+                ) { Text("+", fontSize = 16.sp) }
+            }
 
             // Frekuensi per hari
             Text("Frekuensi per hari", fontWeight = FontWeight.Medium)
@@ -129,9 +135,7 @@ fun AddBadHabitScreen(
                     onClick = { if (frequencyPerDay > 1) frequencyPerDay-- },
                     modifier = Modifier.size(40.dp),
                     shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("-", fontSize = 18.sp)
-                }
+                ) { Text("-", fontSize = 18.sp) }
                 Text(
                     "$frequencyPerDay",
                     fontSize = 22.sp,
@@ -143,9 +147,7 @@ fun AddBadHabitScreen(
                     onClick = { if (frequencyPerDay < 50) frequencyPerDay++ },
                     modifier = Modifier.size(40.dp),
                     shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("+", fontSize = 18.sp)
-                }
+                ) { Text("+", fontSize = 18.sp) }
                 Text("kali/hari", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
