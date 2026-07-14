@@ -292,13 +292,13 @@ HabitSehat/
 
 | Fase | % Progress | Status |
 |------|-----------|--------|
-| **Fase 1:** Finalisasi fitur inti | 60% | 🟡 Sedang dikerjakan |
-| **Fase 2:** Fitur pelengkap premium | 0% | ⚪ Belum mulai |
-| **Fase 3:** Release build | 20% | 🟡 Build GitHub Actions aktif, signing belum |
-| **Fase 4:** Play Store assets | 0% | ⚪ Belum mulai |
-| **Fase 5:** Beta testing | 0% | ⚪ Belum mulai |
-| **Fase 6:** Production launch | 0% | ⚪ Belum mulai |
-| **Fase 7:** Post-launch | 0% | ⚪ Belum mulai |
+|| **Fase 1:** Finalisasi fitur inti | 100% | ✅ Selesai |
+|| **Fase 2:** Fitur pelengkap premium | 10% | 🟡 Google Drive backup (bulk of work remains) |
+|| **Fase 3:** Release build | 70% | 🟡 Signing config + ProGuard + CI/CD siap, butuh tagged release |
+|| **Fase 4:** Play Store assets | 0% | ⚪ Belum mulai |
+|| **Fase 5:** Beta testing | 0% | ⚪ Belum mulai |
+|| **Fase 6:** Production launch | 0% | ⚪ Belum mulai |
+|| **Fase 7:** Post-launch | 0% | ⚪ Belum mulai |
 
 ---
 
