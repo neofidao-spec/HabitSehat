@@ -43,11 +43,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val db = AppDatabase.getInstance(applicationContext)
-        val repository = HabitRepository(db.habitDao(), db.habitLogDao(), db.waterLogDao())
+        val repository = HabitRepository(
+            db.habitDao(), db.habitLogDao(), db.waterLogDao(),
+            db.badHabitDao(), db.badHabitLogDao()
+        )
         val settingsManager = SettingsManager(applicationContext)
         val premiumManager = PremiumManager(settingsManager)
         val homeViewModel = HomeViewModel(repository)
         val statsViewModel = StatsViewModel(repository)
+        val badHabitViewModel = BadHabitViewModel(repository)
 
         setContent {
             val currentTheme by settingsManager.currentTheme.collectAsState(initial = AppTheme.getThemeById("mint"))
@@ -66,6 +70,7 @@ class MainActivity : ComponentActivity() {
                 MainApp(
                     homeViewModel = homeViewModel,
                     statsViewModel = statsViewModel,
+                    badHabitViewModel = badHabitViewModel,
                     repository = repository,
                     settingsManager = settingsManager,
                     premiumManager = premiumManager,
@@ -82,6 +87,7 @@ class MainActivity : ComponentActivity() {
 fun MainApp(
     homeViewModel: HomeViewModel,
     statsViewModel: StatsViewModel,
+    badHabitViewModel: BadHabitViewModel,
     repository: HabitRepository,
     settingsManager: SettingsManager,
     premiumManager: PremiumManager,
@@ -95,6 +101,7 @@ fun MainApp(
     val bottomNavItems = listOf(
         BottomNavItem("Beranda", Icons.Filled.Home, Icons.Outlined.Home, Screen.Home.route),
         BottomNavItem("Statistik", Icons.Filled.BarChart, Icons.Outlined.BarChart, Screen.Stats.route),
+        BottomNavItem("HabitStop", Icons.Filled.Block, Icons.Outlined.Block, Screen.HabitStop.route),
         BottomNavItem("Tema", Icons.Filled.Palette, Icons.Outlined.Palette, Screen.Theme.route),
         BottomNavItem("Lainnya", Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz, Screen.More.route)
     )
@@ -156,6 +163,15 @@ fun MainApp(
             composable(Screen.Stats.route) {
                 StatsScreen(
                     viewModel = statsViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.HabitStop.route) {
+                HabitStopScreen(
+                    viewModel = badHabitViewModel,
+                    isPremium = isPremium,
+                    onUpgrade = { navController.navigate(Screen.Premium.route) },
+                    onAddBadHabit = { /* TODO: navigate to add bad habit screen */ },
                     onBack = { navController.popBackStack() }
                 )
             }
