@@ -166,7 +166,6 @@ fun ExpenseReportScreen(
         }
     }
 }
-}
 
 private fun parseColorSafe(colorHex: String): Color {
     return try {
