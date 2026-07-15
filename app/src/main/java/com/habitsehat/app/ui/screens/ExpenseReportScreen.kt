@@ -109,29 +109,27 @@ fun ExpenseReportScreen(
                         Spacer(Modifier.height(8.dp))
                         Text("Per Kategori", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     }
-                    report.categoryTotals.forEach { cat ->
-                        item {
-                            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(32.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(cat.categoryIcon, fontSize = 16.sp)
-                                        }
-                                        Spacer(Modifier.width(8.dp))
-                                        Text(cat.categoryName, fontSize = 14.sp)
+                    items(report.categoryTotals) { cat ->
+                        Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(cat.categoryIcon, fontSize = 16.sp)
                                     }
-                                    Text(formatRupiah(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(cat.categoryName, fontSize = 14.sp)
                                 }
+                                Text(formatRupiah(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -143,18 +141,13 @@ fun ExpenseReportScreen(
                         Spacer(Modifier.height(8.dp))
                         Text("Detail Pengeluaran", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     }
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(report.expenseItems) { item ->
-                            ExpenseItemCard(
-                                expense = item.expense,
-                                category = item.expenseCategory!!,
-                                onClick = {},
-                                onDelete = {}
-                            )
-                        }
+                    items(report.expenseItems) { item ->
+                        ExpenseItemCard(
+                            expense = item.expense,
+                            category = item.expenseCategory!!,
+                            onClick = {},
+                            onDelete = {}
+                        )
                     }
                 }
             } else {
