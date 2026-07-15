@@ -152,7 +152,7 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
     fun deleteHabit(habitId: Long) {
         viewModelScope.launch {
             try {
-                val habit = state.habits.find { it.id == habitId }
+                val habit = _uiState.value.habits.find { it.id == habitId }
                 if (habit != null) {
                     repository.deleteHabit(habit)
                     refresh()
