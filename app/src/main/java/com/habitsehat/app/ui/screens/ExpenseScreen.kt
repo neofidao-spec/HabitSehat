@@ -243,7 +243,7 @@ fun ExpenseItemCard(
             Column(horizontalAlignment = Alignment.End) {
                 Text("-${formatRupiah(expense.amount)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f), size = 20.sp)
+                    Icon(Icons.Filled.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f), modifier = Modifier.size(20.dp))
                 }
             }
         }

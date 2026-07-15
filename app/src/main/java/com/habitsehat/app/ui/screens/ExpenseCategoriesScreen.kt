@@ -105,7 +105,28 @@ fun ExpenseCategoriesScreen(
 
     // Add/Edit Category Dialog
     if (showAddCategory.value) {
-        AlertDialog(
+        val catConfirm: @Composable () -> Unit = {
+            Button(onClick = {
+                if (newCategoryName.value.isNotBlank()) {
+                    val category = ModelExpenseCategory(
+                        name = newCategoryName.value.trim(),
+                        icon = newCategoryIcon.value,
+                        colorHex = newCategoryColor.value,
+                        isDefault = false,
+                        sortOrder = uiState.categories.size
+                    )
+                    scope.launch { viewModel.addCategory(category) }
+                    showAddCategory.value = false
+                    newCategoryName.value = ""
+                }
+            }) {
+                Text("Simpan", fontWeight = FontWeight.SemiBold)
+            }
+        }
+        val catDismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showAddCategory.value = false }) { Text("Batal") }
+        }
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = {
                 showAddCategory.value = false
                 newCategoryName.value = ""
@@ -160,33 +181,17 @@ fun ExpenseCategoriesScreen(
                     )
                 }
             },
-            confirmButton = {
-                Button(onClick = {
-                    if (newCategoryName.value.isNotBlank()) {
-                        val category = ModelExpenseCategory(
-                            name = newCategoryName.value.trim(),
-                            icon = newCategoryIcon.value,
-                            colorHex = newCategoryColor.value,
-                            isDefault = false,
-                            sortOrder = uiState.categories.size
-                        )
-                        scope.launch { viewModel.addCategory(category) }
-                        showAddCategory.value = false
-                        newCategoryName.value = ""
-                    }
-                }) {
-                    Text("Simpan", fontWeight = FontWeight.SemiBold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddCategory.value = false }) { Text("Batal") }
-            }
+            confirmButton = catConfirm,
+            dismissButton = catDismiss
         )
     }
 
     // Icon picker
     if (showIconPicker.value) {
-        AlertDialog(
+        val iconDismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showIconPicker.value = false }) { Text("Batal") }
+        }
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = { showIconPicker.value = false },
             title = { Text("Pilih Ikon") },
             text = {
@@ -209,13 +214,19 @@ fun ExpenseCategoriesScreen(
                     }
                 }
             },
-            dismissButton = { TextButton(onClick = { showIconPicker.value = false }) { Text("Batal") } }
+            confirmButton = {
+                Button(onClick = { showIconPicker.value = false }) { Text("OK") }
+            },
+            dismissButton = iconDismiss
         )
     }
 
     // Color picker
     if (showColorPicker.value) {
-        AlertDialog(
+        val colorDismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showColorPicker.value = false }) { Text("Batal") }
+        }
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = { showColorPicker.value = false },
             title = { Text("Pilih Warna") },
             text = {
@@ -245,7 +256,10 @@ fun ExpenseCategoriesScreen(
                     }
                 }
             },
-            dismissButton = { TextButton(onClick = { showColorPicker.value = false }) { Text("Batal") } }
+            confirmButton = {
+                Button(onClick = { showColorPicker.value = false }) { Text("OK") }
+            },
+            dismissButton = colorDismiss
         )
     }
 }

@@ -188,9 +188,13 @@ fun AddExpenseScreen(
 
     // Category picker dialog
     if (showCategoryPicker) {
-        AlertDialog(
+        val catTitle: @Composable () -> Unit = { Text("Pilih Kategori") }
+        val catDismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showCategoryPicker = false }) { Text("Batal") }
+        }
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = { showCategoryPicker = false },
-            title = { Text("Pilih Kategori") },
+            title = catTitle,
             text = {
                 LazyColumn(
                     modifier = Modifier
@@ -232,21 +236,32 @@ fun AddExpenseScreen(
                     }
                 }
             },
-            dismissButton = {
-                TextButton(onClick = { showCategoryPicker = false }) { Text("Batal") }
-            }
+            confirmButton = {
+                Button(onClick = { showCategoryPicker = false }) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = catDismiss
         )
     }
 
     // Date picker dialog
     if (showDatePicker) {
-        AlertDialog(
+        val dateTitle: @Composable () -> Unit = { Text("Pilih Tanggal") }
+        val dateConfirm: @Composable () -> Unit = {
+            Button(onClick = { showDatePicker = false }) {
+                Text("OK", fontWeight = FontWeight.SemiBold)
+            }
+        }
+        val dateDismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
+        }
+        androidx.compose.material3.AlertDialog(
             onDismissRequest = { showDatePicker = false },
-            title = { Text("Pilih Tanggal") },
+            title = dateTitle,
             text = {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Tanggal: ${selectedDate.format(displayFmt)}")
-                    // Simple date increment/decrement
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
@@ -262,14 +277,8 @@ fun AddExpenseScreen(
                     }
                 }
             },
-            confirmButton = {
-                Button(onClick = { showDatePicker = false }) {
-                    Text("OK", fontWeight = FontWeight.SemiBold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
-            }
+            confirmButton = dateConfirm,
+            dismissButton = dateDismiss
         )
     }
 }
