@@ -265,7 +265,6 @@ interface ExpenseCategoryDao {
     suspend fun deleteAll()
 }
 
-@Embedded
 data class ExpenseWithCategory(
     @Embedded val expense: Expense,
     @Embedded(prefix = "category_") val expenseCategory: ExpenseCategory?

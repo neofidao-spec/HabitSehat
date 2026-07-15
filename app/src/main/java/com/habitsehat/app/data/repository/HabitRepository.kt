@@ -442,3 +442,28 @@ data class MonthlyExpenseReport(
     val weeklyBreakdown: List<WeeklyExpenseReport>,
     val allExpenses: List<ExpenseWithCategory>
 )
+
+data class HabitStat(
+    val name: String,
+    val doneDays: Int,
+    val totalDays: Int
+)
+
+data class WeeklyReport(
+    val weekStart: String,
+    val weekEnd: String,
+    val totalHabits: Int,
+    val totalPossibleDays: Int,
+    val totalDoneDays: Int,
+    val habitStats: List<HabitStat>,
+    val averageWaterMl: Double,
+    val previousWeekWaterAvg: Double,
+    val bestDay: String,
+    val worstDay: String,
+    val bestStreak: Int,
+    val totalWeeklyFocusSeconds: Int,
+    val totalMoneySavedThisWeek: Int
+) {
+    val consistencyPercent: Int
+        get() = if (totalPossibleDays > 0) (totalDoneDays * 100 / totalPossibleDays) else 0
+}

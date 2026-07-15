@@ -15,11 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.habitsehat.app.data.db.ExpenseWithCategory
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
-import com.habitsehat.app.data.db.ExpenseWithCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -34,19 +37,18 @@ fun AddExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    
+
     val isEditing = expenseToEdit != null
-    var selectedCategory by remember { mutableStateOf<ExpenseCategory?>(expenseToEdit?.expenseCategory) }
-    var amount by remember { mutableStateOf(expenseToEdit?.expense.amount.toString() ?: "") }
-    var note by remember { mutableStateOf(expenseToEdit?.expense.note ?: "") }
-    var selectedDate by remember { mutableStateOf(expenseToEdit?.expense.date ?: LocalDate.now()) }
+    var selectedCategory by remember { mutableStateOf<ModelExpenseCategory?>(expenseToEdit?.expenseCategory) }
+    var amount by remember { mutableStateOf(expenseToEdit?.expense?.amount?.toString() ?: "") }
+    var note by remember { mutableStateOf(expenseToEdit?.expense?.note ?: "") }
+    var selectedDate by remember { mutableStateOf(expenseToEdit?.expense?.date ?: LocalDate.now()) }
     var showCategoryPicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
     val categoryOptions = uiState.categories
     val displayFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID"))
-    val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
 
     val quickAmounts = listOf(10000L, 25000L, 50000L, 100000L, 200000L, 500000L)
 
@@ -107,7 +109,7 @@ fun AddExpenseScreen(
                         .fillMaxWidth()
                         .weight(1f),
                     singleLine = true,
-                    keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = error != null,
                     supportingText = { if (error != null) { Text(error!!) } }
                 )
@@ -156,12 +158,12 @@ fun AddExpenseScreen(
                     }
 
                     val expense = Expense(
-                        id = expenseToEdit?.expense.id ?: 0,
+                        id = expenseToEdit?.expense?.id ?: 0,
                         categoryId = selectedCategory!!.id,
                         date = selectedDate,
                         amount = amt,
                         note = note.trim(),
-                        createdAt = expenseToEdit?.expense.createdAt ?: System.currentTimeMillis()
+                        createdAt = expenseToEdit?.expense?.createdAt ?: System.currentTimeMillis()
                     )
                     scope.launch {
                         if (isEditing) {
@@ -201,9 +203,12 @@ fun AddExpenseScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { selectedCategory = c; showCategoryPicker = false }
+                                .clickable {
+                                    selectedCategory = cat
+                                    showCategoryPicker = false
+                                }
                                 .background(
-                                    if (selectedCategory?.id == c.id) MaterialTheme.colorScheme.primaryContainer
+                                    if (selectedCategory?.id == cat.id) MaterialTheme.colorScheme.primaryContainer
                                     else MaterialTheme.colorScheme.surfaceVariant,
                                     RoundedCornerShape(12.dp)
                                 ),
@@ -213,13 +218,13 @@ fun AddExpenseScreen(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(android.graphics.Color.parseColor(c.colorHex)).copy(alpha = 0.2f))
+                                    .background(com.habitsehat.app.ui.screens.parseColorSafe(cat.colorHex).copy(alpha = 0.2f))
                             ) {
-                                Text(c.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
+                                Text(cat.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
                             }
                             Spacer(Modifier.width(12.dp))
-                            Text(c.name, fontSize = 16.sp)
-                            if (c.isDefault) {
+                            Text(cat.name, fontSize = 16.sp)
+                            if (cat.isDefault) {
                                 Spacer(Modifier.width(8.dp))
                                 Text("Default", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                             }
@@ -235,18 +240,27 @@ fun AddExpenseScreen(
 
     // Date picker dialog
     if (showDatePicker) {
-        val calendar = java.util.Calendar.getInstance()
-        calendar.time = java.util.Date.from(selectedDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant())
-        
         AlertDialog(
             onDismissRequest = { showDatePicker = false },
             title = { Text("Pilih Tanggal") },
             text = {
-                androidx.compose.material3.DatePicker(
-                    selectedDate = selectedDate,
-                    onDateChange = { selectedDate = it },
-                    modifier = Modifier.padding(16.dp)
-                )
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Tanggal: ${selectedDate.format(displayFmt)}")
+                    // Simple date increment/decrement
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
+                            Icon(Icons.Filled.ChevronLeft, contentDescription = "Kemarin")
+                        }
+                        Text(selectedDate.format(displayFmt), fontSize = 18.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(horizontal = 16.dp))
+                        IconButton(onClick = { selectedDate = selectedDate.plusDays(1) }) {
+                            Icon(Icons.Filled.ChevronRight, contentDescription = "Besok")
+                        }
+                    }
+                }
             },
             confirmButton = {
                 Button(onClick = { showDatePicker = false }) {
