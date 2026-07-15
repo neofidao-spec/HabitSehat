@@ -132,7 +132,7 @@ class PomodoroViewModel(
         val state = _uiState.value
         val totalSeconds = state.selectedMinutes * 60
         viewModelScope.launch {
-            repository.savePomodoroSession(
+            repository.addPomodoroSession(
                 PomodoroSession(
                     durationMinutes = state.selectedMinutes,
                     focusSeconds = totalSeconds,

@@ -118,7 +118,7 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = {
                     scope.launch {
-                        repository.clearAllData()
+                        repository.deleteAllData()
                         showDeleteConfirm = false
                     }
                 }) {

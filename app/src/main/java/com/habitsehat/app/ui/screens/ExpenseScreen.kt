@@ -22,8 +22,8 @@ import androidx.navigation.NavController
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.db.ExpenseWithCategory
+import com.habitsehat.app.data.model.WeeklyExpenseReport
 import com.habitsehat.app.data.repository.HabitRepository
-import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -127,7 +127,7 @@ fun ExpenseScreen(
                             Text("${report.weekStart} - ${report.weekEnd}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
                         }
                         Spacer(Modifier.height(12.dp))
-                        Text(formatRupiah(report.totalExpenses), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text(formatRupiah(report.weeklyTotal), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(12.dp))
 
                         // Category breakdown (use Column + forEach, not nested LazyColumn)
