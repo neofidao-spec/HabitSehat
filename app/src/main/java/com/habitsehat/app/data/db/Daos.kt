@@ -248,7 +248,7 @@ interface ExpenseDao {
     @Query("SELECT SUM(amount) FROM expenses WHERE date BETWEEN :start AND :end")
     suspend fun getTotalInRange(start: String, end: String): Long?
 
-    @Query("SELECT e.*, c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end ORDER BY e.date DESC, e.createdAt DESC")
+    @Query("SELECT e.*, c.id as category_id, c.name as category_name, c.icon as category_icon, c.colorHex as category_colorHex, c.isDefault as category_isDefault, c.sortOrder as category_sortOrder, c.createdAt as category_createdAt FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end ORDER BY e.date DESC, e.createdAt DESC")
     suspend fun getExpensesWithCategory(start: String, end: String): List<ExpenseWithCategory>
 
     @Query("SELECT c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor, SUM(e.amount) as total FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end GROUP BY c.id")
