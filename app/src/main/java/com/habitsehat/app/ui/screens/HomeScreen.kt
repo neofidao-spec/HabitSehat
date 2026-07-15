@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.ui.components.HabitItem
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     viewModel: HomeViewModel,
     repository: HabitRepository,
+    navController: NavController,
     onAddHabit: () -> Unit,
     onEditHabit: (Long) -> Unit = {}
 ) {
@@ -284,6 +286,7 @@ fun HomeScreen(
                                 )
                             }
                         },
+                        onEdit = { navController.navigate("add_habit/${habit.id}") },
                         onDelete = { viewModel.deleteHabit(habit.id) }
                     )
                 }

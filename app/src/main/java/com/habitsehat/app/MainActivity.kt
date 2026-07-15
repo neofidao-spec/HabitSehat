@@ -167,6 +167,7 @@ fun MainApp(
                 HomeScreen(
                     viewModel = homeViewModel,
                     repository = repository,
+                    navController = navController,
                     onAddHabit = { navController.navigate(Screen.AddHabit.route) }
                 )
             }
@@ -262,6 +263,22 @@ fun MainApp(
                     repository = repository,
                     onBack = { navController.popBackStack() }
                 )
+            }
+            composable(
+                route = "add_habit/{habitId}",
+                arguments = listOf(navArgument("habitId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val habitId = backStackEntry.arguments?.getLong("habitId") ?: 0L
+                if (habitId > 0) {
+                    val habit by androidx.compose.runtime.produceState<Habit?>(null) {
+                        value = repository.getHabitById(habitId)
+                    }
+                    AddHabitScreen(
+                        viewModel = homeViewModel,
+                        habitToEdit = habit,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
             composable(Screen.Expense.route) {
                 ExpenseScreen(

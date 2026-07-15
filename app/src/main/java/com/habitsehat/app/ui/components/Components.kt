@@ -364,6 +364,12 @@ fun HabitItem(
             }
             DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                 DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = { showMenu = false; onEdit() },
+                    leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                )
+                HorizontalDivider()
+                DropdownMenuItem(
                     text = { Text("Arsipkan") },
                     onClick = { showMenu = false; onArchive() },
                     leadingIcon = { Icon(Icons.Filled.Archive, contentDescription = null, modifier = Modifier.size(18.dp)) }

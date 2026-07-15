@@ -21,6 +21,9 @@ interface HabitDao {
     @Update
     suspend fun update(habit: Habit)
 
+    @Query("SELECT * FROM habits WHERE id = :id")
+    suspend fun getById(id: Long): Habit?
+
     @Query("SELECT * FROM habits WHERE isArchived = 0 ORDER BY sortOrder ASC")
     suspend fun getAllActive(): List<Habit>
 

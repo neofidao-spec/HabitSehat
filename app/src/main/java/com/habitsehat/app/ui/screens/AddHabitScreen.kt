@@ -25,23 +25,25 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddHabitScreen(
     onSave: (Habit) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    habitToEdit: Habit? = null
 ) {
-    var name by remember { mutableStateOf("") }
-    var targetCount by remember { mutableIntStateOf(1) }
-    var reminderEnabled by remember { mutableStateOf(true) }
-    var reminderHour by remember { mutableIntStateOf(8) }
-    var reminderMinute by remember { mutableIntStateOf(0) }
+    val isEditing = habitToEdit != null
+    var name by remember { mutableStateOf(habitToEdit?.name ?: "") }
+    var targetCount by remember { mutableIntStateOf(habitToEdit?.targetCount ?: 1) }
+    var reminderEnabled by remember { mutableStateOf(habitToEdit?.reminderEnabled ?: true) }
+    var reminderHour by remember { mutableIntStateOf(habitToEdit?.reminderHour ?: 8) }
+    var reminderMinute by remember { mutableIntStateOf(habitToEdit?.reminderMinute ?: 0) }
     var error by remember { mutableStateOf<String?>(null) }
     var showTimePicker by remember { mutableStateOf(false) }
-    var editHour by remember { mutableIntStateOf(8) }
-    var editMinute by remember { mutableIntStateOf(0) }
+    var editHour by remember { mutableIntStateOf(habitToEdit?.reminderHour ?: 8) }
+    var editMinute by remember { mutableIntStateOf(habitToEdit?.reminderMinute ?: 0) }
     val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tambah Kebiasaan", fontWeight = FontWeight.SemiBold) },
+                title = { Text(if (isEditing) "Edit Kebiasaan" else "Tambah Kebiasaan", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
@@ -126,7 +128,7 @@ fun AddHabitScreen(
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clip(RoundedCornerShape(12.dp))
                             .padding(horizontal = 16.dp)
-                            .clickable { 
+                            .clickable {
                                 showTimePicker = true
                                 editHour = reminderHour
                                 editMinute = reminderMinute
@@ -148,6 +150,7 @@ fun AddHabitScreen(
                         return@Button
                     }
                     val habit = Habit(
+                        id = habitToEdit?.id ?: 0,
                         name = name.trim(),
                         targetCount = targetCount,
                         reminderEnabled = reminderEnabled,
@@ -163,12 +166,12 @@ fun AddHabitScreen(
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Simpan Kebiasaan", fontSize = 16.sp)
+                Text(if (isEditing) "Simpan Perubahan" else "Simpan Kebiasaan", fontSize = 16.sp)
             }
         }
     }
 
-    // Time picker dialog - using simple +/- buttons (no KeyboardOptions dependency)
+    // Time picker dialog - using simple +/- buttons
     if (showTimePicker) {
         AlertDialog(
             onDismissRequest = { showTimePicker = false },

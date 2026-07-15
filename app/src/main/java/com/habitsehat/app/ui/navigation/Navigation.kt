@@ -3,6 +3,7 @@ package com.habitsehat.app.ui.navigation
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object AddHabit : Screen("add_habit")
+    data object EditHabit : Screen("add_habit/")  // dengan argument habitId
     data object AddBadHabit : Screen("add_bad_habit")
     data object Stats : Screen("stats")
     data object Theme : Screen("theme")
