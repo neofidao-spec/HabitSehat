@@ -339,6 +339,8 @@ class HabitRepository(
 
     suspend fun deleteExpense(expense: Expense) = expenseDao.delete(expense)
 
+    suspend fun getExpenseById(id: Long): Expense? = expenseDao.getById(id)
+
     suspend fun getExpensesByDate(date: LocalDate): List<Expense> = expenseDao.getExpensesByDate(toStr(date))
 
     suspend fun getExpensesInRange(start: LocalDate, end: LocalDate): List<Expense> = expenseDao.getExpensesInRange(toStr(start), toStr(end))

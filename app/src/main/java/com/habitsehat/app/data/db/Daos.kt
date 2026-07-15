@@ -225,6 +225,9 @@ interface ExpenseDao {
     @Delete
     suspend fun delete(expense: Expense)
 
+    @Query("SELECT * FROM expenses WHERE id = :id")
+    suspend fun getById(id: Long): Expense?
+
     @Query("SELECT * FROM expenses WHERE date = :date ORDER BY id DESC")
     suspend fun getExpensesByDate(date: String): List<Expense>
 

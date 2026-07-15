@@ -264,6 +264,7 @@ fun MainApp(
                 ExpenseScreen(
                     viewModel = expenseViewModel,
                     repository = repository,
+                    navController = navController,
                     onNavigateToAdd = { navController.navigate(Screen.AddExpense.route) },
                     onNavigateToCategories = { navController.navigate(Screen.ExpenseCategories.route) },
                     onNavigateToReport = { navController.navigate("expense_report") }
@@ -274,6 +275,21 @@ fun MainApp(
                     viewModel = expenseViewModel,
                     onBack = { navController.popBackStack() }
                 )
+            }
+            composable(
+                route = "add_expense/{expenseId}",
+                arguments = listOf(navArgument("expenseId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
+                if (expenseId > 0) {
+                    // Load expense and navigate to edit screen
+                    val expense = repository.getExpenseById(expenseId)
+                    AddExpenseScreen(
+                        viewModel = expenseViewModel,
+                        expenseToEdit = expense,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
             composable(Screen.ExpenseCategories.route) {
                 ExpenseCategoriesScreen(

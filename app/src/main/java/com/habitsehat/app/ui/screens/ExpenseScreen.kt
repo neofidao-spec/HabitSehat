@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.db.ExpenseWithCategory
@@ -33,6 +34,7 @@ import java.util.Locale
 fun ExpenseScreen(
     viewModel: ExpenseViewModel,
     repository: HabitRepository,
+    navController: NavController,
     onNavigateToAdd: () -> Unit,
     onNavigateToCategories: () -> Unit,
     onNavigateToReport: () -> Unit
@@ -178,7 +180,7 @@ fun ExpenseScreen(
                         ExpenseItemCard(
                             expense = expenseWithCat.expense,
                             category = expenseWithCat.expenseCategory!!,
-                            onClick = { onNavigateToAdd() },
+                            onClick = { navController.navigate("add_expense/${expenseWithCat.expense.id}") },
                             onDelete = { expenseToDelete = expenseWithCat.expense }
                         )
                     }
