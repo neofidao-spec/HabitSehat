@@ -85,7 +85,7 @@ private fun ReportContent(report: WeeklyExpenseReport, shortFmt: DateTimeFormatt
                 Spacer(Modifier.height(4.dp))
                 Text("$start — $end", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Spacer(Modifier.height(16.dp))
-                Text(formatRupiahReport(report.totalExpenses), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text(formatRupiah(report.totalExpenses), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Text("Total Pengeluaran", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
             }
         }
@@ -104,7 +104,7 @@ private fun ReportContent(report: WeeklyExpenseReport, shortFmt: DateTimeFormatt
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(d, fontSize = 14.sp)
-                        Text(formatRupiahReport(total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(formatRupiah(total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -126,13 +126,13 @@ private fun ReportContent(report: WeeklyExpenseReport, shortFmt: DateTimeFormatt
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(parseColorSafeReport(cat.categoryColor).copy(alpha = 0.2f)),
+                                .background(parseColor(cat.categoryColor).copy(alpha = 0.2f)),
                             contentAlignment = Alignment.Center
                         ) { Text(cat.categoryIcon, fontSize = 16.sp) }
                         Spacer(Modifier.width(8.dp))
                         Text(cat.categoryName, fontSize = 14.sp)
                     }
-                    Text(formatRupiahReport(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(formatRupiah(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -185,7 +185,7 @@ private fun ExpenseItemCardReport(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(parseColorSafeReport(category.colorHex).copy(alpha = 0.2f)),
+                        .background(parseColor(category.colorHex).copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) { Text(category.icon, fontSize = 20.sp) }
                 Spacer(Modifier.width(12.dp))
@@ -200,7 +200,7 @@ private fun ExpenseItemCardReport(
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(formatRupiahReport(expense.amount), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(formatRupiah(expense.amount), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 if (expense.note.isNotBlank()) {
                     Text(expense.note, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -209,9 +209,8 @@ private fun ExpenseItemCardReport(
     }
 }
 
-// Helper functions inside composable scope so they can access MaterialTheme
 @Composable
-private fun parseColorSafeReport(colorHex: String): Color {
+private fun parseColor(colorHex: String): Color {
     return try {
         Color(android.graphics.Color.parseColor(colorHex))
     } catch (e: Exception) {
@@ -220,22 +219,6 @@ private fun parseColorSafeReport(colorHex: String): Color {
 }
 
 @Composable
-private fun formatRupiahReport(amount: Long): String {
-    return "Rp ${java.text.NumberFormat.getNumberInstance(Locale("id", "ID")).format(amount)}"
-}
-            }
-        }
-    }
-}
-
-private fun parseColorSafeReport(colorHex: String): Color {
-    return try {
-        Color(android.graphics.Color.parseColor(colorHex))
-    } catch (e: Exception) {
-        MaterialTheme.colorScheme.primary
-    }
-}
-
-private fun formatRupiahReport(amount: Long): String {
+private fun formatRupiah(amount: Long): String {
     return "Rp ${java.text.NumberFormat.getNumberInstance(Locale("id", "ID")).format(amount)}"
 }
