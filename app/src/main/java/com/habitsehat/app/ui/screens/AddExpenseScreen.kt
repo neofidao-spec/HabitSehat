@@ -72,7 +72,7 @@ fun AddExpenseScreen(
             // Category selector
             Text("Kategori", fontWeight = FontWeight.Medium)
             OutlinedTextField(
-                value = selectedCategory?.name ?? "Pilih kategori",
+                value = selectedCategory?.name ?: "Pilih kategori",
                 onValueChange = { showCategoryPicker = true },
                 label = { Text("Kategori pengeluaran") },
                 readOnly = true,
