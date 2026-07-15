@@ -41,6 +41,9 @@ interface HabitDao {
 
     @Delete
     suspend fun delete(habit: Habit)
+
+    @Query("DELETE FROM habits")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -62,6 +65,9 @@ interface HabitLogDao {
 
     @Query("DELETE FROM habit_logs WHERE habitId = :habitId")
     suspend fun deleteByHabitId(habitId: Long)
+
+    @Query("DELETE FROM habit_logs")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -107,6 +113,9 @@ interface BadHabitDao {
 
     @Delete
     suspend fun delete(badHabit: BadHabit)
+
+    @Query("DELETE FROM bad_habits")
+    suspend fun deleteAll()
 }
 
 @Dao

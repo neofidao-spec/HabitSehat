@@ -36,17 +36,16 @@ class ChallengesViewModel(
         viewModelScope.launch {
             _uiState.value = ChallengesUiState(isLoading = true)
             try {
-                repository.addDefaultChallenges()
                 val allChallenges = repository.getAllChallenges()
-                val allProgress = repository.getAllProgress()
+                val allProgress = repository.getAllChallengeProgress()
 
                 val active = allChallenges
                     .filter { challenge ->
-                        val progress = allProgress.find { it.challengeId == challenge.id }
+                        val progress = allProgress.find { p -> p.challengeId == challenge.id }
                         progress == null || !progress.completed
                     }
                     .map { challenge ->
-                        val progress = allProgress.find { it.challengeId == challenge.id }
+                        val progress = allProgress.find { p -> p.challengeId == challenge.id }
                         ChallengeWithProgress(challenge, progress)
                     }
 
@@ -70,7 +69,7 @@ class ChallengesViewModel(
 
     fun joinChallenge(challengeId: Long) {
         viewModelScope.launch {
-            repository.joinChallenge(challengeId)
+            repository.startChallenge(challengeId)
             loadChallenges()
         }
     }

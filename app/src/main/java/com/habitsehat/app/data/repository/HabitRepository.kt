@@ -1,6 +1,8 @@
 package com.habitsehat.app.data.repository
 
 import com.habitsehat.app.data.db.AppDatabase
+import com.habitsehat.app.data.db.CategoryTotal
+import com.habitsehat.app.data.db.ExpenseWithCategory
 import com.habitsehat.app.data.model.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -326,21 +328,21 @@ class HabitRepository(private val db: AppDatabase) {
         val progress = ChallengeProgress(
             challengeId = challengeId,
             startDate = startDate,
-            currentStreak = 0,
+            lastUpdateDate = startDate,
             completed = false
         )
         challengeProgressDao.insert(progress)
     }
 
-    suspend fun updateChallengeProgress(challengeId: Long, currentStreak: Int, completed: Boolean = false) {
+    suspend fun updateChallengeProgress(challengeId: Long, currentDays: Int, completed: Boolean = false) {
         val progress = challengeProgressDao.getProgress(challengeId)
         if (progress != null) {
-            progress.currentStreak = currentStreak
-            progress.completed = completed
-            if (completed && progress.completedDate == null) {
-                progress.completedDate = today()
-            }
-            challengeProgressDao.update(progress)
+            val updated = progress.copy(
+                currentDays = currentDays,
+                lastUpdateDate = today(),
+                completed = completed
+            )
+            challengeProgressDao.update(updated)
         }
     }
 
@@ -351,26 +353,26 @@ class HabitRepository(private val db: AppDatabase) {
         for (challenge in challenges) {
             val progress = challengeProgressDao.getProgress(challenge.id)
             if (progress != null && !progress.completed) {
-                var currentStreak = 0
+                var currentDays = 0
                 when (challenge.category) {
                     "water" -> {
                         val waterTotal = getWaterTotal(today)
-                        if (waterTotal >= challenge.targetValue) {
-                            currentStreak = progress.currentStreak + 1
+                        if (waterTotal >= 2500) {
+                            currentDays = progress.currentDays + 1
                         } else {
-                            currentStreak = 0
+                            currentDays = 0
                         }
                     }
                     "focus" -> {
                         val focusSessions = pomodoroDao.getSessionCount(toStr(today))
-                        if (focusSessions >= challenge.targetValue) {
-                            currentStreak = progress.currentStreak + 1
+                        if (focusSessions >= 1) {
+                            currentDays = progress.currentDays + 1
                         } else {
-                            currentStreak = 0
+                            currentDays = 0
                         }
                     }
                     else -> {
-                        val habits = habitDao.getAllActive().filter { it.category == challenge.category }
+                        val habits = habitDao.getAllActive()
                         var allDone = true
                         for (h in habits) {
                             if (!isHabitChecked(h.id, today)) {
@@ -379,15 +381,15 @@ class HabitRepository(private val db: AppDatabase) {
                             }
                         }
                         if (allDone && habits.isNotEmpty()) {
-                            currentStreak = progress.currentStreak + 1
+                            currentDays = progress.currentDays + 1
                         } else {
-                            currentStreak = 0
+                            currentDays = 0
                         }
                     }
                 }
 
-                val isCompleted = currentStreak >= challenge.targetDays
-                updateChallengeProgress(challenge.id, currentStreak, isCompleted)
+                val isCompleted = currentDays >= challenge.targetDays
+                updateChallengeProgress(challenge.id, currentDays, isCompleted)
             }
         }
     }
