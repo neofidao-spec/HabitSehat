@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -68,7 +70,8 @@ fun AddExpenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Category selector
@@ -127,53 +130,59 @@ fun AddExpenseScreen(
             }
 
             // Amount input
-            Text("Jumlah (Rp)", fontWeight = FontWeight.Medium)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = amount,
-                    onValueChange = { amount = it.filter { it.isDigit() }; error = null },
-                    label = { Text("Jumlah") },
-                    placeholder = { Text("0") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    isError = error != null,
-                    supportingText = { if (error != null) { Text(error!!) } }
-                )
-            }
-
-            // Quick amount buttons
-            Text("Cepat:", fontWeight = FontWeight.Medium)
-            Row(
+            Text("Jumlah (Rp)", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+            OutlinedTextField(
+                value = if (amount.isEmpty()) "" else "Rp${formatRupiah(amount.toLongOrNull() ?: 0L)}",
+                onValueChange = { v ->
+                    amount = v.filter { it.isDigit() || it == ' ' }.trim()
+                    error = null
+                },
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                quickAmounts.forEach { amt ->
-                    OutlinedButton(
-                        onClick = { amount = amt.toString() },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(8.dp)
+                singleLine = true,
+                textStyle = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                isError = error != null,
+                supportingText = { if (error != null) { Text(error!!) } },
+                placeholder = { Text("Rp0", style = MaterialTheme.typography.headlineSmall) }
+            )
+
+            // Quick amount buttons — 2 rows of 3
+            Text("Nominal Cepat", fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                quickAmounts.chunked(3).forEach { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(formatRupiahShort(amt), fontSize = 12.sp)
+                        row.forEach { amt ->
+                            val isActive = amount.toLongOrNull() == amt
+                            if (isActive) {
+                                FilledTonalButton(
+                                    onClick = { amount = amt.toString() },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(formatRupiahShort(amt), fontSize = 12.sp)
+                                }
+                            } else {
+                                OutlinedButton(
+                                    onClick = { amount = amt.toString() },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(formatRupiahShort(amt), fontSize = 12.sp)
+                                }
+                            }
+                        }
                     }
                 }
             }
 
-            // Note
-            Text("Catatan (opsional)", fontWeight = FontWeight.Medium)
-            OutlinedTextField(
-                value = note,
-                onValueChange = { note = it },
-                label = { Text("Catatan tambahan") },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 2
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            // Save button
+            // Save button — right after amount input
             Button(
                 onClick = {
                     if (selectedCategory == null) {
@@ -210,8 +219,18 @@ fun AddExpenseScreen(
             ) {
                 Icon(Icons.Filled.Save, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text(if (isEditing) "Simpan Perubahan" else "Simpan Pengeluaran", fontSize = 16.sp)
+                Text(if (isEditing) "Simpan Perubahan" else "Konfirmasi Pengeluaran", fontSize = 16.sp)
             }
+
+            // Note — optional, below
+            Text("Catatan (opsional)", fontWeight = FontWeight.Medium)
+            OutlinedTextField(
+                value = note,
+                onValueChange = { note = it },
+                label = { Text("Tambahkan catatan") },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 2
+            )
         }
     }
 
@@ -310,6 +329,11 @@ fun AddExpenseScreen(
             dismissButton = dateDismiss
         )
     }
+}
+
+fun formatRupiah(amount: Long): String {
+    val s = amount.toString()
+    return s.reversed().chunked(3).joinToString(".").reversed()
 }
 
 fun formatRupiahShort(amount: Long): String {
