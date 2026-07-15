@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -75,24 +77,24 @@ fun AddHabitScreen(
             ) {
                 FilledTonalButton(
                     onClick = { if (targetCount > 1) targetCount-- },
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("-", fontSize = 18.sp)
+                    Icon(Icons.Filled.Remove, contentDescription = "Kurangi target", tint = MaterialTheme.colorScheme.onSurface)
                 }
                 Text(
                     "$targetCount",
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.width(40.dp),
+                    modifier = Modifier.width(56.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 FilledTonalButton(
                     onClick = { if (targetCount < 99) targetCount++ },
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("+", fontSize = 18.sp)
+                    Icon(Icons.Filled.Add, contentDescription = "Tambah target", tint = MaterialTheme.colorScheme.onSurface)
                 }
                 Text("kali/hari", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

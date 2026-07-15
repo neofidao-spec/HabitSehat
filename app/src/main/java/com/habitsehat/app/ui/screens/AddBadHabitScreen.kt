@@ -114,15 +114,15 @@ fun AddBadHabitScreen(
             ) {
                 FilledTonalButton(
                     onClick = { if (costPerOccurrence >= 1000) costPerOccurrence -= 1000 },
-                    modifier = Modifier.size(36.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) { Text("-", fontSize = 16.sp) }
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Icon(Icons.Filled.Remove, contentDescription = "Kurangi biaya", tint = MaterialTheme.colorScheme.onSurface) }
                 Text("Rp $costPerOccurrence", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 FilledTonalButton(
                     onClick = { costPerOccurrence += 1000 },
-                    modifier = Modifier.size(36.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) { Text("+", fontSize = 16.sp) }
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) { Icon(Icons.Filled.Add, contentDescription = "Tambah biaya", tint = MaterialTheme.colorScheme.onSurface) }
             }
 
             // Frekuensi per hari
@@ -133,21 +133,21 @@ fun AddBadHabitScreen(
             ) {
                 FilledTonalButton(
                     onClick = { if (frequencyPerDay > 1) frequencyPerDay-- },
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(48.dp),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text("-", fontSize = 18.sp) }
+                ) { Icon(Icons.Filled.Remove, contentDescription = "Kurangi frekuensi", tint = MaterialTheme.colorScheme.onSurface) }
                 Text(
                     "$frequencyPerDay",
-                    fontSize = 22.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.width(40.dp),
+                    modifier = Modifier.width(56.dp),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
                 FilledTonalButton(
                     onClick = { if (frequencyPerDay < 50) frequencyPerDay++ },
-                    modifier = Modifier.size(40.dp),
+                    modifier = Modifier.size(48.dp),
                     shape = RoundedCornerShape(12.dp)
-                ) { Text("+", fontSize = 18.sp) }
+                ) { Icon(Icons.Filled.Add, contentDescription = "Tambah frekuensi", tint = MaterialTheme.colorScheme.onSurface) }
                 Text("kali/hari", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
