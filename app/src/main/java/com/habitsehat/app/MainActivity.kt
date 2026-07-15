@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.habitsehat.app.data.db.AppDatabase
 import com.habitsehat.app.data.db.ExpenseWithCategory
 import com.habitsehat.app.data.model.AppTheme
+import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.preferences.PremiumManager
 import com.habitsehat.app.data.preferences.SettingsManager
 import com.habitsehat.app.data.repository.HabitRepository

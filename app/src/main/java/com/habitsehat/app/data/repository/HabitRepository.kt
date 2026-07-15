@@ -125,6 +125,10 @@ class HabitRepository(private val db: AppDatabase) {
         return badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0L
     }
 
+    suspend fun getTotalOccurrencesResisted(badHabitId: Long): Int {
+        return badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0
+    }
+
     suspend fun getResistedStreak(badHabitId: Long, since: LocalDate): Int {
         return badHabitLogDao.getResistedStreak(badHabitId, toStr(since))
     }

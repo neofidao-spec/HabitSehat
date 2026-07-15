@@ -148,7 +148,7 @@ fun ExpenseScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
                                             modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                                .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f))
+                                                .background(parseColorSafe(cat.categoryColorHex).copy(alpha = 0.2f))
                                         ) {
                                             Text(cat.categoryIcon, fontSize = 16.sp, modifier = Modifier.align(Alignment.Center))
                                         }
