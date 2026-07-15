@@ -22,7 +22,8 @@ import com.habitsehat.app.ui.components.WaterCard
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    onAddHabit: () -> Unit
+    onAddHabit: () -> Unit,
+    onEditHabit: (Long) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val checkedStates by viewModel.checkedStates.collectAsStateWithLifecycle()
@@ -144,14 +145,15 @@ fun HomeScreen(
                     }
                 }
 
-                // Habit list
                 items(state.habits, key = { it.id }) { habit ->
                     HabitItem(
                         habit = habit,
                         isChecked = checkedStates[habit.id] == true,
                         currentCount = habitCounts[habit.id] ?: 0,
                         onCheck = { viewModel.toggleHabit(habit.id) },
-                        onArchive = { viewModel.archiveHabit(habit.id) }
+                        onArchive = { viewModel.archiveHabit(habit.id) },
+                        onEdit = { onEditHabit(habit.id) },
+                        onDelete = { viewModel.deleteHabit(habit.id) }
                     )
                 }
             }

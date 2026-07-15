@@ -23,6 +23,11 @@ fun ChallengesScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    // Refresh when screen appears
+    LaunchedEffect(Unit) {
+        viewModel.loadChallenges()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

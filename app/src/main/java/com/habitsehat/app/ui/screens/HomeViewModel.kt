@@ -149,6 +149,20 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         }
     }
 
+    fun deleteHabit(habitId: Long) {
+        viewModelScope.launch {
+            try {
+                val habit = state.habits.find { it.id == habitId }
+                if (habit != null) {
+                    repository.deleteHabit(habit)
+                    refresh()
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Gagal hapus: ${e.message}") }
+            }
+        }
+    }
+
     fun clearError() {
         _uiState.update { it.copy(error = null) }
     }

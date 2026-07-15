@@ -31,6 +31,10 @@ class HabitRepository(
     suspend fun addHabit(habit: Habit) = habitDao.insert(habit)
     suspend fun updateHabit(habit: Habit) = habitDao.update(habit)
     suspend fun archiveHabit(id: Long) = habitDao.archive(id)
+    suspend fun deleteHabit(habit: Habit) {
+        habitLogDao.deleteByHabitId(habit.id)
+        habitDao.delete(habit)
+    }
 
     suspend fun checkHabit(habitId: Long, date: LocalDate = today()) {
         habitLogDao.insert(HabitLog(habitId = habitId, date = date))
@@ -272,26 +276,23 @@ class HabitRepository(
         return true
     }
 
-    // Auto-update all active challenges based on today's habit completions
+    // Auto-update all active challenges based on today's completions per category
     suspend fun autoUpdateChallenges() {
         val activeProgress = challengeProgressDao.getActiveProgress()
         val todayStr = toStr(today())
         for (progress in activeProgress) {
-            // Skip if already updated today
             if (toStr(progress.lastUpdateDate) == todayStr) continue
             val challenge = challengeDao.getById(progress.challengeId) ?: continue
-            // Check if user completed any habit today (minimum 1 habit checked)
-            val habits = habitDao.getAllActive()
-            var anyHabitDoneToday = false
-            for (habit in habits) {
-                if (isHabitChecked(habit.id, today())) {
-                    anyHabitDoneToday = true
-                    break
+            val done = when (challenge.category) {
+                "water" -> getWaterTotal() > 0
+                "focus" -> getSessionCount() > 0
+                else -> {
+                    // "habit" category: check any habit checked today
+                    val habits = habitDao.getAllActive()
+                    habits.any { isHabitChecked(it.id, today()) }
                 }
             }
-            if (anyHabitDoneToday) {
-                updateChallengeProgress(progress.challengeId)
-            }
+            if (done) updateChallengeProgress(progress.challengeId)
         }
     }
 

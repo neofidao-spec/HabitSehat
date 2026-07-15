@@ -114,6 +114,8 @@ fun HabitItem(
     currentCount: Int,
     onCheck: () -> Unit,
     onArchive: () -> Unit,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val primary = MaterialTheme.colorScheme.primary
@@ -194,9 +196,20 @@ fun HabitItem(
             }
             DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                 DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = { showMenu = false; onEdit() },
+                    leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                )
+                DropdownMenuItem(
                     text = { Text("Arsipkan") },
                     onClick = { showMenu = false; onArchive() },
                     leadingIcon = { Icon(Icons.Filled.Archive, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                )
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = { Text("Hapus", color = MaterialTheme.colorScheme.error) },
+                    onClick = { showMenu = false; onDelete() },
+                    leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp)) }
                 )
             }
         }
