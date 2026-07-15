@@ -89,7 +89,7 @@ fun MoreScreen(
                         scope.launch { settingsManager.setDarkMode(next) }
                     }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                    MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") {}
+                    MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") { onBack() }
                 }
             }
 

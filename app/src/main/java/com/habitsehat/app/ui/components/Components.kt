@@ -184,6 +184,21 @@ fun HabitItem(
                 Icon(Icons.Filled.LocalFireDepartment, contentDescription = null,
                     tint = StreakOrange, modifier = Modifier.size(18.dp))
             }
+
+            // Edit/delete button
+            var showMenu by remember { mutableStateOf(false) }
+            IconButton(onClick = { showMenu = true }, modifier = Modifier.size(28.dp)) {
+                Icon(Icons.Filled.MoreVert, contentDescription = "Opsi",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp))
+            }
+            DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                DropdownMenuItem(
+                    text = { Text("Arsipkan") },
+                    onClick = { showMenu = false; onArchive() },
+                    leadingIcon = { Icon(Icons.Filled.Archive, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                )
+            }
         }
     }
 }

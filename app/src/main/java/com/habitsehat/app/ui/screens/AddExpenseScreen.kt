@@ -73,29 +73,58 @@ fun AddExpenseScreen(
         ) {
             // Category selector
             Text("Kategori", fontWeight = FontWeight.Medium)
-            OutlinedTextField(
-                value = selectedCategory?.name ?: "Pilih kategori",
-                onValueChange = { showCategoryPicker = true },
-                label = { Text("Kategori pengeluaran") },
-                readOnly = true,
+            Surface(
+                onClick = { showCategoryPicker = true },
                 modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    Icon(Icons.Filled.Category, contentDescription = null)
-                },
-                isError = selectedCategory == null,
-                supportingText = { if (selectedCategory == null) { Text("Wajib dipilih") } }
-            )
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (selectedCategory != null) {
+                            Box(
+                                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+                                    .background(com.habitsehat.app.ui.screens.parseColorSafe(selectedCategory!!.colorHex).copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(selectedCategory!!.icon, fontSize = 16.sp)
+                            }
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text(selectedCategory!!.name, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                            }
+                        } else {
+                            Text("Pilih kategori", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            if (selectedCategory == null) {
+                Text("Wajib dipilih", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+            }
 
             // Date selector
             Text("Tanggal", fontWeight = FontWeight.Medium)
-            OutlinedTextField(
-                value = selectedDate.format(displayFmt),
-                onValueChange = { showDatePicker = true },
-                label = { Text("Tanggal") },
-                readOnly = true,
+            Surface(
+                onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { Icon(Icons.Filled.CalendarMonth, contentDescription = null) }
-            )
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHighest
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(selectedDate.format(displayFmt), fontSize = 14.sp)
+                    Icon(Icons.Filled.CalendarMonth, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
 
             // Amount input
             Text("Jumlah (Rp)", fontWeight = FontWeight.Medium)
