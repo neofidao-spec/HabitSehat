@@ -20,9 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.delay
 import com.habitsehat.app.ui.components.HabitItem
 import com.habitsehat.app.ui.components.StreakBar
 import com.habitsehat.app.ui.components.WaterCard
@@ -46,7 +44,7 @@ fun HomeScreen(
     }
 
     // Dynamic greeting
-    val hour = LocalTime.now().hour
+    val hour = java.time.LocalTime.now().hour
     val greeting = when {
         hour < 10 -> "Selamat Pagi ☀️"
         hour < 15 -> "Selamat Siang 🌤"
@@ -76,7 +74,7 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(6000)
+            delay(6000)
             quoteIndex = if (quoteIndex + 1 < quotes.size) quoteIndex + 1 else 0
         }
     }
@@ -136,7 +134,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy")),
+                        java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("EEEE, dd MMMM yyyy")),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

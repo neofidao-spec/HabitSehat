@@ -422,12 +422,13 @@ fun StreakBar(
                 modifier = Modifier.size(52.dp),
                 contentAlignment = Alignment.Center
             ) {
+                val containerColor = MaterialTheme.colorScheme.primaryContainer
                 Canvas(Modifier.fillMaxSize()) {
                     val stroke = 4.dp.toPx()
                     val radius = (size.minDimension - stroke) / 2
                     // Background
                     drawCircle(
-                        color = MaterialTheme.colorScheme.primaryContainer,
+                        color = containerColor,
                         radius = radius,
                         center = center,
                         style = Stroke(width = stroke, cap = StrokeCap.Round)
