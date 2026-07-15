@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Expense
-import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
+import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.repository.ExpenseWithCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -36,7 +36,7 @@ fun AddExpenseScreen(
     val scope = rememberCoroutineScope()
     
     val isEditing = expenseToEdit != null
-    var selectedCategory by remember { mutableStateOf<ModelExpenseCategory?>(expenseToEdit?.expenseCategory) }
+    var selectedCategory by remember { mutableStateOf<ExpenseCategory?>(expenseToEdit?.expenseCategory) }
     var amount by remember { mutableStateOf(expenseToEdit?.expense.amount.toString() ?: "") }
     var note by remember { mutableStateOf(expenseToEdit?.expense.note ?: "") }
     var selectedDate by remember { mutableStateOf(expenseToEdit?.expense.date ?: LocalDate.now()) }
