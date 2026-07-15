@@ -145,7 +145,7 @@ private fun EmptyBadHabitView(onAdd: () -> Unit, modifier: Modifier = Modifier) 
 }
 
 @Composable
-private fun TotalSavedCard(totalSaved: Int, totalDaysResisted: Int) {
+private fun TotalSavedCard(totalSaved: Long, totalDaysResisted: Int) {
     val currencyFormat = NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply { maximumFractionDigits = 0 }
     Card(
         modifier = Modifier.fillMaxWidth(),
