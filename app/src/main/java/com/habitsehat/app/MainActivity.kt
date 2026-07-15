@@ -279,6 +279,12 @@ fun MainApp(
                     onBack = { navController.popBackStack() }
                 )
             }
+            composable(Screen.ExpenseReport.route) {
+                ExpenseReportScreen(
+                    viewModel = expenseViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
