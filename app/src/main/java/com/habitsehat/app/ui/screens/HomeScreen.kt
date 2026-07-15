@@ -41,6 +41,7 @@ fun HomeScreen(
     val checkedStates by viewModel.checkedStates.collectAsStateWithLifecycle()
     val habitCounts by viewModel.habitCounts.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Archived dialog state
     var showArchivedDialog by remember { mutableStateOf(false) }
@@ -48,6 +49,17 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
+    }
+
+    // Show error via snackbar
+    LaunchedEffect(state.error) {
+        state.error?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
     }
 
     // Dynamic greeting
@@ -116,7 +128,8 @@ fun HomeScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Tambah habit")
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
@@ -261,11 +274,18 @@ fun HomeScreen(
                         isChecked = checkedStates[habit.id] == true,
                         currentCount = habitCounts[habit.id] ?: 0,
                         onCheck = { viewModel.toggleHabit(habit.id) },
-                        onArchive = { viewModel.archiveHabit(habit.id) },
-                        onEdit = { onEditHabit(habit.id) },
+                        onArchive = {
+                            viewModel.archiveHabit(habit.id)
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "\"${habit.name}\" diarsipkan",
+                                    actionLabel = "Undo",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        },
                         onDelete = { viewModel.deleteHabit(habit.id) }
                     )
-                }
 
                 // Archived habits card
                 if (state.archivedCount > 0) {
@@ -293,6 +313,10 @@ fun HomeScreen(
                 scope.launch {
                     viewModel.restoreArchivedHabit(habitId)
                     archivedHabits = repository.getArchivedHabits()
+                    snackbarHostState.showSnackbar(
+                        message = "Kebiasaan dipulihkan",
+                        duration = SnackbarDuration.Short
+                    )
                     if (archivedHabits.isEmpty()) showArchivedDialog = false
                 }
             },

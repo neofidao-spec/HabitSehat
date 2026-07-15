@@ -39,8 +39,23 @@ fun ExpenseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val displayFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID"))
     val shortFmt = DateTimeFormatter.ofPattern("EEE, d MMM", Locale("id", "ID"))
+
+    // Delete confirmation
+    var expenseToDelete by remember { mutableStateOf<Expense?>(null) }
+
+    // Show error via snackbar
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearError()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -63,7 +78,8 @@ fun ExpenseScreen(
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Tambah Pengeluaran")
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -163,7 +179,7 @@ fun ExpenseScreen(
                             expense = expenseWithCat.expense,
                             category = expenseWithCat.expenseCategory!!,
                             onClick = { onNavigateToAdd() },
-                            onDelete = { scope.launch { viewModel.deleteExpense(expenseWithCat.expense) } }
+                            onDelete = { expenseToDelete = expenseWithCat.expense }
                         )
                     }
                 }
@@ -186,6 +202,26 @@ fun ExpenseScreen(
                 }
             }
         }
+    }
+
+    // Delete expense confirmation dialog
+    expenseToDelete?.let { expense ->
+        val cat = uiState.categories.find { it.id == expense.categoryId }
+        DeleteExpenseDialog(
+            expense = expense,
+            categoryName = cat?.name ?: "Kategori tidak ditemukan",
+            onConfirm = {
+                scope.launch {
+                    viewModel.deleteExpense(expense)
+                    snackbarHostState.showSnackbar(
+                        message = "Pengeluaran dihapus",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                expenseToDelete = null
+            },
+            onDismiss = { expenseToDelete = null }
+        )
     }
 }
 
@@ -247,4 +283,42 @@ fun parseColorSafe(hex: String): Color {
     } catch (e: Exception) {
         Color.Gray
     }
+}
+
+// ──────────────────────────────────────
+// DELETE CONFIRMATION DIALOG
+// ──────────────────────────────────────
+@Composable
+fun DeleteExpenseDialog(
+    expense: Expense,
+    categoryName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Hapus Pengeluaran?") },
+        text = {
+            Column {
+                Text("Pengeluaran $categoryName sebesar")
+                Text(formatRupiah(expense.amount), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                if (expense.note.isNotBlank()) {
+                    Spacer(Modifier.height(4.dp))
+                    Text("\"${expense.note}\"", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Spacer(Modifier.height(8.dp))
+                Text("Tindakan ini tidak bisa dibatalkan.", fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Hapus", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal")
+            }
+        }
+    )
 }

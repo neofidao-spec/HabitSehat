@@ -55,8 +55,12 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
 
     fun deleteExpense(expense: Expense) {
         viewModelScope.launch {
-            repository.deleteExpense(expense)
-            loadData()
+            try {
+                repository.deleteExpense(expense)
+                loadData()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = "Gagal hapus: ${e.message}")
+            }
         }
     }
 
@@ -90,6 +94,11 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
         val todayExpenses: List<ExpenseWithCategory> = emptyList(),
         val todayTotal: Long = 0,
         val weeklyReport: WeeklyExpenseReport? = null,
-        val isLoading: Boolean = true
+        val isLoading: Boolean = true,
+        val error: String? = null
     )
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
+    }
 }
