@@ -17,8 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.habitsehat.app.data.model.Expense
+import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.repository.ExpenseWithCategory
+import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -115,11 +118,13 @@ fun ExpenseScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(formatRupiah(report.totalExpenses), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(12.dp))
-                        
+
                         // Category breakdown
                         LazyColumn(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 200.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(report.categoryTotals) { cat ->
                                 Row(
@@ -133,7 +138,7 @@ fun ExpenseScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
                                             modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                                .background(Color(android.graphics.Color.parseInt(cat.categoryColor.replace("#", "0xFF"))).copy(alpha = 0.2f))
+                                                .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f))
                                         ) {
                                             Text(cat.categoryIcon, fontSize = 16.sp, modifier = Modifier.align(Alignment.Center))
                                         }
@@ -160,7 +165,7 @@ fun ExpenseScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text("Hari Ini (${shortFmt.format(LocalDate.now())})", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                    
+
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -168,15 +173,14 @@ fun ExpenseScreen(
                         items(uiState.todayExpenses) { expenseWithCat ->
                             ExpenseItemCard(
                                 expense = expenseWithCat.expense,
-                                category = expenseWithCat.category!!,
-                                onClick = { onNavigateToAdd() /* TODO: edit */ },
+                                category = expenseWithCat.expenseCategory!!,
+                                onClick = { onNavigateToAdd() },
                                 onDelete = { scope.launch { viewModel.deleteExpense(expenseWithCat.expense) } }
                             )
                         }
                     }
                 }
             } else {
-                // Empty state
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
@@ -201,7 +205,7 @@ fun ExpenseScreen(
 @Composable
 fun ExpenseItemCard(
     expense: Expense,
-    category: com.habitsehat.app.data.model.ExpenseCategory,
+    category: ExpenseCategory,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -224,12 +228,12 @@ fun ExpenseItemCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(android.graphics.Color.parseInt(category.colorHex.replace("#", "0xFF"))).copy(alpha = 0.2f))
+                        .background(parseColorSafe(category.colorHex).copy(alpha = 0.2f))
                 ) {
                     Text(category.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
                 }
                 Spacer(Modifier.width(12.dp))
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column(horizontalAlignment = Alignment.Start) {
                     Text(category.name, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                     if (expense.note.isNotBlank()) {
                         Text(expense.note, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
@@ -248,4 +252,12 @@ fun ExpenseItemCard(
 
 fun formatRupiah(amount: Long): String {
     return "Rp ${java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(amount)}"
+}
+
+fun parseColorSafe(hex: String): Color {
+    return try {
+        Color(android.graphics.Color.parseColor(hex))
+    } catch (e: Exception) {
+        Color.Gray
+    }
 }

@@ -172,14 +172,12 @@ class HabitRepository(
 
         val habits = habitDao.getAllActive()
 
-        // This week stats
         var totalDoneDays = 0
         var totalPossibleDays = 0
         val habitStats = mutableListOf<HabitStat>()
 
-        // Check each day
         var currentDay = monday
-        val dailyDoneCounts = mutableMapOf<String, Int>() // date -> done count
+        val dailyDoneCounts = mutableMapOf<String, Int>()
         while (!currentDay.isAfter(sunday)) {
             val dateStr = toStr(currentDay)
             var done = 0
@@ -192,30 +190,24 @@ class HabitRepository(
             currentDay = currentDay.plusDays(1)
         }
 
-        // Per-habit stats
         for (habit in habits) {
             var habitDoneDays = 0
             currentDay = monday
             while (!currentDay.isAfter(sunday)) {
-                val dateStr = toStr(currentDay)
                 if (isHabitChecked(habit.id, currentDay)) habitDoneDays++
                 currentDay = currentDay.plusDays(1)
             }
             habitStats.add(HabitStat(habit.name, habitDoneDays, 7))
         }
 
-        // Water average
         val waterAvg = waterLogDao.getAverageInRange(start, end) ?: 0.0
         val prevWaterAvg = waterLogDao.getAverageInRange(previousWeekStart, previousWeekEnd) ?: 0.0
 
-        // Best & worst day
         val bestDay = dailyDoneCounts.maxByOrNull { it.value }?.key ?: start
         val worstDay = dailyDoneCounts.minByOrNull { it.value }?.key ?: start
 
-        // Focus time
         val focusSeconds = pomodoroDao.getFocusSecondsInRange(start, end) ?: 0
 
-        // Money saved this week
         val badHabits = badHabitDao.getAllActive()
         var moneySaved = 0
         for (habit in badHabits) {
@@ -223,7 +215,6 @@ class HabitRepository(
             moneySaved += resisted * habit.costPerOccurrence
         }
 
-        // Streak
         val bestStreak = habits.maxOfOrNull {
             habitLogDao.getStreakCount(it.id, toStr(LocalDate.now().minusDays(365)))
         } ?: 0
@@ -247,13 +238,9 @@ class HabitRepository(
 
     // ============ CHALLENGES ============
     suspend fun getAllChallenges() = challengeDao.getAllActive()
-
     suspend fun getChallengeProgress(challengeId: Long) = challengeProgressDao.getProgress(challengeId)
-
     suspend fun getAllProgress() = challengeProgressDao.getAllProgress()
-
     suspend fun getActiveProgress() = challengeProgressDao.getActiveProgress()
-
     suspend fun getCompletedProgress() = challengeProgressDao.getCompletedProgress()
 
     suspend fun joinChallenge(challengeId: Long) {
@@ -272,7 +259,7 @@ class HabitRepository(
         val challenge = challengeDao.getById(challengeId) ?: return false
         val todayStr = toStr(today())
 
-        if (toStr(progress.lastUpdateDate) == todayStr) return true // already updated today
+        if (toStr(progress.lastUpdateDate) == todayStr) return true
 
         val updatedDays = progress.currentDays + 1
         val completed = updatedDays >= challenge.targetDays
@@ -317,126 +304,125 @@ class HabitRepository(
         expenseDao.deleteAll()
         expenseCategoryDao.deleteAll()
     }
-}
 
-// ============ EXPENSE TRACKING ============
-suspend fun addExpense(expense: Expense) = expenseDao.insert(expense)
+    // ============ EXPENSE TRACKING ============
+    suspend fun addExpense(expense: Expense) = expenseDao.insert(expense)
 
-suspend fun updateExpense(expense: Expense) = expenseDao.update(expense)
+    suspend fun updateExpense(expense: Expense) = expenseDao.update(expense)
 
-suspend fun deleteExpense(expense: Expense) = expenseDao.delete(expense)
+    suspend fun deleteExpense(expense: Expense) = expenseDao.delete(expense)
 
-suspend fun getExpensesByDate(date: LocalDate): List<Expense> = expenseDao.getExpensesByDate(toStr(date))
+    suspend fun getExpensesByDate(date: LocalDate): List<Expense> = expenseDao.getExpensesByDate(toStr(date))
 
-suspend fun getExpensesInRange(start: LocalDate, end: LocalDate): List<Expense> = expenseDao.getExpensesInRange(toStr(start), toStr(end))
+    suspend fun getExpensesInRange(start: LocalDate, end: LocalDate): List<Expense> = expenseDao.getExpensesInRange(toStr(start), toStr(end))
 
-suspend fun getExpenseTotalByDate(date: LocalDate): Long = expenseDao.getTotalByDate(toStr(date)) ?: 0
+    suspend fun getExpenseTotalByDate(date: LocalDate): Long = expenseDao.getTotalByDate(toStr(date)) ?: 0
 
-suspend fun getExpenseTotalInRange(start: LocalDate, end: LocalDate): Long = expenseDao.getTotalInRange(toStr(start), toStr(end)) ?: 0
+    suspend fun getExpenseTotalInRange(start: LocalDate, end: LocalDate): Long = expenseDao.getTotalInRange(toStr(start), toStr(end)) ?: 0
 
-suspend fun getExpensesWithCategory(start: LocalDate, end: LocalDate): List<ExpenseWithCategory> = expenseDao.getExpensesWithCategory(toStr(start), toStr(end))
+    suspend fun getExpensesWithCategory(start: LocalDate, end: LocalDate): List<ExpenseWithCategory> = expenseDao.getExpensesWithCategory(toStr(start), toStr(end))
 
-suspend fun getExpenseTotalsByCategory(start: LocalDate, end: LocalDate): List<CategoryTotal> = expenseDao.getTotalsByCategory(toStr(start), toStr(end))
+    suspend fun getExpenseTotalsByCategory(start: LocalDate, end: LocalDate): List<CategoryTotal> = expenseDao.getTotalsByCategory(toStr(start), toStr(end))
 
-// Expense Categories
-suspend fun getAllExpenseCategories() = expenseCategoryDao.getAll()
+    // Expense Categories
+    suspend fun getAllExpenseCategories(): List<ExpenseCategory> = expenseCategoryDao.getAll()
 
-suspend fun getDefaultExpenseCategories() = expenseCategoryDao.getDefaults()
+    suspend fun getDefaultExpenseCategories(): List<ExpenseCategory> = expenseCategoryDao.getDefaults()
 
-suspend fun addExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.insert(category)
+    suspend fun addExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.insert(category)
 
-suspend fun updateExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.update(category)
+    suspend fun updateExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.update(category)
 
-suspend fun deleteExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.delete(category)
+    suspend fun deleteExpenseCategory(category: ExpenseCategory) = expenseCategoryDao.delete(category)
 
-suspend fun getExpenseCategoryById(id: Long) = expenseCategoryDao.getById(id)
+    suspend fun getExpenseCategoryById(id: Long) = expenseCategoryDao.getById(id)
 
-// Default categories for first run
-suspend fun addDefaultExpenseCategories() {
-    val existing = expenseCategoryDao.getAll()
-    if (existing.isNotEmpty()) return
+    // Default categories for first run
+    suspend fun addDefaultExpenseCategories() {
+        val existing = expenseCategoryDao.getAll()
+        if (existing.isNotEmpty()) return
 
-    val defaults = listOf(
-        ExpenseCategory(name = "Makan & Minum", icon = "🍽️", colorHex = "#FF9800", isDefault = true, sortOrder = 1),
-        ExpenseCategory(name = "Transport", icon = "🚌", colorHex = "#2196F3", isDefault = true, sortOrder = 2),
-        ExpenseCategory(name = "Belanja", icon = "🛍️", colorHex = "#9C27B0", isDefault = true, sortOrder = 3),
-        ExpenseCategory(name = "Hiburan", icon = "🎮", colorHex = "#E91E63", isDefault = true, sortOrder = 4),
-        ExpenseCategory(name = "Kesehatan", icon = "💊", colorHex = "#4CAF50", isDefault = true, sortOrder = 5),
-        ExpenseCategory(name = "Pendidikan", icon = "📚", colorHex = "#673AB7", isDefault = true, sortOrder = 6),
-        ExpenseCategory(name = "Seminar/Bootcamp", icon = "🎓", colorHex = "#3F51B5", isDefault = true, sortOrder = 7),
-        ExpenseCategory(name = "Menabung/Investasi", icon = "💰", colorHex = "#009688", isDefault = true, sortOrder = 8),
-        ExpenseCategory(name = "Lainnya", icon = "📦", colorHex = "#607D8B", isDefault = true, sortOrder = 9)
-    )
-    for (c in defaults) expenseCategoryDao.insert(c)
-}
-
-// Weekly expense recap
-suspend fun generateWeeklyExpenseReport(): WeeklyExpenseReport {
-    val now = LocalDate.now()
-    val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    val sunday = monday.plusDays(6)
-
-    val expenses = getExpensesWithCategory(monday, sunday)
-    val total = getExpenseTotalInRange(monday, sunday)
-    val byCategory = getExpenseTotalsByCategory(monday, sunday)
-
-    var dailyTotals = mutableMapOf<String, Long>()
-    var currentDay = monday
-    while (!currentDay.isAfter(sunday)) {
-        val dayTotal = getExpenseTotalByDate(currentDay)
-        dailyTotals[toStr(currentDay)] = dayTotal
-        currentDay = currentDay.plusDays(1)
+        val defaults = listOf(
+            ExpenseCategory(name = "Makan & Minum", icon = "🍽️", colorHex = "#FF9800", isDefault = true, sortOrder = 1),
+            ExpenseCategory(name = "Transport", icon = "🚌", colorHex = "#2196F3", isDefault = true, sortOrder = 2),
+            ExpenseCategory(name = "Belanja", icon = "🛍️", colorHex = "#9C27B0", isDefault = true, sortOrder = 3),
+            ExpenseCategory(name = "Hiburan", icon = "🎮", colorHex = "#E91E63", isDefault = true, sortOrder = 4),
+            ExpenseCategory(name = "Kesehatan", icon = "💊", colorHex = "#4CAF50", isDefault = true, sortOrder = 5),
+            ExpenseCategory(name = "Pendidikan", icon = "📚", colorHex = "#673AB7", isDefault = true, sortOrder = 6),
+            ExpenseCategory(name = "Seminar/Bootcamp", icon = "🎓", colorHex = "#3F51B5", isDefault = true, sortOrder = 7),
+            ExpenseCategory(name = "Menabung/Investasi", icon = "💰", colorHex = "#009688", isDefault = true, sortOrder = 8),
+            ExpenseCategory(name = "Lainnya", icon = "📦", colorHex = "#607D8B", isDefault = true, sortOrder = 9)
+        )
+        for (c in defaults) expenseCategoryDao.insert(c)
     }
 
-    return WeeklyExpenseReport(
-        weekStart = toStr(monday),
-        weekEnd = toStr(sunday),
-        totalExpenses = total,
-        dailyTotals = dailyTotals,
-        categoryTotals = byCategory,
-        expenseItems = expenses
-    )
-}
+    // Weekly expense recap
+    suspend fun generateWeeklyExpenseReport(): WeeklyExpenseReport {
+        val now = LocalDate.now()
+        val monday = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val sunday = monday.plusDays(6)
 
-// Monthly expense recap
-suspend fun generateMonthlyExpenseReport(): MonthlyExpenseReport {
-    val now = LocalDate.now()
-    val firstDay = now.withDayOfMonth(1)
-    val lastDay = now.with(TemporalAdjusters.lastDayOfMonth())
+        val expenses = getExpensesWithCategory(monday, sunday)
+        val total = getExpenseTotalInRange(monday, sunday)
+        val byCategory = getExpenseTotalsByCategory(monday, sunday)
 
-    val total = getExpenseTotalInRange(firstDay, lastDay)
-    val byCategory = getExpenseTotalsByCategory(firstDay, lastDay)
-    val expenses = getExpensesWithCategory(firstDay, lastDay)
+        var dailyTotals = mutableMapOf<String, Long>()
+        var currentDay = monday
+        while (!currentDay.isAfter(sunday)) {
+            val dayTotal = getExpenseTotalByDate(currentDay)
+            dailyTotals[toStr(currentDay)] = dayTotal
+            currentDay = currentDay.plusDays(1)
+        }
 
-    // Weekly breakdown within month
-    var weeklyBreakdown = mutableListOf<WeeklyExpenseReport>()
-    var weekStart = firstDay.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    if (weekStart.isBefore(firstDay)) weekStart = weekStart.plusDays(7)
-
-    while (weekStart.isBefore(lastDay) || weekStart.isEqual(lastDay)) {
-        val weekEnd = weekStart.plusDays(6)
-        val actualWeekEnd = if (weekEnd.isAfter(lastDay)) lastDay else weekEnd
-        val weekTotal = getExpenseTotalInRange(weekStart, actualWeekEnd)
-        val weekCat = getExpenseTotalsByCategory(weekStart, actualWeekEnd)
-        weeklyBreakdown.add(WeeklyExpenseReport(
-            weekStart = toStr(weekStart),
-            weekEnd = toStr(actualWeekEnd),
-            totalExpenses = weekTotal,
-            dailyTotals = mutableMapOf(),
-            categoryTotals = weekCat,
-            expenseItems = getExpensesWithCategory(weekStart, actualWeekEnd)
-        ))
-        weekStart = weekStart.plusDays(7)
+        return WeeklyExpenseReport(
+            weekStart = toStr(monday),
+            weekEnd = toStr(sunday),
+            totalExpenses = total,
+            dailyTotals = dailyTotals,
+            categoryTotals = byCategory,
+            expenseItems = expenses
+        )
     }
 
-    return MonthlyExpenseReport(
-        monthStart = toStr(firstDay),
-        monthEnd = toStr(lastDay),
-        totalExpenses = total,
-        categoryTotals = byCategory,
-        weeklyBreakdown = weeklyBreakdown,
-        allExpenses = expenses
-    )
+    // Monthly expense recap
+    suspend fun generateMonthlyExpenseReport(): MonthlyExpenseReport {
+        val now = LocalDate.now()
+        val firstDay = now.withDayOfMonth(1)
+        val lastDay = now.with(TemporalAdjusters.lastDayOfMonth())
+
+        val total = getExpenseTotalInRange(firstDay, lastDay)
+        val byCategory = getExpenseTotalsByCategory(firstDay, lastDay)
+        val expenses = getExpensesWithCategory(firstDay, lastDay)
+
+        var weeklyBreakdown = mutableListOf<WeeklyExpenseReport>()
+        var weekStart = firstDay.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        if (weekStart.isBefore(firstDay)) weekStart = weekStart.plusDays(7)
+
+        while (weekStart.isBefore(lastDay) || weekStart.isEqual(lastDay)) {
+            val weekEnd = weekStart.plusDays(6)
+            val actualWeekEnd = if (weekEnd.isAfter(lastDay)) lastDay else weekEnd
+            val weekTotal = getExpenseTotalInRange(weekStart, actualWeekEnd)
+            val weekCat = getExpenseTotalsByCategory(weekStart, actualWeekEnd)
+            weeklyBreakdown.add(WeeklyExpenseReport(
+                weekStart = toStr(weekStart),
+                weekEnd = toStr(actualWeekEnd),
+                totalExpenses = weekTotal,
+                dailyTotals = mutableMapOf(),
+                categoryTotals = weekCat,
+                expenseItems = getExpensesWithCategory(weekStart, actualWeekEnd)
+            ))
+            weekStart = weekStart.plusDays(7)
+        }
+
+        return MonthlyExpenseReport(
+            monthStart = toStr(firstDay),
+            monthEnd = toStr(lastDay),
+            totalExpenses = total,
+            categoryTotals = byCategory,
+            weeklyBreakdown = weeklyBreakdown,
+            allExpenses = expenses
+        )
+    }
 }
 
 data class WeeklyExpenseReport(

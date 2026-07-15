@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory
+import com.habitsehat.app.data.repository.ExpenseWithCategory
 import com.habitsehat.app.data.repository.HabitRepository
+import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -23,14 +25,51 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             val categories = repository.getAllExpenseCategories()
-            val todayExpenses = repository.getExpensesByDate(LocalDate.now())
+            val todayExpenses = repository.getExpensesWithCategory(LocalDate.now(), LocalDate.now())
             val todayTotal = repository.getExpenseTotalByDate(LocalDate.now())
+            val weeklyReport = repository.generateWeeklyExpenseReport()
             _uiState.value = _uiState.value.copy(
                 categories = categories,
                 todayExpenses = todayExpenses,
                 todayTotal = todayTotal,
+                weeklyReport = weeklyReport,
                 isLoading = false
             )
+        }
+    }
+
+    fun addExpense(expense: Expense) {
+        viewModelScope.launch {
+            repository.addExpense(expense)
+            loadData()
+        }
+    }
+
+    fun updateExpense(expense: Expense) {
+        viewModelScope.launch {
+            repository.updateExpense(expense)
+            loadData()
+        }
+    }
+
+    fun deleteExpense(expense: Expense) {
+        viewModelScope.launch {
+            repository.deleteExpense(expense)
+            loadData()
+        }
+    }
+
+    fun addCategory(category: ExpenseCategory) {
+        viewModelScope.launch {
+            repository.addExpenseCategory(category)
+            loadData()
+        }
+    }
+
+    fun deleteCategory(category: ExpenseCategory) {
+        viewModelScope.launch {
+            repository.deleteExpenseCategory(category)
+            loadData()
         }
     }
 
@@ -40,8 +79,9 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
 
     data class UiState(
         val categories: List<ExpenseCategory> = emptyList(),
-        val todayExpenses: List<Expense> = emptyList(),
+        val todayExpenses: List<ExpenseWithCategory> = emptyList(),
         val todayTotal: Long = 0,
+        val weeklyReport: WeeklyExpenseReport? = null,
         val isLoading: Boolean = true
     )
 }

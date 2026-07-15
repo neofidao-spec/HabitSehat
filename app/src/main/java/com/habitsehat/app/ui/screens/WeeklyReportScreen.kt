@@ -76,6 +76,9 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
     val dateFormatter = DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID"))
     val startDate = try { LocalDate.parse(report.weekStart).format(dateFormatter) } catch (e: Exception) { report.weekStart }
     val endDate = try { LocalDate.parse(report.weekEnd).format(dateFormatter) } catch (e: Exception) { report.weekEnd }
+    val consistencyPct = if (report.totalPossibleDays > 0) {
+        (report.totalDoneDays * 100 / report.totalPossibleDays)
+    } else 0
 
     Column(
         modifier = Modifier
@@ -95,7 +98,7 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
                 Spacer(Modifier.height(4.dp))
                 Text("$startDate — $endDate", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Spacer(Modifier.height(16.dp))
-                Text("${report.consistencyPercent}%", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                Text("$consistencyPct%", fontSize = 48.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                 Text("Konsistensi", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
             }
         }
@@ -115,11 +118,6 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(days[i], fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(4.dp))
-                            val dayCheck = try {
-                                val habitsCount = report.habitStats.size
-                                // Rough check - just show dots
-                                0
-                            } catch (e: Exception) { 0 }
                             val filled = if (date.isBefore(today.plusDays(1))) true else false
                             Box(
                                 modifier = Modifier
@@ -201,18 +199,20 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
 
         // Best & worst day
         val dayFormatter = DateTimeFormatter.ofPattern("EEEE, d MMM", Locale("id", "ID"))
+        val repBestDay = try { LocalDate.parse(report.bestDay).format(dayFormatter) } catch (e: Exception) { report.bestDay }
+        val repWorstDay = try { LocalDate.parse(report.worstDay).format(dayFormatter) } catch (e: Exception) { report.worstDay }
         Card(shape = RoundedCornerShape(16.dp)) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Terkuat: $bestDay", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text("Terkuat: ${repBestDay}", fontWeight = FontWeight.Medium, fontSize = 14.sp)
                 }
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.TrendingDown, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(24.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Terlemah: $worstDay", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text("Terlemah: ${repWorstDay}", fontWeight = FontWeight.Medium, fontSize = 14.sp)
                 }
             }
         }
@@ -239,8 +239,3 @@ private fun StatCard(modifier: Modifier = Modifier, icon: String, title: String,
         }
     }
 }
-
-private val bestDay: String
-    get() = "Senin"
-private val worstDay: String
-    get() = "Jumat"

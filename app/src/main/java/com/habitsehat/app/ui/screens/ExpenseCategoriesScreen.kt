@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.launch
@@ -33,6 +34,8 @@ fun ExpenseCategoriesScreen(
     val newCategoryName = remember { mutableStateOf("") }
     val newCategoryIcon = remember { mutableStateOf("💰") }
     val newCategoryColor = remember { mutableStateOf("#4CAF50") }
+    val showIconPicker = remember { mutableStateOf(false) }
+    val showColorPicker = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -103,7 +106,7 @@ fun ExpenseCategoriesScreen(
     // Add/Edit Category Dialog
     if (showAddCategory.value) {
         AlertDialog(
-            onDismissRequest = { 
+            onDismissRequest = {
                 showAddCategory.value = false
                 newCategoryName.value = ""
                 newCategoryIcon.value = "💰"
@@ -122,7 +125,7 @@ fun ExpenseCategoriesScreen(
                         placeholder = { Text("Contoh: Makan, Transport, Hobi...") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Text("Ikon", fontWeight = FontWeight.Medium)
                     OutlinedTextField(
                         value = newCategoryIcon.value,
@@ -133,14 +136,14 @@ fun ExpenseCategoriesScreen(
                         trailingIcon = {
                             Box(
                                 modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                    .background(Color(android.graphics.Color.parseInt(newCategoryColor.value.replace("#", "0xFF"))).copy(alpha = 0.2f)),
+                                    .background(Color(android.graphics.Color.parseColor(newCategoryColor.value)).copy(alpha = 0.2f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(newCategoryIcon.value, fontSize = 20.sp)
                             }
                         }
                     )
-                    
+
                     Text("Warna", fontWeight = FontWeight.Medium)
                     OutlinedTextField(
                         value = newCategoryColor.value,
@@ -151,7 +154,7 @@ fun ExpenseCategoriesScreen(
                         trailingIcon = {
                             Box(
                                 modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                    .background(Color(android.graphics.Color.parseInt(newCategoryColor.value.replace("#", "0xFF"))))
+                                    .background(Color(android.graphics.Color.parseColor(newCategoryColor.value)))
                             )
                         }
                     )
@@ -160,7 +163,7 @@ fun ExpenseCategoriesScreen(
             confirmButton = {
                 Button(onClick = {
                     if (newCategoryName.value.isNotBlank()) {
-                        val category = ExpenseCategory(
+                        val category = ModelExpenseCategory(
                             name = newCategoryName.value.trim(),
                             icon = newCategoryIcon.value,
                             colorHex = newCategoryColor.value,
@@ -182,8 +185,7 @@ fun ExpenseCategoriesScreen(
     }
 
     // Icon picker
-    var showIconPicker by remember { mutableStateOf(false) }
-    if (showIconPicker) {
+    if (showIconPicker.value) {
         AlertDialog(
             onDismissRequest = { showIconPicker.value = false },
             title = { Text("Pilih Ikon") },
@@ -212,8 +214,7 @@ fun ExpenseCategoriesScreen(
     }
 
     // Color picker
-    var showColorPicker by remember { mutableStateOf(false) }
-    if (showColorPicker) {
+    if (showColorPicker.value) {
         AlertDialog(
             onDismissRequest = { showColorPicker.value = false },
             title = { Text("Pilih Warna") },
@@ -236,7 +237,7 @@ fun ExpenseCategoriesScreen(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(android.graphics.Color.parseInt(color.replace("#", "0xFF"))))
+                                    .background(Color(android.graphics.Color.parseColor(color)))
                             )
                             Spacer(Modifier.width(16.dp))
                             Text(color, fontSize = 16.sp)
@@ -272,12 +273,12 @@ fun CategoryItem(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(android.graphics.Color.parseInt(category.colorHex.replace("#", "0xFF"))).copy(alpha = 0.2f))
+                        .background(Color(android.graphics.Color.parseColor(category.colorHex)).copy(alpha = 0.2f))
                 ) {
                     Text(category.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
                 }
                 Spacer(Modifier.width(12.dp))
-                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Column(horizontalAlignment = Alignment.Start) {
                     Text(category.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     if (isDefault) {
                         Text("Default", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
