@@ -128,7 +128,7 @@ data class Expense(
     val note: String = "",
     val createdAt: Long = System.currentTimeMillis()
 )
-
+@TypeConverters(DateConverters::class)
 @Entity(tableName = "expense_categories")
 data class ExpenseCategory(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -138,4 +138,45 @@ data class ExpenseCategory(
     val isDefault: Boolean = false,
     val sortOrder: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
+)
+
+// Weekly expense report data classes
+data class DailyExpenseSummary(
+    val date: LocalDate,
+    val total: Long
+)
+
+data class CategoryExpenseSummary(
+    val categoryName: String,
+    val categoryIcon: String,
+    val categoryColorHex: String,
+    val total: Long
+)
+
+data class WeeklyExpenseReport(
+    val weekStart: LocalDate,
+    val weekEnd: LocalDate,
+    val dailyTotals: List<DailyExpenseSummary>,
+    val categoryTotals: List<CategoryExpenseSummary>,
+    val weeklyTotal: Long
+)
+
+// Comprehensive weekly report (habits + water + focus + expenses)
+data class HabitStat(
+    val name: String,
+    val doneDays: Int,
+    val totalDays: Int
+)
+
+data class WeeklyReport(
+    val weekStart: String,
+    val weekEnd: String,
+    val consistencyPercent: Int,
+    val bestStreak: Int,
+    val averageWaterMl: Float,
+    val totalWeeklyFocusSeconds: Int,
+    val totalMoneySavedThisWeek: Long,
+    val habitStats: List<HabitStat>,
+    val bestDay: String,
+    val worstDay: String
 )

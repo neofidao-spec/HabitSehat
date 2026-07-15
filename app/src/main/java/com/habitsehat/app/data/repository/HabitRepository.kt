@@ -208,6 +208,100 @@ class HabitRepository(private val db: AppDatabase) {
         )
     }
 
+    // Comprehensive weekly report
+    suspend fun generateWeeklyReport(): WeeklyReport {
+        val now = LocalDate.now()
+        val weekStart = now.minusDays(now.dayOfWeek.value - 1) // Monday
+        val weekEnd = weekStart.plusDays(6)
+
+        // Habit stats
+        val habits = getAllHabits()
+        val habitStats = mutableListOf<HabitStat>()
+        var totalDone = 0
+        var totalPossible = 0
+        var bestStreak = 0
+
+        for (habit in habits) {
+            var doneDays = 0
+            var possibleDays = 0
+            var currentStreak = 0
+
+            var current = weekStart
+            while (current <= weekEnd) {
+                possibleDays++
+                if (isHabitChecked(habit.id, current)) {
+                    doneDays++
+                    totalDone++
+                }
+                totalPossible++
+                current = current.plusDays(1)
+            }
+
+            habitStats.add(HabitStat(habit.name, doneDays, possibleDays))
+
+            // Calculate streak for this habit
+            val streak = getStreak(habit.id, weekStart.minusDays(365))
+            if (streak > bestStreak) bestStreak = streak
+        }
+
+        val consistencyPercent = if (totalPossible > 0) (totalDone * 100 / totalPossible) else 0
+
+        // Water average
+        var waterTotal = 0
+        var currentDate = weekStart
+        while (currentDate <= weekEnd) {
+            waterTotal += getWaterTotal(currentDate)
+            currentDate = currentDate.plusDays(1)
+        }
+        val averageWaterMl = waterTotal.toFloat() / 7
+
+        // Focus time
+        val totalWeeklyFocusSeconds = getWeeklyFocusSeconds(weekStart.minusDays(6)) ?: 0
+
+        // Money saved (bad habits)
+        val badHabits = getAllBadHabits()
+        var totalMoneySavedThisWeek = 0L
+        for (badHabit in badHabits) {
+            totalMoneySavedThisWeek += getTotalMoneySaved(badHabit.id)
+        }
+
+        // Best and worst day
+        var bestDay = weekStart
+        var worstDay = weekStart
+        var bestDayDone = -1
+        var worstDayDone = Int.MAX_VALUE
+
+        currentDate = weekStart
+        while (currentDate <= weekEnd) {
+            var dayDone = 0
+            for (habit in habits) {
+                if (isHabitChecked(habit.id, currentDate)) dayDone++
+            }
+            if (dayDone > bestDayDone) {
+                bestDayDone = dayDone
+                bestDay = currentDate
+            }
+            if (dayDone < worstDayDone) {
+                worstDayDone = dayDone
+                worstDay = currentDate
+            }
+            currentDate = currentDate.plusDays(1)
+        }
+
+        return WeeklyReport(
+            weekStart = weekStart.toString(),
+            weekEnd = weekEnd.toString(),
+            consistencyPercent = consistencyPercent,
+            bestStreak = bestStreak,
+            averageWaterMl = averageWaterMl,
+            totalWeeklyFocusSeconds = totalWeeklyFocusSeconds,
+            totalMoneySavedThisWeek = totalMoneySavedThisWeek,
+            habitStats = habitStats,
+            bestDay = bestDay.toString(),
+            worstDay = worstDay.toString()
+        )
+    }
+
     // ============ CHALLENGES ============
     suspend fun getAllChallenges() = challengeDao.getAll()
     suspend fun getActiveChallenges() = challengeDao.getAllActive()

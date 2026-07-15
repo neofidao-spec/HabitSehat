@@ -2,8 +2,8 @@ package com.habitsehat.app.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.habitsehat.app.data.model.WeeklyExpenseReport
 import com.habitsehat.app.data.repository.HabitRepository
-import com.habitsehat.app.data.repository.WeeklyReport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 data class WeeklyReportUiState(
     val isLoading: Boolean = true,
-    val report: WeeklyReport? = null,
+    val report: WeeklyExpenseReport? = null,
     val error: String? = null
 )
 
@@ -30,7 +30,7 @@ class WeeklyReportViewModel(
         viewModelScope.launch {
             _uiState.value = WeeklyReportUiState(isLoading = true)
             try {
-                val report = repository.generateWeeklyReport()
+                val report = repository.generateWeeklyExpenseReport()
                 _uiState.value = WeeklyReportUiState(isLoading = false, report = report)
             } catch (e: Exception) {
                 _uiState.value = WeeklyReportUiState(isLoading = false, error = e.message)
