@@ -117,19 +117,19 @@ fun ExpenseReportScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(cat.categoryIcon, fontSize = 16.sp)
-                                    }
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(cat.categoryName, fontSize = 14.sp)
-                                }
-                                Text(formatRupiah(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(32.dp)
+                                                        .clip(RoundedCornerShape(8.dp))
+                                                        .background(parseColorSafeReport(cat.categoryColor).copy(alpha = 0.2f)),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(cat.categoryIcon, fontSize = 16.sp)
+                                                }
+                                                Spacer(Modifier.width(8.dp))
+                                                Text(cat.categoryName, fontSize = 14.sp)
+                                            }
+                                            Text(formatRupiahReport(cat.total), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -192,7 +192,7 @@ private fun ExpenseItemCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(parseColorSafe(category.colorHex).copy(alpha = 0.2f)),
+                        .background(parseColorSafeReport(category.colorHex).copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(category.icon, fontSize = 20.sp)
@@ -210,7 +210,7 @@ private fun ExpenseItemCard(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    formatRupiah(expense.amount),
+                    formatRupiahReport(expense.amount),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -222,7 +222,7 @@ private fun ExpenseItemCard(
     }
 }
 
-private fun parseColorSafe(colorHex: String): Color {
+private fun parseColorSafeReport(colorHex: String): Color {
     return try {
         Color(android.graphics.Color.parseColor(colorHex))
     } catch (e: Exception) {
@@ -230,6 +230,6 @@ private fun parseColorSafe(colorHex: String): Color {
     }
 }
 
-private fun formatRupiah(amount: Long): String {
+private fun formatRupiahReport(amount: Long): String {
     return "Rp ${java.text.NumberFormat.getNumberInstance(Locale("id", "ID")).format(amount)}"
 }
