@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.habitsehat.app.data.db.ExpenseWithCategory
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.launch
@@ -163,4 +165,17 @@ fun ExpenseReportScreen(
             }
         }
     }
+}
+}
+
+private fun parseColorSafe(colorHex: String): Color {
+    return try {
+        Color(android.graphics.Color.parseColor(colorHex))
+    } catch (e: Exception) {
+        MaterialTheme.colorScheme.primary
+    }
+}
+
+private fun formatRupiah(amount: Long): String {
+    return "Rp ${java.text.NumberFormat.getNumberInstance(java.util.Locale(\"id\", \"ID\")).format(amount)}"
 }

@@ -132,7 +132,7 @@ fun AddExpenseScreen(
             // Amount input
             Text("Jumlah (Rp)", fontWeight = FontWeight.Medium, fontSize = 16.sp)
             OutlinedTextField(
-                value = if (amount.isEmpty()) "" else "Rp${com.habitsehat.app.ui.screens.formatRupiah(amount.toLongOrNull() ?: 0L)}",
+                value = if (amount.isEmpty()) "" else java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(amount.toLongOrNull() ?: 0L).let { "Rp $it" },
                 onValueChange = { v ->
                     amount = v.filter { it.isDigit() || it == ' ' }.trim()
                     error = null
