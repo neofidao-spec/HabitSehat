@@ -184,7 +184,7 @@ fun AddBadHabitScreen(
                 maxLines = 2
             )
 
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.height(16.dp))
 
             // Save button
             Button(

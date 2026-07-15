@@ -276,10 +276,6 @@ fun AddExpenseScreen(
                             }
                             Spacer(Modifier.width(12.dp))
                             Text(cat.name, fontSize = 16.sp)
-                            if (cat.isDefault) {
-                                Spacer(Modifier.width(8.dp))
-                                Text("Default", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
-                            }
                         }
                     }
                 }
