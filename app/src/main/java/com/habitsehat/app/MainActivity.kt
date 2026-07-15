@@ -47,12 +47,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val db = AppDatabase.getInstance(applicationContext)
-        val repository = HabitRepository(
-            db.habitDao(), db.habitLogDao(), db.waterLogDao(),
-            db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao(),
-            db.challengeDao(), db.challengeProgressDao(),
-            db.expenseDao(), db.expenseCategoryDao()
-        )
+        val repository = HabitRepository(db)
         val settingsManager = SettingsManager(applicationContext)
         val premiumManager = PremiumManager(settingsManager)
         val homeViewModel = HomeViewModel(repository)
@@ -275,10 +270,12 @@ fun MainApp(
                         value = repository.getHabitById(habitId)
                     }
                     AddHabitScreen(
-                        viewModel = homeViewModel,
-                        habitToEdit = habit,
-                        onBack = { navController.popBackStack() }
+                        onSave = { habit -> homeViewModel.saveHabit(habit) },
+                        onBack = { navController.popBackStack() },
+                        habitToEdit = habit
                     )
+                } else {
+                    navController.popBackStack()
                 }
             }
             composable(Screen.Expense.route) {

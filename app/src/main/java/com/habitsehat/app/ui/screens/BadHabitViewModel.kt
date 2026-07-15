@@ -89,7 +89,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
         val badHabit: BadHabit,
         val currentStreak: Int,
         val totalDaysResisted: Int,
-        val totalMoneySaved: Int,
+        val totalMoneySaved: Long,
         val totalOccurrencesResisted: Int,
         val lastResistedDate: LocalDate?
     )

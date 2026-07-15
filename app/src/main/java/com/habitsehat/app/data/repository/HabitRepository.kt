@@ -102,7 +102,7 @@ class HabitRepository(private val db: AppDatabase) {
             val log = existingLogs[0].copy(resistedCount = existingLogs[0].resistedCount + 1)
             badHabitLogDao.update(log)
         } else {
-            badHabitLogDao.insert(BadHabitLog(badHabitId = badHabitId, date = dateStr, resistedCount = 1))
+            badHabitLogDao.insert(BadHabitLog(badHabitId = badHabitId, date = date, resistedCount = 1))
         }
     }
 
@@ -113,7 +113,7 @@ class HabitRepository(private val db: AppDatabase) {
             val log = existingLogs[0].copy(gaveInCount = existingLogs[0].gaveInCount + 1)
             badHabitLogDao.update(log)
         } else {
-            badHabitLogDao.insert(BadHabitLog(badHabitId = badHabitId, date = dateStr, gaveInCount = 1))
+            badHabitLogDao.insert(BadHabitLog(badHabitId = badHabitId, date = date, gaveInCount = 1))
         }
     }
 
@@ -122,7 +122,7 @@ class HabitRepository(private val db: AppDatabase) {
     }
 
     suspend fun getTotalMoneySaved(badHabitId: Long): Long {
-        return badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0L
+        return (badHabitLogDao.getTotalOccurrencesResisted(badHabitId) ?: 0).toLong()
     }
 
     suspend fun getTotalOccurrencesResisted(badHabitId: Long): Int {
@@ -191,7 +191,7 @@ class HabitRepository(private val db: AppDatabase) {
     // Weekly expense recap
     suspend fun generateWeeklyExpenseReport(): WeeklyExpenseReport {
         val now = LocalDate.now()
-        val weekStart = now.minusDays(now.dayOfWeek.value - 1) // Monday
+        val weekStart = now.minusDays((now.dayOfWeek.value - 1).toLong()) // Monday
         val weekEnd = weekStart.plusDays(6)
 
         val dailyTotals = mutableListOf<DailyExpenseSummary>()
@@ -202,7 +202,9 @@ class HabitRepository(private val db: AppDatabase) {
             current = current.plusDays(1)
         }
 
-        val categoryTotals = getExpenseTotalsByCategory(weekStart, weekEnd)
+        val categoryTotals = getExpenseTotalsByCategory(weekStart, weekEnd).map { ct ->
+            CategoryExpenseSummary(ct.categoryName, ct.categoryIcon, ct.categoryColor, ct.total)
+        }
         val weeklyTotal = dailyTotals.sumOf { it.total }
 
         return WeeklyExpenseReport(
@@ -217,7 +219,7 @@ class HabitRepository(private val db: AppDatabase) {
     // Comprehensive weekly report
     suspend fun generateWeeklyReport(): WeeklyReport {
         val now = LocalDate.now()
-        val weekStart = now.minusDays(now.dayOfWeek.value - 1) // Monday
+        val weekStart = now.minusDays((now.dayOfWeek.value - 1).toLong()) // Monday
         val weekEnd = weekStart.plusDays(6)
 
         // Habit stats
