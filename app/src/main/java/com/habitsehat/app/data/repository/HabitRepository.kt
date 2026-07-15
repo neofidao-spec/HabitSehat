@@ -254,6 +254,7 @@ class HabitRepository(
         }
     }
 
+    // Updated: returns false when already updated today
     suspend fun updateChallengeProgress(challengeId: Long): Boolean {
         val progress = challengeProgressDao.getProgress(challengeId) ?: return false
         val challenge = challengeDao.getById(challengeId) ?: return false
@@ -269,6 +270,29 @@ class HabitRepository(
             completed = completed
         ))
         return true
+    }
+
+    // Auto-update all active challenges based on today's habit completions
+    suspend fun autoUpdateChallenges() {
+        val activeProgress = challengeProgressDao.getActiveProgress()
+        val todayStr = toStr(today())
+        for (progress in activeProgress) {
+            // Skip if already updated today
+            if (toStr(progress.lastUpdateDate) == todayStr) continue
+            val challenge = challengeDao.getById(progress.challengeId) ?: continue
+            // Check if user completed any habit today (minimum 1 habit checked)
+            val habits = habitDao.getAllActive()
+            var anyHabitDoneToday = false
+            for (habit in habits) {
+                if (isHabitChecked(habit.id, today())) {
+                    anyHabitDoneToday = true
+                    break
+                }
+            }
+            if (anyHabitDoneToday) {
+                updateChallengeProgress(progress.challengeId)
+            }
+        }
     }
 
     suspend fun addDefaultChallenges() {

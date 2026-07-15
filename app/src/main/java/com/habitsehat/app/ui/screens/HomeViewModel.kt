@@ -64,6 +64,9 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
                         isLoading = false
                     )
                 }
+
+                // Auto-update challenge progress
+                repository.autoUpdateChallenges()
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(

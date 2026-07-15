@@ -3,8 +3,6 @@ package com.habitsehat.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -119,19 +117,18 @@ fun ExpenseScreen(
                         Text(formatRupiah(report.totalExpenses), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                         Spacer(Modifier.height(12.dp))
 
-                        // Category breakdown
-                        LazyColumn(
+                        // Category breakdown (use Column + forEach, not nested LazyColumn)
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 200.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            items(report.categoryTotals) { cat ->
+                            report.categoryTotals.forEach { cat ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(12.dp)
-                                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), RoundedCornerShape(10.dp)),
+                                        .padding(vertical = 4.dp)
+                                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
+                                        .padding(12.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -158,7 +155,7 @@ fun ExpenseScreen(
                 }
             }
 
-            // Today's expenses list
+            // Today's expenses list (use forEach, not nested LazyColumn)
             if (uiState.todayExpenses.isNotEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -166,18 +163,13 @@ fun ExpenseScreen(
                 ) {
                     Text("Hari Ini (${shortFmt.format(LocalDate.now())})", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(uiState.todayExpenses) { expenseWithCat ->
-                            ExpenseItemCard(
-                                expense = expenseWithCat.expense,
-                                category = expenseWithCat.expenseCategory!!,
-                                onClick = { onNavigateToAdd() },
-                                onDelete = { scope.launch { viewModel.deleteExpense(expenseWithCat.expense) } }
-                            )
-                        }
+                    uiState.todayExpenses.forEach { expenseWithCat ->
+                        ExpenseItemCard(
+                            expense = expenseWithCat.expense,
+                            category = expenseWithCat.expenseCategory!!,
+                            onClick = { onNavigateToAdd() },
+                            onDelete = { scope.launch { viewModel.deleteExpense(expenseWithCat.expense) } }
+                        )
                     }
                 }
             } else {

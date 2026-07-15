@@ -24,6 +24,7 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
     fun loadData() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
+            repository.addDefaultExpenseCategories()
             val categories = repository.getAllExpenseCategories()
             val todayExpenses = repository.getExpensesWithCategory(LocalDate.now(), LocalDate.now())
             val todayTotal = repository.getExpenseTotalByDate(LocalDate.now())

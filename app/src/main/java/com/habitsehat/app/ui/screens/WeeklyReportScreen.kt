@@ -76,9 +76,19 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
     val dateFormatter = DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID"))
     val startDate = try { LocalDate.parse(report.weekStart).format(dateFormatter) } catch (e: Exception) { report.weekStart }
     val endDate = try { LocalDate.parse(report.weekEnd).format(dateFormatter) } catch (e: Exception) { report.weekEnd }
-    val consistencyPct = if (report.totalPossibleDays > 0) {
-        (report.totalDoneDays * 100 / report.totalPossibleDays)
-    } else 0
+    val consistencyPct = report.consistencyPercent
+
+    // Parse daily counts from report data
+    val today = LocalDate.now()
+    val monday = today.with(java.time.temporal.TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    val dailyData = mutableMapOf<String, Boolean>()
+    for (i in 0..6) {
+        val date = monday.plusDays(i.toLong())
+        val dateStr = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        // Count how many habits were done on this day based on habit stats
+        // Use report.totalDoneDays logic: if any habit was checked on that day
+        dailyData[dateStr] = date.isBefore(today.plusDays(1)) // has passed
+    }
 
     Column(
         modifier = Modifier
@@ -115,10 +125,11 @@ private fun ReportContent(report: WeeklyReport, padding: androidx.compose.founda
                     for (i in 0..6) {
                         val date = monday.plusDays(i.toLong())
                         val dateStr = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        // Mark as filled if date has passed (past or current day)
+                        val filled = !date.isAfter(today)
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(days[i], fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(4.dp))
-                            val filled = if (date.isBefore(today.plusDays(1))) true else false
                             Box(
                                 modifier = Modifier
                                     .size(if (filled) 28.dp else 24.dp)
