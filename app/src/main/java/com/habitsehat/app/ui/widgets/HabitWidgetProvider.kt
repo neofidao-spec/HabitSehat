@@ -58,12 +58,7 @@ class HabitWidgetProvider : AppWidgetProvider() {
 
             try {
                 val db = AppDatabase.getInstance(context)
-                val repository = HabitRepository(
-                    db.habitDao(), db.habitLogDao(), db.waterLogDao(),
-                    db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao(),
-                    db.challengeDao(), db.challengeProgressDao(),
-                    db.expenseDao(), db.expenseCategoryDao()
-                )
+                val repository = HabitRepository(db)
                 runBlocking {
                     val habits = repository.getAllHabits()
                     var doneCount = 0
