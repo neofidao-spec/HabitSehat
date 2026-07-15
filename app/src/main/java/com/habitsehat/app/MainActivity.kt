@@ -16,11 +16,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.habitsehat.app.data.db.AppDatabase
+import com.habitsehat.app.data.db.ExpenseWithCategory
 import com.habitsehat.app.data.model.AppTheme
 import com.habitsehat.app.data.preferences.PremiumManager
 import com.habitsehat.app.data.preferences.SettingsManager
@@ -282,11 +286,17 @@ fun MainApp(
             ) { backStackEntry ->
                 val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
                 if (expenseId > 0) {
-                    // Load expense and navigate to edit screen
-                    val expense = repository.getExpenseById(expenseId)
+                    // Load expense using produceState for suspend function
+                    val expenseWithCat by androidx.compose.runtime.produceState<ExpenseWithCategory?>(null) {
+                        val exp = repository.getExpenseById(expenseId)
+                        if (exp != null) {
+                            val cat = repository.getExpenseCategoryById(exp.categoryId)
+                            value = ExpenseWithCategory(expense = exp, expenseCategory = cat)
+                        }
+                    }
                     AddExpenseScreen(
                         viewModel = expenseViewModel,
-                        expenseToEdit = expense,
+                        expenseToEdit = expenseWithCat,
                         onBack = { navController.popBackStack() }
                     )
                 }
