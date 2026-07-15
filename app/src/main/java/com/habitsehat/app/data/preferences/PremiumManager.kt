@@ -53,6 +53,12 @@ class PremiumManager(
                 emoji = "📋"
             ),
             PremiumFeature(
+                "HabitStop",
+                "❌ Tidak tersedia",
+                "Pantau kebiasaan buruk + money saved tracker + streak",
+                emoji = "🚫"
+            ),
+            PremiumFeature(
                 "Tema Eksklusif",
                 "3 tema dasar",
                 "20+ tema premium (Cyberpunk, Sakura, Aurora dll)",
@@ -81,6 +87,12 @@ class PremiumManager(
                 "❌ Tidak tersedia",
                 "Timer fokus 25/50/90 menit + statistik",
                 emoji = "🍅"
+            ),
+            PremiumFeature(
+                "Pencatatan Pengeluaran",
+                "❌ Tidak tersedia",
+                "Catat pengeluaran sehat (seminar, bootcamp) + rekap mingguan",
+                emoji = "💰"
             ),
             PremiumFeature(
                 "Backup Google Drive",

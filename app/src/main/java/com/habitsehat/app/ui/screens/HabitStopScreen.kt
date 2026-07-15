@@ -67,10 +67,8 @@ fun HabitStopScreen(
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        } else if (!isPremium) {
-            LockedPremiumView(onUpgrade = onUpgrade, modifier = Modifier.padding(padding))
         } else if (state.badHabits.isEmpty()) {
-            EmptyBadHabitView(onAdd = onAddBadHabit, modifier = Modifier.padding(padding))
+            EmptyBadHabitView(onAdd = if (isPremium) onAddBadHabit else ({ }), modifier = Modifier.padding(padding))
         } else {
             LazyColumn(
                 modifier = Modifier

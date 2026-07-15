@@ -204,7 +204,7 @@ fun MainApp(
             }
             composable(Screen.Premium.route) {
                 PremiumScreen(
-                    onUpgrade = {
+                    onUpgrade = { plan ->
                         scope.launch { premiumManager.unlockPremium() }
                         navController.popBackStack()
                     },

@@ -24,10 +24,21 @@ import com.habitsehat.app.data.preferences.PremiumManager
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumScreen(
-    onUpgrade: () -> Unit,
+    onUpgrade: (plan: String) -> Unit,
     onRestore: () -> Unit,
     onBack: () -> Unit
 ) {
+    var showConfirm by remember { mutableStateOf(false) }
+    var selectedPlan by remember { mutableStateOf("") }
+    var selectedPrice by remember { mutableStateOf("") }
+
+    val confirmTitle: @Composable () -> Unit = { Text("Konfirmasi Upgrade") }
+    val confirmDismiss: @Composable () -> Unit = { TextButton(onClick = { showConfirm = false }) { Text("Batal") } }
+    val confirmAction: @Composable () -> Unit = {
+        Button(onClick = { showConfirm = false; onUpgrade(selectedPlan) }) {
+            Text("Ya, Upgrade!", fontWeight = FontWeight.SemiBold)
+        }
+    }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -112,7 +123,11 @@ fun PremiumScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                onClick = onUpgrade,
+                onClick = {
+                    selectedPlan = "bulanan"
+                    selectedPrice = "Rp19.000/bulan"
+                    showConfirm = true
+                },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
@@ -138,7 +153,11 @@ fun PremiumScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                onClick = onUpgrade,
+                onClick = {
+                    selectedPlan = "tahunan"
+                    selectedPrice = "Rp129.000/tahun"
+                    showConfirm = true
+                },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -182,7 +201,11 @@ fun PremiumScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                onClick = onUpgrade,
+                onClick = {
+                    selectedPlan = "seumur hidup"
+                    selectedPrice = "Rp199.000 (sekali)"
+                    showConfirm = true
+                },
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFFFD700).copy(alpha = 0.15f)
                 )
@@ -223,6 +246,26 @@ fun PremiumScreen(
 
             Spacer(Modifier.height(32.dp))
         }
+    }
+
+    // Konfirmasi dialog
+    if (showConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = confirmTitle,
+            text = {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Anda akan meng-upgrade ke paket:")
+                    Spacer(Modifier.height(8.dp))
+                    Text(selectedPlan.uppercase(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(selectedPrice, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.height(16.dp))
+                    Text("Pembayaran akan diproses melalui Google Play Store.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            },
+            confirmButton = confirmAction,
+            dismissButton = confirmDismiss
+        )
     }
 }
 
