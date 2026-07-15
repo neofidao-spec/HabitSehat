@@ -40,10 +40,15 @@ class ChallengesViewModel(
                 val allChallenges = repository.getAllChallenges()
                 val allProgress = repository.getAllProgress()
 
-                val active = allChallenges.map { challenge ->
-                    val progress = allProgress.find { it.challengeId == challenge.id }
-                    ChallengeWithProgress(challenge, progress)
-                }
+                val active = allChallenges
+                    .filter { challenge ->
+                        val progress = allProgress.find { it.challengeId == challenge.id }
+                        progress == null || !progress.completed
+                    }
+                    .map { challenge ->
+                        val progress = allProgress.find { it.challengeId == challenge.id }
+                        ChallengeWithProgress(challenge, progress)
+                    }
 
                 val completed = allProgress
                     .filter { it.completed }
