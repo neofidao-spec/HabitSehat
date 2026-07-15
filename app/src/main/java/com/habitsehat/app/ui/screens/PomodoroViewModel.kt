@@ -135,7 +135,7 @@ class PomodoroViewModel(
             repository.savePomodoroSession(
                 PomodoroSession(
                     durationMinutes = state.selectedMinutes,
-                    completedSeconds = totalSeconds,
+                    focusSeconds = totalSeconds,
                     habitId = state.selectedHabitId,
                     date = today()
                 )

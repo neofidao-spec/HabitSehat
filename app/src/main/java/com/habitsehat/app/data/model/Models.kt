@@ -27,6 +27,7 @@ data class Habit(
     val reminderHour: Int = 8,
     val reminderMinute: Int = 0,
     val isArchived: Boolean = false,
+    val sortOrder: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 )
 
@@ -62,6 +63,7 @@ data class BadHabit(
     val trigger: String = "",
     val replacementHabit: String = "",
     val isActive: Boolean = true,
+    val sortOrder: Int = 0,
     val startDate: LocalDate? = null,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -84,7 +86,7 @@ data class BadHabitLog(
 data class PomodoroSession(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val durationMinutes: Int,
-    val completedSeconds: Int,
+    val focusSeconds: Int,
     val habitId: Long? = null,
     val date: LocalDate,
     val createdAt: Long = System.currentTimeMillis()

@@ -23,7 +23,7 @@ import com.habitsehat.app.data.model.WaterLog
         Challenge::class, ChallengeProgress::class,
         Expense::class, ExpenseCategory::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
