@@ -289,41 +289,31 @@ fun AddExpenseScreen(
         )
     }
 
-    // Date picker dialog
+    // Date picker dialog — Material3 DatePicker
     if (showDatePicker) {
-        val dateTitle: @Composable () -> Unit = { Text("Pilih Tanggal") }
-        val dateConfirm: @Composable () -> Unit = {
-            Button(onClick = { showDatePicker = false }) {
-                Text("OK", fontWeight = FontWeight.SemiBold)
-            }
-        }
-        val dateDismiss: @Composable () -> Unit = {
-            TextButton(onClick = { showDatePicker = false }) { Text("Batal") }
-        }
-        androidx.compose.material3.AlertDialog(
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = selectedDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        )
+        androidx.compose.material3.DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
-            title = dateTitle,
-            text = {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Tanggal: ${selectedDate.format(displayFmt)}")
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { selectedDate = selectedDate.minusDays(1) }) {
-                            Icon(Icons.Filled.ChevronLeft, contentDescription = "Kemarin")
-                        }
-                        Text(selectedDate.format(displayFmt), fontSize = 18.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(horizontal = 16.dp))
-                        IconButton(onClick = { selectedDate = selectedDate.plusDays(1) }) {
-                            Icon(Icons.Filled.ChevronRight, contentDescription = "Besok")
-                        }
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        selectedDate = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                     }
+                    showDatePicker = false
+                }) {
+                    Text("OK", fontWeight = FontWeight.SemiBold)
                 }
             },
-            confirmButton = dateConfirm,
-            dismissButton = dateDismiss
-        )
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Batal")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
     }
 }
 
