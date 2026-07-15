@@ -30,6 +30,7 @@ fun MoreScreen(
     onPomodoroClick: () -> Unit = {},
     onWeeklyReportClick: () -> Unit = {},
     onChallengesClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -89,7 +90,7 @@ fun MoreScreen(
                         scope.launch { settingsManager.setDarkMode(next) }
                     }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                    MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") { onBack() }
+                    MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") { onSettingsClick() }
                 }
             }
 

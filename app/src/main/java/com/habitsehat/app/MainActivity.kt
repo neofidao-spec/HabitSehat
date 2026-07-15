@@ -222,6 +222,7 @@ fun MainApp(
                     onPomodoroClick = { navController.navigate(Screen.Pomodoro.route) },
                     onWeeklyReportClick = { navController.navigate(Screen.WeeklyReport.route) },
                     onChallengesClick = { navController.navigate(Screen.Challenges.route) },
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
                     onBack = { navController.popBackStack() }
                 )
             }
