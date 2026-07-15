@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.habitsehat.app.data.model.ExpenseCategory
+import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.launch
 
@@ -83,7 +83,7 @@ fun ExpenseCategoriesScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.categories) { cat ->
+                    items(uiState.categories) { cat: ModelExpenseCategory ->
                         CategoryItem(
                             category = cat,
                             isDefault = cat.isDefault,
@@ -251,7 +251,7 @@ fun ExpenseCategoriesScreen(
 
 @Composable
 fun CategoryItem(
-    category: ExpenseCategory,
+    category: ModelExpenseCategory,
     isDefault: Boolean,
     onEdit: () -> Unit,
     onDelete: () -> Unit

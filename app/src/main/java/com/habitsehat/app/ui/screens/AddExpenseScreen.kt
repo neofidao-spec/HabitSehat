@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Expense
-import com.habitsehat.app.data.model.ExpenseCategory
+import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
 import com.habitsehat.app.data.repository.ExpenseWithCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -196,7 +196,7 @@ fun AddExpenseScreen(
                         .height(300.dp)
                         .padding(16.dp)
                 ) {
-                    items(categoryOptions) { c ->
+                    items(categoryOptions) { cat: ModelExpenseCategory ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
