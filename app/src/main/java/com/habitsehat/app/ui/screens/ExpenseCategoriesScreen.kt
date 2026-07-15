@@ -120,7 +120,7 @@ fun ExpenseCategoriesScreen(
                         CategoryItem(
                             category = cat,
                             isDefault = cat.isDefault,
-                            onEdit = { openEditCategory(it) },
+                            onEdit = { openEditCategory(cat) },
                             onDelete = {
                                 if (!cat.isDefault) {
                                     scope.launch { viewModel.deleteCategory(cat) }
