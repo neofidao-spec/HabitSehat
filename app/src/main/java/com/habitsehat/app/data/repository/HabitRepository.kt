@@ -276,7 +276,7 @@ class HabitRepository(
         val completed = updatedDays >= challenge.targetDays
         challengeProgressDao.update(progress.copy(
             currentDays = updatedDays,
-            lastUpdateDate = todayStr,
+            lastUpdateDate = today(),
             completed = completed
         ))
         return true
