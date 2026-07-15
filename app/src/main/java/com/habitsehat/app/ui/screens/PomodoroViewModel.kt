@@ -37,7 +37,7 @@ class PomodoroViewModel(
 
     private var timerJob: Job? = null
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    private fun today() = LocalDate.now().format(dateFormat)
+    private fun today() = LocalDate.now()
 
     init {
         loadHabits()

@@ -201,7 +201,7 @@ fun AddBadHabitScreen(
                         trigger = trigger.trim(),
                         replacementHabit = replacementHabit.trim(),
                         isActive = true,
-                        startDate = java.time.LocalDate.now().toString(),
+                        startDate = java.time.LocalDate.now(),
                         createdAt = System.currentTimeMillis()
                     )
                     scope.launch {

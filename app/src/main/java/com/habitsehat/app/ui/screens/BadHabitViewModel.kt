@@ -7,6 +7,7 @@ import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
 
@@ -22,13 +23,14 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
             _uiState.value = _uiState.value.copy(isLoading = true)
             val habits = repository.getAllBadHabits()
             val statsList = mutableListOf<BadHabitStat>()
-            
+
             for (habit in habits) {
                 val (totalResisted, totalDays) = repository.getBadHabitStats(habit.id)
                 val moneySaved = repository.getMoneySaved(habit)
-                val streak = repository.getBadHabitResistedStreak(habit.id, "")
-                val lastResisted = repository.getLastResistedDate(habit.id)
-                
+                val streak = repository.getBadHabitResistedStreak(habit.id, LocalDate.now().minusDays(365))
+                val lastResistedStr = repository.getLastResistedDate(habit.id)
+                val lastResisted = lastResistedStr?.let { LocalDate.parse(it) }
+
                 statsList.add(BadHabitStat(
                     badHabit = habit,
                     currentStreak = streak,
@@ -38,7 +40,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
                     lastResistedDate = lastResisted
                 ))
             }
-            
+
             _uiState.value = _uiState.value.copy(badHabits = statsList, isLoading = false)
         }
     }
@@ -89,6 +91,6 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
         val totalDaysResisted: Int,
         val totalMoneySaved: Int,
         val totalOccurrencesResisted: Int,
-        val lastResistedDate: String?
+        val lastResistedDate: LocalDate?
     )
 }

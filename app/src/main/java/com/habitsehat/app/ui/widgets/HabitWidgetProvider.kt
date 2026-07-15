@@ -52,8 +52,9 @@ class HabitWidgetProvider : AppWidgetProvider() {
 
             val views = RemoteViews(context.packageName, layoutId)
             val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val today = LocalDate.now().format(dateFormat)
-            val displayDate = LocalDate.now().format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID")))
+            val today = LocalDate.now()
+            val todayStr = today.format(dateFormat)
+            val displayDate = today.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID")))
 
             try {
                 val db = AppDatabase.getInstance(context)
@@ -73,7 +74,7 @@ class HabitWidgetProvider : AppWidgetProvider() {
 
                     var bestStreak = 0
                     for (habit in habits) {
-                        val since = LocalDate.now().minusDays(365).format(dateFormat)
+                        val since = LocalDate.now().minusDays(365)
                         val streak = repository.getStreak(habit.id, since)
                         if (streak > bestStreak) bestStreak = streak
                     }
@@ -120,7 +121,7 @@ class HabitWidgetProvider : AppWidgetProvider() {
         private fun setMediumHabitList(
             views: RemoteViews,
             habits: List<Habit>,
-            today: String,
+            today: LocalDate,
             repository: HabitRepository
         ) {
             val sb = StringBuilder()
@@ -136,7 +137,7 @@ class HabitWidgetProvider : AppWidgetProvider() {
         private fun setLargeHabitLines(
             views: RemoteViews,
             habits: List<Habit>,
-            today: String,
+            today: LocalDate,
             repository: HabitRepository
         ) {
             val ids = listOf(

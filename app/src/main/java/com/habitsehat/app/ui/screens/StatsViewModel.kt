@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.habitsehat.app.data.repository.HabitRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class StatsViewModel(private val repository: HabitRepository) : ViewModel() {
 
     data class DayData(
-        val date: String,
+        val date: LocalDate,
         val habitsDone: Int,
         val habitsTotal: Int,
         val waterMl: Int
@@ -31,33 +33,31 @@ class StatsViewModel(private val repository: HabitRepository) : ViewModel() {
     fun refresh() {
         viewModelScope.launch {
             val habits = repository.getAllHabits()
-            val today = java.time.LocalDate.now()
-            val fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val today = LocalDate.now()
+            val displayFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
             // Last 7 days
             val weekData = (6 downTo 0).map { daysAgo ->
                 val d = today.minusDays(daysAgo.toLong())
-                val ds = d.format(fmt)
                 var done = 0
                 for (h in habits) {
-                    val c = repository.getHabitCount(h.id, ds)
+                    val c = repository.getHabitCount(h.id, d)
                     if (c >= h.targetCount) done++
                 }
-                val w = repository.getWaterTotal(ds)
-                DayData(ds, done, habits.size, w)
+                val w = repository.getWaterTotal(d)
+                DayData(d, done, habits.size, w)
             }
 
-            // Last 30 days (simplified — just check if all habits done)
+            // Last 30 days
             val monthData = (29 downTo 0).map { daysAgo ->
                 val d = today.minusDays(daysAgo.toLong())
-                val ds = d.format(fmt)
                 var done = 0
                 for (h in habits) {
-                    val c = repository.getHabitCount(h.id, ds)
+                    val c = repository.getHabitCount(h.id, d)
                     if (c >= h.targetCount) done++
                 }
-                val w = repository.getWaterTotal(ds)
-                DayData(ds, done, habits.size, w)
+                val w = repository.getWaterTotal(d)
+                DayData(d, done, habits.size, w)
             }
 
             // Best streak
