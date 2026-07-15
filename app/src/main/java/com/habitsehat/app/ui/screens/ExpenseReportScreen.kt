@@ -142,7 +142,7 @@ fun ExpenseReportScreen(
                         Text("Detail Pengeluaran", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     }
                     items(report.expenseItems) { item ->
-                        ExpenseItemCard(
+                        ExpenseItemCardReport(
                             expense = item.expense,
                             category = item.expenseCategory!!,
                             onClick = {},
@@ -171,7 +171,7 @@ fun ExpenseReportScreen(
 }
 
 @Composable
-private fun ExpenseItemCard(
+private fun ExpenseItemCardReport(
     expense: com.habitsehat.app.data.model.Expense,
     category: com.habitsehat.app.data.model.ExpenseCategory,
     onClick: () -> Unit,
