@@ -144,7 +144,8 @@ fun ExpenseCategoriesScreen(
                         icon = categoryIcon.value,
                         colorHex = categoryColor.value,
                         isDefault = false,
-                        sortOrder = uiState.categories.size
+                        sortOrder = uiState.categories.size,
+                        createdAt = System.currentTimeMillis()
                     )
                     val updated = cat.copy(
                         name = categoryName.value.trim(),
