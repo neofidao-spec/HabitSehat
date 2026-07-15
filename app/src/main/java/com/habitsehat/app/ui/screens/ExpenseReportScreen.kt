@@ -23,9 +23,6 @@ import java.time.format.DateTimeFormatter
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,36 +45,26 @@ fun ExpenseReportScreen(
             )
         }
     ) { padding ->
-        if (uiState.isLoading) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else if (uiState.weeklyReport == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("📊", fontSize = 64.sp)
-                    Spacer(Modifier.height(16.dp))
-                    Text("Belum ada data minggu ini", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                }
-            }
-        } else {
-            val report = uiState.weeklyReport!!
-            val start = try { LocalDate.parse(report.weekStart).format(shortFmt) } catch (e: Exception) { report.weekStart }
-            val end = try { LocalDate.parse(report.weekEnd).format(shortFmt) } catch (e: Exception) { report.weekEnd }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val report = uiState.weeklyReport
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Header summary
+            if (report != null) {
+                // Weekly summary card
                 item {
+                    val start = try { LocalDate.parse(report.startDate).format(shortFmt) } catch (e: Exception) { report.startDate }
+                    val end = try { LocalDate.parse(report.endDate).format(shortFmt) } catch (e: Exception) { report.endDate }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                        shape = RoundedCornerShape(20.dp)
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
                         Column(
                             modifier = Modifier.padding(20.dp),
@@ -131,7 +118,9 @@ fun ExpenseReportScreen(
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
-                                            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(RoundedCornerShape(8.dp))
                                                 .background(parseColorSafe(cat.categoryColor).copy(alpha = 0.2f)),
                                             contentAlignment = Alignment.Center
                                         ) {
@@ -162,6 +151,75 @@ fun ExpenseReportScreen(
                         )
                     }
                 }
+            } else {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                            Spacer(Modifier.height(16.dp))
+                            Text("Memuat laporan...", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpenseItemCard(
+    expense: com.habitsehat.app.data.model.Expense,
+    category: com.habitsehat.app.data.model.ExpenseCategory,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val displayFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID"))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(parseColorSafe(category.colorHex).copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(category.icon, fontSize = 20.sp)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(category.name, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        try { LocalDate.parse(expense.date.toString()).format(displayFmt) } catch (e: Exception) { expense.date.toString() },
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    formatRupiah(expense.amount),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                if (expense.note.isNotBlank()) {
+                    Text(expense.note, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     }
@@ -176,5 +234,5 @@ private fun parseColorSafe(colorHex: String): Color {
 }
 
 private fun formatRupiah(amount: Long): String {
-    return "Rp ${java.text.NumberFormat.getNumberInstance(java.util.Locale(\"id\", \"ID\")).format(amount)}"
+    return "Rp ${java.text.NumberFormat.getNumberInstance(java.util.Locale("id", "ID")).format(amount)}"
 }
