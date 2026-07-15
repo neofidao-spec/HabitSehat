@@ -91,7 +91,7 @@ fun ExpenseScreen(
                             onClick = onNavigateToAdd,
                             shape = RoundedCornerShape(20.dp)
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = null, size = 18.sp)
+                            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Catat", fontWeight = FontWeight.SemiBold)
                         }
