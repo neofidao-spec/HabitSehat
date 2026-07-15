@@ -74,6 +74,13 @@ class ExpenseViewModel(private val repository: HabitRepository) : ViewModel() {
         }
     }
 
+    fun updateCategory(category: ExpenseCategory) {
+        viewModelScope.launch {
+            repository.updateExpenseCategory(category)
+            loadData()
+        }
+    }
+
     fun refresh() {
         loadData()
     }

@@ -30,12 +30,37 @@ fun ExpenseCategoriesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val showAddCategory = remember { mutableStateOf(false) }
-    val newCategoryName = remember { mutableStateOf("") }
-    val newCategoryIcon = remember { mutableStateOf("💰") }
-    val newCategoryColor = remember { mutableStateOf("#4CAF50") }
+
+    // Shared state for add/edit dialog
+    val showDialog = remember { mutableStateOf(false) }
+    val dialogTitle = remember { mutableStateOf("Tambah Kategori Baru") }
+    val categoryName = remember { mutableStateOf("") }
+    val categoryIcon = remember { mutableStateOf("💰") }
+    val categoryColor = remember { mutableStateOf("#4CAF50") }
     val showIconPicker = remember { mutableStateOf(false) }
     val showColorPicker = remember { mutableStateOf(false) }
+    val editingCategory = remember { mutableStateOf<ModelExpenseCategory?>(null) }
+
+    val iconOptions = remember { listOf("🍔", "🚌", "🎮", "💊", "📚", "🛍️", "💡", "🏠", "🐶", "✈️", "🎁", "💰") }
+    val colorOptions = remember { listOf("#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0", "#607D8B", "#795548", "#F44336", "#00BCD4", "#8BC34A", "#FFEB3B", "#FF5722") }
+
+    fun openAddCategory() {
+        dialogTitle.value = "Tambah Kategori Baru"
+        categoryName.value = ""
+        categoryIcon.value = "💰"
+        categoryColor.value = "#4CAF50"
+        editingCategory.value = null
+        showDialog.value = true
+    }
+
+    fun openEditCategory(cat: ModelExpenseCategory) {
+        dialogTitle.value = "Edit Kategori"
+        categoryName.value = cat.name
+        categoryIcon.value = cat.icon
+        categoryColor.value = cat.colorHex
+        editingCategory.value = cat
+        showDialog.value = true
+    }
 
     Scaffold(
         topBar = {
@@ -47,7 +72,7 @@ fun ExpenseCategoriesScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showAddCategory.value = true }) {
+                    IconButton(onClick = { openAddCategory() }) {
                         Icon(Icons.Filled.Add, contentDescription = "Tambah Kategori")
                     }
                 }
@@ -75,8 +100,13 @@ fun ExpenseCategoriesScreen(
                     ) {
                         Text("📁", fontSize = 48.sp)
                         Text("Belum ada kategori", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                        Text("Tambah kategori untuk mulai mencatat pengeluaran", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        Button(onClick = { showAddCategory.value = true }) {
+                        Text(
+                            "Tambah kategori untuk mulai mencatat pengeluaran",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Button(onClick = { openAddCategory() }) {
                             Text("Tambah Kategori Pertama")
                         }
                     }
@@ -90,7 +120,7 @@ fun ExpenseCategoriesScreen(
                         CategoryItem(
                             category = cat,
                             isDefault = cat.isDefault,
-                            onEdit = { /* TODO: edit */ },
+                            onEdit = { openEditCategory(it) },
                             onDelete = {
                                 if (!cat.isDefault) {
                                     scope.launch { viewModel.deleteCategory(cat) }
@@ -104,44 +134,50 @@ fun ExpenseCategoriesScreen(
     }
 
     // Add/Edit Category Dialog
-    if (showAddCategory.value) {
-        val catConfirm: @Composable () -> Unit = {
+    if (showDialog.value) {
+        val confirm: @Composable () -> Unit = {
             Button(onClick = {
-                if (newCategoryName.value.isNotBlank()) {
-                    val category = ModelExpenseCategory(
-                        name = newCategoryName.value.trim(),
-                        icon = newCategoryIcon.value,
-                        colorHex = newCategoryColor.value,
+                if (categoryName.value.isNotBlank()) {
+                    val cat = editingCategory.value ?: ModelExpenseCategory(
+                        id = 0,
+                        name = categoryName.value.trim(),
+                        icon = categoryIcon.value,
+                        colorHex = categoryColor.value,
                         isDefault = false,
                         sortOrder = uiState.categories.size
                     )
-                    scope.launch { viewModel.addCategory(category) }
-                    showAddCategory.value = false
-                    newCategoryName.value = ""
+                    val updated = cat.copy(
+                        name = categoryName.value.trim(),
+                        icon = categoryIcon.value,
+                        colorHex = categoryColor.value
+                    )
+                    scope.launch {
+                        if (editingCategory.value == null) {
+                            viewModel.addCategory(updated)
+                        } else {
+                            viewModel.updateCategory(updated)
+                        }
+                    }
+                    showDialog.value = false
                 }
             }) {
-                Text("Simpan", fontWeight = FontWeight.SemiBold)
+                Text(if (editingCategory.value == null) "Simpan" else "Update", fontWeight = FontWeight.SemiBold)
             }
         }
-        val catDismiss: @Composable () -> Unit = {
-            TextButton(onClick = { showAddCategory.value = false }) { Text("Batal") }
+        val dismiss: @Composable () -> Unit = {
+            TextButton(onClick = { showDialog.value = false }) { Text("Batal") }
         }
         androidx.compose.material3.AlertDialog(
-            onDismissRequest = {
-                showAddCategory.value = false
-                newCategoryName.value = ""
-                newCategoryIcon.value = "💰"
-                newCategoryColor.value = "#4CAF50"
-            },
-            title = { Text("Tambah Kategori Baru") },
+            onDismissRequest = { showDialog.value = false },
+            title = { Text(dialogTitle.value) },
             text = {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     OutlinedTextField(
-                        value = newCategoryName.value,
-                        onValueChange = { newCategoryName.value = it },
+                        value = categoryName.value,
+                        onValueChange = { categoryName.value = it },
                         label = { Text("Nama Kategori") },
                         placeholder = { Text("Contoh: Makan, Transport, Hobi...") },
                         modifier = Modifier.fillMaxWidth()
@@ -149,46 +185,50 @@ fun ExpenseCategoriesScreen(
 
                     Text("Ikon", fontWeight = FontWeight.Medium)
                     OutlinedTextField(
-                        value = newCategoryIcon.value,
+                        value = categoryIcon.value,
                         onValueChange = { showIconPicker.value = true },
                         label = { Text("Pilih Ikon") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Box(
-                                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                    .background(Color(android.graphics.Color.parseColor(newCategoryColor.value)).copy(alpha = 0.2f)),
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(android.graphics.Color.parseColor(categoryColor.value)).copy(alpha = 0.2f)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(newCategoryIcon.value, fontSize = 20.sp)
+                                Text(categoryIcon.value, fontSize = 20.sp)
                             }
                         }
                     )
 
                     Text("Warna", fontWeight = FontWeight.Medium)
                     OutlinedTextField(
-                        value = newCategoryColor.value,
+                        value = categoryColor.value,
                         onValueChange = { showColorPicker.value = true },
                         label = { Text("Pilih Warna") },
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = {
                             Box(
-                                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp))
-                                    .background(Color(android.graphics.Color.parseColor(newCategoryColor.value)))
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(android.graphics.Color.parseColor(categoryColor.value)))
                             )
                         }
                     )
                 }
             },
-            confirmButton = catConfirm,
-            dismissButton = catDismiss
+            confirmButton = confirm,
+            dismissButton = dismiss
         )
     }
 
     // Icon picker
     if (showIconPicker.value) {
-        val iconDismiss: @Composable () -> Unit = {
+        val dismiss: @Composable () -> Unit = {
             TextButton(onClick = { showIconPicker.value = false }) { Text("Batal") }
         }
         androidx.compose.material3.AlertDialog(
@@ -208,22 +248,20 @@ fun ExpenseCategoriesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { newCategoryIcon.value = icon; showIconPicker.value = false }
+                                .clickable { categoryIcon.value = icon; showIconPicker.value = false }
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         )
                     }
                 }
             },
-            confirmButton = {
-                Button(onClick = { showIconPicker.value = false }) { Text("OK") }
-            },
-            dismissButton = iconDismiss
+            confirmButton = { Button(onClick = { showIconPicker.value = false }) { Text("OK") } },
+            dismissButton = dismiss
         )
     }
 
     // Color picker
     if (showColorPicker.value) {
-        val colorDismiss: @Composable () -> Unit = {
+        val dismiss: @Composable () -> Unit = {
             TextButton(onClick = { showColorPicker.value = false }) { Text("Batal") }
         }
         androidx.compose.material3.AlertDialog(
@@ -241,7 +279,7 @@ fun ExpenseCategoriesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { newCategoryColor.value = color; showColorPicker.value = false }
+                                .clickable { categoryColor.value = color; showColorPicker.value = false }
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                         ) {
                             Box(
@@ -256,10 +294,8 @@ fun ExpenseCategoriesScreen(
                     }
                 }
             },
-            confirmButton = {
-                Button(onClick = { showColorPicker.value = false }) { Text("OK") }
-            },
-            dismissButton = colorDismiss
+            confirmButton = { Button(onClick = { showColorPicker.value = false }) { Text("OK") } },
+            dismissButton = dismiss
         )
     }
 }
@@ -314,16 +350,3 @@ fun CategoryItem(
         }
     }
 }
-
-val iconOptions = listOf(
-    "🍽️", "🚌", "🛍️", "🎮", "💊", "📚", "🎓", "💰", "📦",
-    "☕", "🍔", "🚗", "👕", "🎬", "🏥", "📖", "💸", "🎁",
-    "🏠", "✈️", "👟", "📱", "💇", "🐾", "🎨", "💳", "🏷️"
-)
-
-val colorOptions = listOf(
-    "#FF9800", "#2196F3", "#9C27B0", "#E91E63", "#4CAF50",
-    "#673AB7", "#3F51B5", "#00BCD4", "#009688", "#8BC34A",
-    "#CDDC39", "#FFEB3B", "#FFC107", "#FF5722", "#795548",
-    "#607D8B", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"
-)
