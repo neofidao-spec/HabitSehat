@@ -113,3 +113,27 @@ data class ChallengeProgress(
     val completed: Boolean = false,
     val createdAt: Long = System.currentTimeMillis()
 )
+
+// ============ EXPENSE TRACKING ============
+
+@TypeConverters(DateConverters::class)
+@Entity(tableName = "expenses")
+data class Expense(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val categoryId: Long,
+    val date: LocalDate,
+    val amount: Long,  // in rupiah (stored as Long for precision)
+    val note: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "expense_categories")
+data class ExpenseCategory(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val icon: String = "💰",
+    val colorHex: String = "#4CAF50",
+    val isDefault: Boolean = false,
+    val sortOrder: Int = 0,
+    val createdAt: Long = System.currentTimeMillis()
+)

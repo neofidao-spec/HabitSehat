@@ -46,7 +46,8 @@ class MainActivity : ComponentActivity() {
         val repository = HabitRepository(
             db.habitDao(), db.habitLogDao(), db.waterLogDao(),
             db.badHabitDao(), db.badHabitLogDao(), db.pomodoroDao(),
-            db.challengeDao(), db.challengeProgressDao()
+            db.challengeDao(), db.challengeProgressDao(),
+            db.expenseDao(), db.expenseCategoryDao()
         )
         val settingsManager = SettingsManager(applicationContext)
         val premiumManager = PremiumManager(settingsManager)
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
         val pomodoroViewModel = PomodoroViewModel(repository)
         val weeklyReportViewModel = WeeklyReportViewModel(repository)
         val challengesViewModel = ChallengesViewModel(repository)
+        val expenseViewModel = ExpenseViewModel(repository)
 
         setContent {
             val currentTheme by settingsManager.currentTheme.collectAsState(initial = AppTheme.getThemeById("mint"))
@@ -78,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     pomodoroViewModel = pomodoroViewModel,
                     weeklyReportViewModel = weeklyReportViewModel,
                     challengesViewModel = challengesViewModel,
+                    expenseViewModel = expenseViewModel,
                     repository = repository,
                     settingsManager = settingsManager,
                     premiumManager = premiumManager,
@@ -98,6 +101,7 @@ fun MainApp(
     pomodoroViewModel: PomodoroViewModel,
     weeklyReportViewModel: WeeklyReportViewModel,
     challengesViewModel: ChallengesViewModel,
+    expenseViewModel: ExpenseViewModel,
     repository: HabitRepository,
     settingsManager: SettingsManager,
     premiumManager: PremiumManager,
@@ -112,6 +116,7 @@ fun MainApp(
         BottomNavItem("Beranda", Icons.Filled.Home, Icons.Outlined.Home, Screen.Home.route),
         BottomNavItem("Statistik", Icons.Filled.BarChart, Icons.Outlined.BarChart, Screen.Stats.route),
         BottomNavItem("HabitStop", Icons.Filled.Block, Icons.Outlined.Block, Screen.HabitStop.route),
+        BottomNavItem("Pengeluaran", Icons.Filled.AccountBalanceWallet, Icons.Outlined.AccountBalanceWallet, Screen.Expense.route),
         BottomNavItem("Tema", Icons.Filled.Palette, Icons.Outlined.Palette, Screen.Theme.route),
         BottomNavItem("Lainnya", Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz, Screen.More.route)
     )
@@ -250,6 +255,27 @@ fun MainApp(
             composable(Screen.AddBadHabit.route) {
                 AddBadHabitScreen(
                     repository = repository,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.Expense.route) {
+                ExpenseScreen(
+                    viewModel = expenseViewModel,
+                    repository = repository,
+                    onNavigateToAdd = { navController.navigate(Screen.AddExpense.route) },
+                    onNavigateToCategories = { navController.navigate(Screen.ExpenseCategories.route) },
+                    onNavigateToReport = { navController.navigate("expense_report") }
+                )
+            }
+            composable(Screen.AddExpense.route) {
+                AddExpenseScreen(
+                    viewModel = expenseViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Screen.ExpenseCategories.route) {
+                ExpenseCategoriesScreen(
+                    viewModel = expenseViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }

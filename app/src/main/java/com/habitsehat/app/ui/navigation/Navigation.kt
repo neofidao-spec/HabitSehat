@@ -13,4 +13,7 @@ sealed class Screen(val route: String) {
     data object Pomodoro : Screen("pomodoro")
     data object WeeklyReport : Screen("weekly_report")
     data object Challenges : Screen("challenges")
+    data object Expense : Screen("expense")
+    data object AddExpense : Screen("add_expense")
+    data object ExpenseCategories : Screen("expense_categories")
 }

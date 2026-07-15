@@ -8,6 +8,8 @@ import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
 import com.habitsehat.app.data.model.Challenge
 import com.habitsehat.app.data.model.ChallengeProgress
+import com.habitsehat.app.data.model.Expense
+import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
 import com.habitsehat.app.data.model.PomodoroSession
@@ -18,9 +20,10 @@ import com.habitsehat.app.data.model.WaterLog
         Habit::class, HabitLog::class, WaterLog::class,
         BadHabit::class, BadHabitLog::class,
         PomodoroSession::class,
-        Challenge::class, ChallengeProgress::class
+        Challenge::class, ChallengeProgress::class,
+        Expense::class, ExpenseCategory::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -32,6 +35,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pomodoroDao(): PomodoroDao
     abstract fun challengeDao(): ChallengeDao
     abstract fun challengeProgressDao(): ChallengeProgressDao
+    abstract fun expenseDao(): ExpenseDao
+    abstract fun expenseCategoryDao(): ExpenseCategoryDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

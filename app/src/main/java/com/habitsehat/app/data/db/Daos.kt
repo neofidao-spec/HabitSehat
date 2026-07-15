@@ -5,6 +5,8 @@ import com.habitsehat.app.data.model.BadHabit
 import com.habitsehat.app.data.model.BadHabitLog
 import com.habitsehat.app.data.model.Challenge
 import com.habitsehat.app.data.model.ChallengeProgress
+import com.habitsehat.app.data.model.Expense
+import com.habitsehat.app.data.model.ExpenseCategory
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.data.model.HabitLog
 import com.habitsehat.app.data.model.PomodoroSession
@@ -225,3 +227,76 @@ interface ChallengeProgressDao {
     @Query("DELETE FROM challenge_progress")
     suspend fun deleteAll()
 }
+
+@Dao
+interface ExpenseDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(expense: Expense): Long
+
+    @Update
+    suspend fun update(expense: Expense)
+
+    @Query("SELECT * FROM expenses WHERE date = :date ORDER BY createdAt DESC")
+    suspend fun getExpensesByDate(date: String): List<Expense>
+
+    @Query("SELECT * FROM expenses WHERE date BETWEEN :start AND :end ORDER BY date DESC, createdAt DESC")
+    suspend fun getExpensesInRange(start: String, end: String): List<Expense>
+
+    @Query("SELECT SUM(amount) FROM expenses WHERE date = :date")
+    suspend fun getTotalByDate(date: String): Long?
+
+    @Query("SELECT SUM(amount) FROM expenses WHERE date BETWEEN :start AND :end")
+    suspend fun getTotalInRange(start: String, end: String): Long?
+
+    @Query("SELECT e.*, c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end ORDER BY e.date DESC, e.createdAt DESC")
+    suspend fun getExpensesWithCategory(start: String, end: String): List<ExpenseWithCategory>
+
+    @Query("SELECT c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor, SUM(e.amount) as total FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end GROUP BY c.id")
+    suspend fun getTotalsByCategory(start: String, end: String): List<CategoryTotal>
+
+    @Delete
+    suspend fun delete(expense: Expense)
+
+    @Query("DELETE FROM expenses WHERE date = :date AND id IN (SELECT id FROM expenses WHERE date = :date ORDER BY createdAt DESC LIMIT 1)")
+    suspend fun undoLast(date: String)
+
+    @Query("DELETE FROM expenses")
+    suspend fun deleteAll()
+}
+
+@Dao
+interface ExpenseCategoryDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(category: ExpenseCategory): Long
+
+    @Update
+    suspend fun update(category: ExpenseCategory)
+
+    @Query("SELECT * FROM expense_categories ORDER BY sortOrder ASC, name ASC")
+    suspend fun getAll(): List<ExpenseCategory>
+
+    @Query("SELECT * FROM expense_categories WHERE isDefault = 1 ORDER BY sortOrder ASC")
+    suspend fun getDefaults(): List<ExpenseCategory>
+
+    @Query("SELECT * FROM expense_categories WHERE id = :id")
+    suspend fun getById(id: Long): ExpenseCategory?
+
+    @Delete
+    suspend fun delete(category: ExpenseCategory)
+
+    @Query("DELETE FROM expense_categories")
+    suspend fun deleteAll()
+}
+
+@Embedded
+data class ExpenseWithCategory(
+    @Embedded val expense: Expense,
+    @Embedded(prefix = "category_") val category: ExpenseCategory?
+)
+
+data class CategoryTotal(
+    val categoryName: String,
+    val categoryIcon: String,
+    val categoryColor: String,
+    val total: Long
+)
