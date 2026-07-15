@@ -20,10 +20,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.habitsehat.app.data.db.ExpenseWithCategory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,13 +31,13 @@ fun ExpenseReportScreen(
     viewModel: ExpenseViewModel,
     onBack: () -> Unit
 ) {
-    val weeklyReport by viewModel.weeklyReport.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val shortFmt = DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID"))
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Rekap Mingguan", fontWeight = FontWeight.SemiBold) },
+                title = { Text("Laporan Pengeluaran", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
@@ -46,51 +46,48 @@ fun ExpenseReportScreen(
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Weekly summary card
-            if (weeklyReport != null) {
-                val report = weeklyReport
-                val shortFmt = DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID"))
-                val start = report.startDate
-                val end = report.endDate
-                val startStr = start.format(shortFmt)
-                val endStr = end.format(shortFmt)
+            val report = uiState.weeklyReport
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+            if (report != null) {
+                // Weekly summary card
+                item {
+                    val start = try { LocalDate.parse(report.weekStart).format(shortFmt) } catch (e: Exception) { report.weekStart }
+                    val end = try { LocalDate.parse(report.weekEnd).format(shortFmt) } catch (e: Exception) { report.weekEnd }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
-                        Text("Rekap Mingguan", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Spacer(Modifier.height(4.dp))
-                        Text("$startStr — $endStr", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Spacer(Modifier.height(16.dp))
-                        Text(formatRupiah(report.totalExpenses), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Text("Total Pengeluaran", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Rekap Mingguan", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Spacer(Modifier.height(4.dp))
+                            Text("$start — $end", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Spacer(Modifier.height(16.dp))
+                            Text(formatRupiah(report.totalExpenses), fontSize = 36.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text("Total Pengeluaran", fontSize = 14.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
+                        }
                     }
                 }
 
                 // Daily totals
                 if (report.dailyTotals.isNotEmpty()) {
-                    Text("Per Hari", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(report.dailyTotals.entries.toList().sortedBy { it.key }) { entry ->
-                            val (date, total) = entry
+                    item {
+                        Text("Per Hari", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    }
+                    report.dailyTotals.entries.sortedBy { it.key }.forEach { (date, total) ->
+                        item {
                             val d = try { LocalDate.parse(date).format(shortFmt) } catch (e: Exception) { date }
                             Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
                                 Row(
@@ -108,13 +105,12 @@ fun ExpenseReportScreen(
 
                 // Category breakdown
                 if (report.categoryTotals.isNotEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text("Per Kategori", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(report.categoryTotals) { cat ->
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                        Text("Per Kategori", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    }
+                    report.categoryTotals.forEach { cat ->
+                        item {
                             Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -143,8 +139,10 @@ fun ExpenseReportScreen(
 
                 // Expense items detail
                 if (report.expenseItems.isNotEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    Text("Detail Pengeluaran", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                        Text("Detail Pengeluaran", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    }
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
