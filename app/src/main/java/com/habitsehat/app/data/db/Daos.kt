@@ -291,7 +291,7 @@ interface ExpenseCategoryDao {
 @Embedded
 data class ExpenseWithCategory(
     @Embedded val expense: Expense,
-    @Embedded(prefix = "category_") val category: ExpenseCategory?
+    @Embedded(prefix = "category_") val expenseCategory: ExpenseCategory?
 )
 
 data class CategoryTotal(

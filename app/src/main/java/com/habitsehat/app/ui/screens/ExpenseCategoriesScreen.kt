@@ -83,14 +83,14 @@ fun ExpenseCategoriesScreen(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.categories) { category ->
+                    items(uiState.categories) { cat ->
                         CategoryItem(
-                            category = category,
-                            isDefault = category.isDefault,
+                            category = cat,
+                            isDefault = cat.isDefault,
                             onEdit = { /* TODO: edit */ },
                             onDelete = {
-                                if (!category.isDefault) {
-                                    scope.launch { viewModel.deleteCategory(category) }
+                                if (!cat.isDefault) {
+                                    scope.launch { viewModel.deleteCategory(cat) }
                                 }
                             }
                         )

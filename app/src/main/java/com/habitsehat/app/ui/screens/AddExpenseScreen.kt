@@ -36,7 +36,7 @@ fun AddExpenseScreen(
     val scope = rememberCoroutineScope()
     
     val isEditing = expenseToEdit != null
-    var selectedCategory by remember { mutableStateOf<ModelExpenseCategory?>(expenseToEdit?.category) }
+    var selectedCategory by remember { mutableStateOf<ModelExpenseCategory?>(expenseToEdit?.expenseCategory) }
     var amount by remember { mutableStateOf(expenseToEdit?.expense.amount.toString() ?: "") }
     var note by remember { mutableStateOf(expenseToEdit?.expense.note ?: "") }
     var selectedDate by remember { mutableStateOf(expenseToEdit?.expense.date ?: LocalDate.now()) }
@@ -196,14 +196,14 @@ fun AddExpenseScreen(
                         .height(300.dp)
                         .padding(16.dp)
                 ) {
-                    items(categoryOptions) { cat ->
+                    items(categoryOptions) { c ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
-                                .clickable { selectedCategory = cat; showCategoryPicker = false }
+                                .clickable { selectedCategory = c; showCategoryPicker = false }
                                 .background(
-                                    if (selectedCategory?.id == cat.id) MaterialTheme.colorScheme.primaryContainer
+                                    if (selectedCategory?.id == c.id) MaterialTheme.colorScheme.primaryContainer
                                     else MaterialTheme.colorScheme.surfaceVariant,
                                     RoundedCornerShape(12.dp)
                                 ),
@@ -213,13 +213,13 @@ fun AddExpenseScreen(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(Color(android.graphics.Color.parseColor(cat.colorHex)).copy(alpha = 0.2f))
+                                    .background(Color(android.graphics.Color.parseColor(c.colorHex)).copy(alpha = 0.2f))
                             ) {
-                                Text(cat.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
+                                Text(c.icon, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center))
                             }
                             Spacer(Modifier.width(12.dp))
-                            Text(cat.name, fontSize = 16.sp)
-                            if (cat.isDefault) {
+                            Text(c.name, fontSize = 16.sp)
+                            if (c.isDefault) {
                                 Spacer(Modifier.width(8.dp))
                                 Text("Default", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                             }
