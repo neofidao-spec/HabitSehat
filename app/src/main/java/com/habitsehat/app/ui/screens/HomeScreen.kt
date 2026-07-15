@@ -286,6 +286,7 @@ fun HomeScreen(
                         },
                         onDelete = { viewModel.deleteHabit(habit.id) }
                     )
+                }
 
                 // Archived habits card
                 if (state.archivedCount > 0) {
