@@ -135,7 +135,7 @@ fun StatsScreen(
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 state.weekData.forEach { day ->
-                                    val date = LocalDate.parse(day.date)
+                                    val date = day.date
                                     val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("id", "ID"))
                                     Text(dayName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                                 }

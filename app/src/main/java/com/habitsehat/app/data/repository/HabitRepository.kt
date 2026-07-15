@@ -182,7 +182,7 @@ class HabitRepository(
             val dateStr = toStr(currentDay)
             var done = 0
             for (habit in habits) {
-                if (isHabitChecked(habit.id, dateStr)) done++
+                if (isHabitChecked(habit.id, currentDay)) done++
             }
             dailyDoneCounts[dateStr] = done
             totalPossibleDays++
@@ -196,7 +196,7 @@ class HabitRepository(
             currentDay = monday
             while (!currentDay.isAfter(sunday)) {
                 val dateStr = toStr(currentDay)
-                if (isHabitChecked(habit.id, dateStr)) habitDoneDays++
+                if (isHabitChecked(habit.id, currentDay)) habitDoneDays++
                 currentDay = currentDay.plusDays(1)
             }
             habitStats.add(HabitStat(habit.name, habitDoneDays, 7))
@@ -270,7 +270,7 @@ class HabitRepository(
         val challenge = challengeDao.getById(challengeId) ?: return false
         val todayStr = toStr(today())
 
-        if (progress.lastUpdateDate == todayStr) return true // already updated today
+        if (toStr(progress.lastUpdateDate) == todayStr) return true // already updated today
 
         val updatedDays = progress.currentDays + 1
         val completed = updatedDays >= challenge.targetDays

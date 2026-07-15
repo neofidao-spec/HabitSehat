@@ -28,8 +28,7 @@ class BadHabitViewModel(private val repository: HabitRepository) : ViewModel() {
                 val (totalResisted, totalDays) = repository.getBadHabitStats(habit.id)
                 val moneySaved = repository.getMoneySaved(habit)
                 val streak = repository.getBadHabitResistedStreak(habit.id, LocalDate.now().minusDays(365))
-                val lastResistedStr = repository.getLastResistedDate(habit.id)
-                val lastResisted = lastResistedStr?.let { LocalDate.parse(it) }
+                val lastResisted = repository.getLastResistedDate(habit.id)
 
                 statsList.add(BadHabitStat(
                     badHabit = habit,
