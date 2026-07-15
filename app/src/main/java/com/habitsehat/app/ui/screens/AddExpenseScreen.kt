@@ -48,7 +48,7 @@ fun AddExpenseScreen(
     val displayFmt = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID"))
     val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE
 
-    val quickAmounts = listOf(10000, 25000, 50000, 100000, 200000, 500000)
+    val quickAmounts = listOf(10000L, 25000L, 50000L, 100000L, 200000L, 500000L)
 
     Scaffold(
         topBar = {
