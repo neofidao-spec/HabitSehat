@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory as ModelExpenseCategory
-import com.habitsehat.app.data.repository.ExpenseWithCategory
+import com.habitsehat.app.data.db.ExpenseWithCategory
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

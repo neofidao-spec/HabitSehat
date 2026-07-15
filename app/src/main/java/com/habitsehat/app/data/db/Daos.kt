@@ -15,50 +15,41 @@ import java.time.LocalDate
 
 @Dao
 interface HabitDao {
-    @Query("SELECT * FROM habits WHERE isArchived = 0 ORDER BY createdAt ASC")
-    suspend fun getAllActive(): List<Habit>
-
-    @Query("SELECT * FROM habits ORDER BY createdAt ASC")
-    suspend fun getAll(): List<Habit>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(habit: Habit): Long
+    @Insert
+    suspend fun insert(habit: Habit)
 
     @Update
     suspend fun update(habit: Habit)
 
-    @Delete
-    suspend fun delete(habit: Habit)
+    @Query("SELECT * FROM habits WHERE isArchived = 0 ORDER BY sortOrder ASC")
+    suspend fun getAllActive(): List<Habit>
+
+    @Query("SELECT * FROM habits ORDER BY sortOrder ASC")
+    suspend fun getAll(): List<Habit>
 
     @Query("UPDATE habits SET isArchived = 1 WHERE id = :id")
     suspend fun archive(id: Long)
 
-    @Query("DELETE FROM habits")
-    suspend fun deleteAll()
+    @Delete
+    suspend fun delete(habit: Habit)
 }
 
 @Dao
 interface HabitLogDao {
-    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date = :date ORDER BY createdAt DESC")
-    suspend fun getLogs(habitId: Long, date: String): List<HabitLog>
-
-    @Query("SELECT SUM(count) FROM habit_logs WHERE habitId = :habitId AND date = :date")
-    suspend fun getTotalCount(habitId: Long, date: String): Int?
-
-    @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE habitId = :habitId AND date >= :since")
-    suspend fun getStreakCount(habitId: Long, since: String): Int
-
-    @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date >= :since")
-    suspend fun getTotalActiveDays(since: String): Int
-
-    @Query("SELECT COUNT(DISTINCT date) FROM habit_logs WHERE date BETWEEN :start AND :end")
-    suspend fun getActiveDaysInRange(start: String, end: String): Int
-
     @Insert
     suspend fun insert(log: HabitLog)
 
-    @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date AND id IN (SELECT id FROM habit_logs WHERE habitId = :habitId AND date = :date LIMIT 1)")
+    @Query("SELECT COUNT(*) FROM habit_logs WHERE habitId = :habitId AND date = :date")
+    suspend fun getTotalCount(habitId: Long, date: String): Int?
+
+    @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date AND id = (SELECT id FROM habit_logs WHERE habitId = :habitId AND date = :date ORDER BY id DESC LIMIT 1)")
     suspend fun undoLast(habitId: Long, date: String)
+
+    @Query("SELECT COUNT(*) FROM habit_logs WHERE habitId = :habitId AND date >= :since")
+    suspend fun getStreakCount(habitId: Long, since: String): Int
+
+    @Delete
+    suspend fun delete(log: HabitLog)
 
     @Query("DELETE FROM habit_logs WHERE habitId = :habitId")
     suspend fun deleteByHabitId(habitId: Long)
@@ -66,23 +57,20 @@ interface HabitLogDao {
 
 @Dao
 interface WaterLogDao {
-    @Query("SELECT * FROM water_logs WHERE date = :date ORDER BY createdAt ASC")
-    suspend fun getLogs(date: String): List<WaterLog>
+    @Insert
+    suspend fun insert(log: WaterLog)
 
     @Query("SELECT SUM(amountMl) FROM water_logs WHERE date = :date")
     suspend fun getTotal(date: String): Int?
 
-    @Query("SELECT AVG(amountMl) FROM water_logs WHERE date BETWEEN :start AND :end")
-    suspend fun getAverageInRange(start: String, end: String): Double?
-
-    @Insert
-    suspend fun insert(log: WaterLog)
-
-    @Delete
-    suspend fun delete(log: WaterLog)
-
-    @Query("DELETE FROM water_logs WHERE date = :date AND id IN (SELECT id FROM water_logs WHERE date = :date ORDER BY createdAt DESC LIMIT 1)")
+    @Query("DELETE FROM water_logs WHERE date = :date AND id = (SELECT id FROM water_logs WHERE date = :date ORDER BY id DESC LIMIT 1)")
     suspend fun undoLast(date: String)
+
+    @Query("SELECT * FROM water_logs WHERE date = :date ORDER BY id DESC")
+    suspend fun getLogs(date: String): List<WaterLog>
+
+    @Query("SELECT AVG(amountMl) FROM water_logs WHERE date >= :start AND date <= :end")
+    suspend fun getAverageInRange(start: String, end: String): Double?
 
     @Query("DELETE FROM water_logs")
     suspend fun deleteAll()
@@ -90,14 +78,17 @@ interface WaterLogDao {
 
 @Dao
 interface BadHabitDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(badHabit: BadHabit): Long
+    @Insert
+    suspend fun insert(badHabit: BadHabit)
 
     @Update
     suspend fun update(badHabit: BadHabit)
 
-    @Query("SELECT * FROM bad_habits WHERE isActive = 1 ORDER BY id DESC")
+    @Query("SELECT * FROM bad_habits WHERE isActive = 1 ORDER BY sortOrder ASC")
     suspend fun getAllActive(): List<BadHabit>
+
+    @Query("SELECT * FROM bad_habits ORDER BY sortOrder ASC")
+    suspend fun getAll(): List<BadHabit>
 
     @Query("UPDATE bad_habits SET isActive = 0 WHERE id = :id")
     suspend fun deactivate(id: Long)
@@ -105,22 +96,13 @@ interface BadHabitDao {
     @Query("SELECT * FROM bad_habits WHERE id = :id")
     suspend fun getById(id: Long): BadHabit?
 
-    @Query("SELECT * FROM bad_habits")
-    suspend fun getAll(): List<BadHabit>
-
     @Delete
     suspend fun delete(badHabit: BadHabit)
-
-    @Query("DELETE FROM bad_habits WHERE isActive = 0")
-    suspend fun deleteInactive()
-
-    @Query("DELETE FROM bad_habits")
-    suspend fun deleteAll()
 }
 
 @Dao
 interface BadHabitLogDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insert(log: BadHabitLog)
 
     @Update
@@ -129,22 +111,20 @@ interface BadHabitLogDao {
     @Query("SELECT * FROM bad_habit_logs WHERE badHabitId = :badHabitId AND date = :date")
     suspend fun getLogs(badHabitId: Long, date: String): List<BadHabitLog>
 
-    @Query("SELECT SUM(resistedCount) FROM bad_habit_logs WHERE badHabitId = :badHabitId")
-    suspend fun getTotalOccurrencesResisted(badHabitId: Long): Int?
-
     @Query("SELECT COUNT(DISTINCT date) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND resistedCount > 0")
     suspend fun getTotalDaysResisted(badHabitId: Long): Int
 
-    @Query("""
-        SELECT COUNT(*) FROM bad_habit_logs
-        WHERE badHabitId = :badHabitId
-        AND date BETWEEN :since AND date('now')
-        AND resistedCount > 0
-    """)
+    @Query("SELECT COALESCE(SUM(gaveInCount + resistedCount), 0) FROM bad_habit_logs WHERE badHabitId = :badHabitId")
+    suspend fun getTotalOccurrencesResisted(badHabitId: Long): Int?
+
+    @Query("SELECT COUNT(*) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND date >= :since AND resistedCount > 0")
     suspend fun getResistedStreak(badHabitId: Long, since: String): Int
 
     @Query("SELECT MAX(date) FROM bad_habit_logs WHERE badHabitId = :badHabitId AND resistedCount > 0")
     suspend fun getLastResistedDate(badHabitId: Long): String?
+
+    @Delete
+    suspend fun delete(log: BadHabitLog)
 
     @Query("DELETE FROM bad_habit_logs WHERE badHabitId = :badHabitId")
     suspend fun deleteByBadHabitId(badHabitId: Long)
@@ -156,25 +136,22 @@ interface BadHabitLogDao {
 @Dao
 interface PomodoroDao {
     @Insert
-    suspend fun insert(session: PomodoroSession): Long
+    suspend fun insert(session: PomodoroSession)
 
-    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date = :date")
+    @Query("SELECT COALESCE(SUM(focusSeconds), 0) FROM pomodoro_sessions WHERE date = :date")
     suspend fun getTotalFocusSeconds(date: String): Int?
-
-    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
-    suspend fun getTotalFocusSecondsSince(since: String): Int?
-
-    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date BETWEEN :start AND :end")
-    suspend fun getFocusSecondsInRange(start: String, end: String): Int?
 
     @Query("SELECT COUNT(*) FROM pomodoro_sessions WHERE date = :date")
     suspend fun getSessionCount(date: String): Int
 
-    @Query("SELECT * FROM pomodoro_sessions ORDER BY createdAt DESC LIMIT 50")
-    suspend fun getRecentSessions(): List<PomodoroSession>
-
-    @Query("SELECT SUM(completedSeconds) FROM pomodoro_sessions WHERE date >= :since")
+    @Query("SELECT COALESCE(SUM(focusSeconds), 0) FROM pomodoro_sessions WHERE date >= :since")
     suspend fun getWeeklyFocusSeconds(since: String): Int?
+
+    @Query("SELECT COALESCE(SUM(focusSeconds), 0) FROM pomodoro_sessions WHERE date >= :start AND date <= :end")
+    suspend fun getFocusSecondsInRange(start: String, end: String): Int?
+
+    @Query("SELECT * FROM pomodoro_sessions ORDER BY id DESC LIMIT 10")
+    suspend fun getRecentSessions(): List<PomodoroSession>
 
     @Query("DELETE FROM pomodoro_sessions")
     suspend fun deleteAll()
@@ -182,8 +159,8 @@ interface PomodoroDao {
 
 @Dao
 interface ChallengeDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(challenge: Challenge): Long
+    @Insert
+    suspend fun insert(challenge: Challenge)
 
     @Update
     suspend fun update(challenge: Challenge)
@@ -191,7 +168,7 @@ interface ChallengeDao {
     @Query("SELECT * FROM challenges WHERE isActive = 1 ORDER BY targetDays ASC")
     suspend fun getAllActive(): List<Challenge>
 
-    @Query("SELECT * FROM challenges ORDER BY id ASC")
+    @Query("SELECT * FROM challenges ORDER BY targetDays ASC")
     suspend fun getAll(): List<Challenge>
 
     @Query("SELECT * FROM challenges WHERE id = :id")
@@ -206,8 +183,8 @@ interface ChallengeDao {
 
 @Dao
 interface ChallengeProgressDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(progress: ChallengeProgress): Long
+    @Insert
+    suspend fun insert(progress: ChallengeProgress)
 
     @Update
     suspend fun update(progress: ChallengeProgress)
@@ -224,41 +201,41 @@ interface ChallengeProgressDao {
     @Query("SELECT * FROM challenge_progress WHERE completed = 1")
     suspend fun getCompletedProgress(): List<ChallengeProgress>
 
+    @Delete
+    suspend fun delete(progress: ChallengeProgress)
+
     @Query("DELETE FROM challenge_progress")
     suspend fun deleteAll()
 }
 
 @Dao
 interface ExpenseDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(expense: Expense): Long
+    @Insert
+    suspend fun insert(expense: Expense)
 
     @Update
     suspend fun update(expense: Expense)
 
-    @Query("SELECT * FROM expenses WHERE date = :date ORDER BY createdAt DESC")
-    suspend fun getExpensesByDate(date: String): List<Expense>
-
-    @Query("SELECT * FROM expenses WHERE date BETWEEN :start AND :end ORDER BY date DESC, createdAt DESC")
-    suspend fun getExpensesInRange(start: String, end: String): List<Expense>
-
-    @Query("SELECT SUM(amount) FROM expenses WHERE date = :date")
-    suspend fun getTotalByDate(date: String): Long?
-
-    @Query("SELECT SUM(amount) FROM expenses WHERE date BETWEEN :start AND :end")
-    suspend fun getTotalInRange(start: String, end: String): Long?
-
-    @Query("SELECT e.*, c.id as category_id, c.name as category_name, c.icon as category_icon, c.colorHex as category_colorHex, c.isDefault as category_isDefault, c.sortOrder as category_sortOrder, c.createdAt as category_createdAt FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end ORDER BY e.date DESC, e.createdAt DESC")
-    suspend fun getExpensesWithCategory(start: String, end: String): List<ExpenseWithCategory>
-
-    @Query("SELECT c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor, SUM(e.amount) as total FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date BETWEEN :start AND :end GROUP BY c.id")
-    suspend fun getTotalsByCategory(start: String, end: String): List<CategoryTotal>
-
     @Delete
     suspend fun delete(expense: Expense)
 
-    @Query("DELETE FROM expenses WHERE date = :date AND id IN (SELECT id FROM expenses WHERE date = :date ORDER BY createdAt DESC LIMIT 1)")
-    suspend fun undoLast(date: String)
+    @Query("SELECT * FROM expenses WHERE date = :date ORDER BY id DESC")
+    suspend fun getExpensesByDate(date: String): List<Expense>
+
+    @Query("SELECT * FROM expenses WHERE date >= :start AND date <= :end ORDER BY date DESC, id DESC")
+    suspend fun getExpensesInRange(start: String, end: String): List<Expense>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE date = :date")
+    suspend fun getTotalByDate(date: String): Long?
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE date >= :start AND date <= :end")
+    suspend fun getTotalInRange(start: String, end: String): Long?
+
+    @Query("SELECT e.*, c.id as category_id, c.name as category_name, c.icon as category_icon, c.colorHex as category_colorHex, c.isDefault as category_isDefault, c.sortOrder as category_sortOrder, c.createdAt as category_createdAt FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date >= :start AND e.date <= :end ORDER BY e.date DESC, e.id DESC")
+    suspend fun getExpensesWithCategory(start: String, end: String): List<ExpenseWithCategory>
+
+    @Query("SELECT c.name as categoryName, c.icon as categoryIcon, c.colorHex as categoryColor, COALESCE(SUM(e.amount), 0) as total FROM expenses e JOIN expense_categories c ON e.categoryId = c.id WHERE e.date >= :start AND e.date <= :end GROUP BY e.categoryId ORDER BY total DESC")
+    suspend fun getTotalsByCategory(start: String, end: String): List<CategoryTotal>
 
     @Query("DELETE FROM expenses")
     suspend fun deleteAll()
@@ -266,13 +243,16 @@ interface ExpenseDao {
 
 @Dao
 interface ExpenseCategoryDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(category: ExpenseCategory): Long
+    @Insert
+    suspend fun insert(category: ExpenseCategory)
 
     @Update
     suspend fun update(category: ExpenseCategory)
 
-    @Query("SELECT * FROM expense_categories ORDER BY sortOrder ASC, name ASC")
+    @Delete
+    suspend fun delete(category: ExpenseCategory)
+
+    @Query("SELECT * FROM expense_categories ORDER BY sortOrder ASC")
     suspend fun getAll(): List<ExpenseCategory>
 
     @Query("SELECT * FROM expense_categories WHERE isDefault = 1 ORDER BY sortOrder ASC")
@@ -280,9 +260,6 @@ interface ExpenseCategoryDao {
 
     @Query("SELECT * FROM expense_categories WHERE id = :id")
     suspend fun getById(id: Long): ExpenseCategory?
-
-    @Delete
-    suspend fun delete(category: ExpenseCategory)
 
     @Query("DELETE FROM expense_categories")
     suspend fun deleteAll()

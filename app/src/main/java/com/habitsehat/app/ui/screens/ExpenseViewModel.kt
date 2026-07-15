@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.habitsehat.app.data.model.Expense
 import com.habitsehat.app.data.model.ExpenseCategory
-import com.habitsehat.app.data.repository.ExpenseWithCategory
+import com.habitsehat.app.data.db.ExpenseWithCategory
 import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.data.repository.WeeklyExpenseReport
 import kotlinx.coroutines.flow.MutableStateFlow
