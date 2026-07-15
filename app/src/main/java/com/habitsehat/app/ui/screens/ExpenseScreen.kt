@@ -3,7 +3,9 @@ package com.habitsehat.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -67,7 +69,8 @@ fun ExpenseScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Today total card
@@ -84,14 +87,6 @@ fun ExpenseScreen(
                         Column {
                             Text("Hari Ini", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(formatRupiah(uiState.todayTotal), fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                        }
-                        OutlinedButton(
-                            onClick = onNavigateToAdd,
-                            shape = RoundedCornerShape(20.dp)
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text("Catat", fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }

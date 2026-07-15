@@ -163,6 +163,7 @@ fun MainApp(
             composable(Screen.Home.route) {
                 HomeScreen(
                     viewModel = homeViewModel,
+                    repository = repository,
                     onAddHabit = { navController.navigate(Screen.AddHabit.route) }
                 )
             }

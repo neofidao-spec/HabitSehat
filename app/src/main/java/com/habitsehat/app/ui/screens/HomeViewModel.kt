@@ -16,6 +16,7 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
         val habitsTotal: Int = 0,
         val waterTotal: Int = 0,
         val waterGoal: Int = 2500,
+        val archivedCount: Int = 0,
         val isLoading: Boolean = true,
         val error: String? = null
     )
@@ -40,6 +41,7 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
             try {
                 val habits = repository.getAllHabits()
                 val water = repository.getWaterTotal()
+                val archived = repository.getArchivedHabits()
                 val today = LocalDate.now()
 
                 val checked = mutableMapOf<Long, Boolean>()
@@ -61,6 +63,7 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
                         habitsDone = done,
                         habitsTotal = habits.size,
                         waterTotal = water,
+                        archivedCount = archived.size,
                         isLoading = false
                     )
                 }
@@ -159,6 +162,17 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
                 }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = "Gagal hapus: ${e.message}") }
+            }
+        }
+    }
+
+    fun restoreArchivedHabit(habitId: Long) {
+        viewModelScope.launch {
+            try {
+                repository.restoreHabit(habitId)
+                refresh()
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = "Gagal pulihkan: ${e.message}") }
             }
         }
     }

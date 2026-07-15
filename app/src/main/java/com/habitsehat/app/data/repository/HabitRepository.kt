@@ -31,6 +31,8 @@ class HabitRepository(
     suspend fun addHabit(habit: Habit) = habitDao.insert(habit)
     suspend fun updateHabit(habit: Habit) = habitDao.update(habit)
     suspend fun archiveHabit(id: Long) = habitDao.archive(id)
+    suspend fun restoreHabit(id: Long) = habitDao.restore(id)
+    suspend fun getArchivedHabits() = habitDao.getAllArchived()
     suspend fun deleteHabit(habit: Habit) {
         habitLogDao.deleteByHabitId(habit.id)
         habitDao.delete(habit)

@@ -331,18 +331,15 @@ fun CategoryItem(
                 Spacer(Modifier.width(12.dp))
                 Column(horizontalAlignment = Alignment.Start) {
                     Text(category.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    if (isDefault) {
-                        Text("Default", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
-                    }
                 }
             }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 if (!isDefault) {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Filled.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error)
                     }

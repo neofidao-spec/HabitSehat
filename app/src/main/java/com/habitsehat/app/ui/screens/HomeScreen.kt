@@ -3,6 +3,7 @@ package com.habitsehat.app.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,24 +21,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.delay
+import com.habitsehat.app.data.model.Habit
+import com.habitsehat.app.data.repository.HabitRepository
 import com.habitsehat.app.ui.components.HabitItem
 import com.habitsehat.app.ui.components.StreakBar
 import com.habitsehat.app.ui.components.WaterCard
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    repository: HabitRepository,
     onAddHabit: () -> Unit,
     onEditHabit: (Long) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val checkedStates by viewModel.checkedStates.collectAsStateWithLifecycle()
     val habitCounts by viewModel.habitCounts.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+
+    // Archived dialog state
+    var showArchivedDialog by remember { mutableStateOf(false) }
+    var archivedHabits by remember { mutableStateOf<List<Habit>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -147,7 +154,7 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .background(
                                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp)
                             )
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
@@ -214,7 +221,7 @@ fun HomeScreen(
                                         .size(72.dp)
                                         .background(
                                             MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                                            shape = androidx.compose.foundation.shape.CircleShape
+                                            shape = CircleShape
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -259,9 +266,140 @@ fun HomeScreen(
                         onDelete = { viewModel.deleteHabit(habit.id) }
                     )
                 }
+
+                // Archived habits card
+                if (state.archivedCount > 0) {
+                    item {
+                        ArchivedCard(
+                            count = state.archivedCount,
+                            onClick = {
+                                scope.launch {
+                                    archivedHabits = repository.getArchivedHabits()
+                                    showArchivedDialog = true
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
     }
+
+    // Archived habits dialog
+    if (showArchivedDialog) {
+        ArchivedHabitsDialog(
+            habits = archivedHabits,
+            onRestore = { habitId ->
+                scope.launch {
+                    viewModel.restoreArchivedHabit(habitId)
+                    archivedHabits = repository.getArchivedHabits()
+                    if (archivedHabits.isEmpty()) showArchivedDialog = false
+                }
+            },
+            onDismiss = { showArchivedDialog = false }
+        )
+    }
+}
+
+// ──────────────────────────────────────
+// ARCHIVED CARD
+// ──────────────────────────────────────
+@Composable
+private fun ArchivedCard(count: Int, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Outlined.Archive,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "$count kebiasaan diarsipkan",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = "Lihat",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// ──────────────────────────────────────
+// ARCHIVED HABITS DIALOG
+// ──────────────────────────────────────
+@Composable
+private fun ArchivedHabitsDialog(
+    habits: List<Habit>,
+    onRestore: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Kebiasaan Diarsipkan", fontWeight = FontWeight.SemiBold) },
+        text = {
+            if (habits.isEmpty()) {
+                Text("Tidak ada kebiasaan yang diarsipkan.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    habits.forEach { habit ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onRestore(habit.id) },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(habit.name, modifier = Modifier.weight(1f), fontSize = 14.sp)
+                                TextButton(onClick = { onRestore(habit.id) }) {
+                                    Icon(Icons.Filled.Restore, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text("Pulihkan", fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Tutup", fontWeight = FontWeight.SemiBold)
+            }
+        }
+    )
 }
 
 // Simple animated container for quote transitions
