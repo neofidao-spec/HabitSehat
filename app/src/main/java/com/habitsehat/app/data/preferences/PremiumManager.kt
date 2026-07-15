@@ -54,13 +54,13 @@ class PremiumManager(
             ),
             PremiumFeature(
                 "HabitStop",
-                "❌ Tidak tersedia",
-                "Pantau kebiasaan buruk + money saved tracker + streak",
+                "Lihat saja",
+                "Pantau + kelola semua kebiasaan buruk + money saved",
                 emoji = "🚫"
             ),
             PremiumFeature(
                 "Tema Eksklusif",
-                "3 tema dasar",
+                "5 tema dasar",
                 "20+ tema premium (Cyberpunk, Sakura, Aurora dll)",
                 emoji = "🎨"
             ),
@@ -72,26 +72,26 @@ class PremiumManager(
             ),
             PremiumFeature(
                 "Laporan Mingguan",
-                "❌ Tidak tersedia",
-                "Ringkasan mingguan + insight otomatis",
+                "Ringkasan dasar",
+                "Laporan full + insight otomatis + statistik habit",
                 emoji = "📊"
             ),
             PremiumFeature(
                 "Tantangan (Challenge)",
-                "❌ Tidak tersedia",
-                "Challenge 7/21/30 hari + badge",
+                "Challenge gratis terbatas",
+                "Semua challenge + badge completion + streak leaderboard",
                 emoji = "🏆"
             ),
             PremiumFeature(
                 "Pomodoro Timer",
-                "❌ Tidak tersedia",
-                "Timer fokus 25/50/90 menit + statistik",
+                "25/50 menit",
+                "Timer 90 menit + white noise + statistik harian",
                 emoji = "🍅"
             ),
             PremiumFeature(
                 "Pencatatan Pengeluaran",
-                "❌ Tidak tersedia",
-                "Catat pengeluaran sehat (seminar, bootcamp) + rekap mingguan",
+                "Catat pengeluaran",
+                "Kategori kustom + rekap mingguan + export data",
                 emoji = "💰"
             ),
             PremiumFeature(
