@@ -1,5 +1,8 @@
 package com.habitsehat.app.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,86 +16,103 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.preferences.PremiumFeature
 import com.habitsehat.app.data.preferences.PremiumManager
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PremiumScreen(
-    onUpgrade: (plan: String) -> Unit,
-    onRestore: () -> Unit,
     onBack: () -> Unit
 ) {
-    var showConfirm by remember { mutableStateOf(false) }
-    var selectedPlan by remember { mutableStateOf("") }
-    var selectedPrice by remember { mutableStateOf("") }
-
-    val confirmTitle: @Composable () -> Unit = { Text("Konfirmasi Upgrade") }
-    val confirmDismiss: @Composable () -> Unit = { TextButton(onClick = { showConfirm = false }) { Text("Batal") } }
-    val confirmAction: @Composable () -> Unit = {
-        Button(onClick = { showConfirm = false; onUpgrade(selectedPlan) }) {
-            Text("Ya, Upgrade!", fontWeight = FontWeight.SemiBold)
-        }
+    val features = remember { PremiumManager.FEATURES }
+    val showBadge by remember { mutableStateOf(false) }
+    val badgeScale by animateColorAsState(
+        targetValue = if (showBadge) Color.White else Color.Transparent,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f)
+    )
+    
+    // Show a subtle celebration when entering
+    LaunchedEffect(Unit) {
+        showBadge = true
     }
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        TopAppBar(
-            title = { Text("HabitSehat Premium", fontWeight = FontWeight.SemiBold) },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
-                }
-            }
-        )
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Fitur Premium", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                )
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(16.dp))
 
-            // Hero section
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1A237E).copy(alpha = 0.08f)
-                )
+            // Hero section - premium crown with subtle animation
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .align(Alignment.CenterHorizontally),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .graphicsLayer {
+                            scaleX = if (showBadge) 1f else 0.8f
+                            scaleY = if (showBadge) 1f else 0.8f
+                        }
+                        .background(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(40.dp)
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("🌟", fontSize = 48.sp)
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        "Jadi Lebih Konsisten",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Buka semua fitur premium dan ubah hidupmu!",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
+                    Text("👑", fontSize = 40.sp)
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
 
-            // Feature comparison
+            Text(
+                "Semua Fitur Telah Terbuka",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                "Nikmati pengalaman penuh tanpa batasan.\nSemua fitur premium kini gratis selamanya.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            // Feature grid - show all as unlocked
             Text(
                 "Apa yang kamu dapatkan?",
                 fontSize = 16.sp,
@@ -102,219 +122,167 @@ fun PremiumScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            PremiumManager.FEATURES.forEach { feature ->
-                FeatureComparisonCard(feature)
-                Spacer(Modifier.height(8.dp))
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                features.forEachIndexed { index, feature ->
+                    FeatureShowcaseCard(
+                        feature = feature,
+                        index = index,
+                        isUnlocked = true
+                    )
+                }
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // Pricing cards
-            Text(
-                "Pilih Paket",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            // Monthly
+            // Thank you / badge section
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                onClick = {
-                    selectedPlan = "bulanan"
-                    selectedPrice = "Rp19.000/bulan"
-                    showConfirm = true
-                },
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                )
-            ) {
-                Row(
-                    modifier = Modifier.padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Bulanan", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                        Text("Akses semua fitur premium", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("Rp19.000", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
-                        Text("/bulan", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            // Yearly (best value)
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                onClick = {
-                    selectedPlan = "tahunan"
-                    selectedPrice = "Rp129.000/tahun"
-                    showConfirm = true
-                },
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Badge
-                    Card(
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFFF6D00)
-                        )
-                    ) {
-                        Text(
-                            "HEMAT 44%",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
-                    }
-
-                    Spacer(Modifier.width(8.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Tahunan", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                        Text("Hanya Rp10.750/bln", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("Rp129.000", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
-                        Text("/tahun", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("🌟", fontSize = 32.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Terima kasih sudah menggunakan HabitSehat!",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Aplikasi ini dibuat dengan ❤️ untuk membantu kamu membangun kebiasaan sehat.\nTidak ada iklan, tidak ada paywall — semoga bermanfaat.",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(
+                            onClick = { /* could link to GitHub/Play Store */ },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Beri Rating ⭐", fontWeight = FontWeight.Medium)
+                        }
+                        Button(
+                            onClick = { /* share app */ },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Bagikan", fontWeight = FontWeight.Medium)
+                        }
                     }
                 }
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            // Lifetime
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                onClick = {
-                    selectedPlan = "seumur hidup"
-                    selectedPrice = "Rp199.000 (sekali)"
-                    showConfirm = true
-                },
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFFFD700).copy(alpha = 0.15f)
-                )
-            ) {
-                Row(
-                    modifier = Modifier.padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Seumur Hidup", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                        Text("Bayar sekali, nikmati selamanya", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text("Rp199.000", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color(0xFFFF6D00))
-                        Text("Intro price", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // Restore purchases
-            TextButton(onClick = onRestore) {
-                Text("Pulihkan pembelian", fontSize = 13.sp)
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            // Trust note
-            Text(
-                "Pembayaran diproses melalui Google Play Store. " +
-                        "Langganan dapat dibatalkan kapan saja.",
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
 
             Spacer(Modifier.height(32.dp))
         }
     }
-
-    // Konfirmasi dialog
-    if (showConfirm) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showConfirm = false },
-            title = confirmTitle,
-            text = {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Anda akan meng-upgrade ke paket:")
-                    Spacer(Modifier.height(8.dp))
-                    Text(selectedPlan.uppercase(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(selectedPrice, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.height(16.dp))
-                    Text("Pembayaran akan diproses melalui Google Play Store.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            confirmButton = confirmAction,
-            dismissButton = confirmDismiss
-        )
-    }
 }
 
 @Composable
-private fun FeatureComparisonCard(feature: PremiumFeature) {
+private fun FeatureShowcaseCard(
+    feature: PremiumFeature,
+    index: Int,
+    isUnlocked: Boolean
+) {
+    val colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    )
+    
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        )
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = colors,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Text(feature.emoji, fontSize = 20.sp)
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(feature.name, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                Spacer(Modifier.height(4.dp))
-                Row {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.colorScheme.error.copy(alpha = 0.15f))
-                            .padding(horizontal = 6.dp, vertical = 1.dp)
-                    ) {
-                        Text(feature.freeDescription, fontSize = 11.sp, color = MaterialTheme.colorScheme.error)
-                    }
-                }
-                Spacer(Modifier.height(2.dp))
-                Row {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                            .padding(horizontal = 6.dp, vertical = 1.dp)
-                    ) {
-                        Text(feature.premiumDescription, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
-                    }
-                }
+            // Feature emoji/icon
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(14.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(feature.emoji, fontSize = 24.sp)
             }
-            Icon(
-                Icons.Filled.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
+
+            Spacer(Modifier.width(16.dp))
+
+            // Feature details
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        feature.name,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp
+                    )
+                    if (isUnlocked) {
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Filled.CheckCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    "Terbuka",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    feature.premiumDescription,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }

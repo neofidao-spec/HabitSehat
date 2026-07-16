@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -15,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,9 +33,7 @@ import kotlinx.coroutines.launch
 fun ThemeScreen(
     settingsManager: SettingsManager,
     currentTheme: AppTheme,
-    isPremium: Boolean,
     onSelectTheme: (AppTheme) -> Unit,
-    onUpgrade: () -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -97,31 +93,14 @@ fun ThemeScreen(
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             item(span = { GridItemSpan(2) }) {
-                Text("Tema Gratis", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                Text("Semua Tema", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 8.dp))
             }
 
-            items(AppTheme.FREE_THEMES) { theme ->
+            items(AppTheme.ALL_THEMES) { theme ->
                 ThemeGridCard(theme, theme.id == currentTheme.id, false) {
                     onSelectTheme(theme)
-                }
-            }
-
-            item(span = { GridItemSpan(2) }) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Tema Premium", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(4.dp))
-                    Icon(Icons.Filled.Lock, contentDescription = null,
-                        modifier = Modifier.size(14.dp), tint = Color(0xFFFFD700))
-                }
-            }
-
-            items(AppTheme.PREMIUM_THEMES) { theme ->
-                ThemeGridCard(theme, theme.id == currentTheme.id && isPremium, !isPremium) {
-                    if (isPremium) onSelectTheme(theme) else onUpgrade()
                 }
             }
         }
@@ -137,7 +116,6 @@ private fun ColorDot(color: Color) {
 private fun ThemeGridCard(
     theme: AppTheme,
     isSelected: Boolean,
-    isLocked: Boolean,
     onClick: () -> Unit
 ) {
     val borderColor by animateColorAsState(
@@ -155,8 +133,7 @@ private fun ThemeGridCard(
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isLocked) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            else MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -175,11 +152,7 @@ private fun ThemeGridCard(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 textAlign = TextAlign.Center, maxLines = 1)
 
-            if (isLocked) {
-                Icon(Icons.Filled.Lock, contentDescription = "Premium",
-                    modifier = Modifier.size(12.dp), tint = Color(0xFFFFD700))
-            }
-            if (isSelected && !isLocked) {
+            if (isSelected) {
                 Text("Aktif", fontSize = 10.sp, color = theme.lightPrimary,
                     fontWeight = FontWeight.Medium)
             }

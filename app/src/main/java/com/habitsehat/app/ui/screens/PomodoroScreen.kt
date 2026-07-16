@@ -34,8 +34,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun PomodoroScreen(
     viewModel: PomodoroViewModel,
-    isPremium: Boolean,
-    onUpgrade: () -> Unit,
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -50,10 +48,6 @@ fun PomodoroScreen(
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
         prevFinished = state.isFinished
-    }
-
-    LaunchedEffect(isPremium) {
-        viewModel.setPremium(isPremium)
     }
 
     Scaffold(
@@ -156,16 +150,12 @@ fun PomodoroScreen(
                         onClick = { viewModel.selectDuration(50) },
                         enabled = true
                     )
-                    if (isPremium) {
-                        DurationChip(
-                            label = "90 menit",
-                            selected = state.selectedMinutes == 90,
-                            onClick = { viewModel.selectDuration(90) },
-                            enabled = true
-                        )
-                    } else {
-                        LockedChip(onClick = onUpgrade)
-                    }
+                    DurationChip(
+                        label = "90 menit",
+                        selected = state.selectedMinutes == 90,
+                        onClick = { viewModel.selectDuration(90) },
+                        enabled = true
+                    )
                 }
                 Spacer(Modifier.height(16.dp))
             }
@@ -248,7 +238,7 @@ fun PomodoroScreen(
             }
 
             // White noise toggle (premium)
-            if (state.isRunning && isPremium) {
+            if (state.isRunning) {
                 Spacer(Modifier.height(16.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -291,19 +281,6 @@ private fun DurationChip(label: String, selected: Boolean, onClick: () -> Unit, 
         colors = AssistChipDefaults.assistChipColors(
             containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
             labelColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        shape = RoundedCornerShape(20.dp)
-    )
-}
-
-@Composable
-private fun LockedChip(onClick: () -> Unit) {
-    AssistChip(
-        onClick = onClick,
-        label = { Text("90 menit 🔒", fontWeight = FontWeight.Normal) },
-        colors = AssistChipDefaults.assistChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(20.dp)
     )

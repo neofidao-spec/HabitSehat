@@ -23,7 +23,6 @@ data class PomodoroUiState(
     val selectedHabitId: Long? = null,
     val availableHabits: List<Habit> = emptyList(),
     val whiteNoiseEnabled: Boolean = false,
-    val isPremium: Boolean = false,
     val totalTodaySeconds: Int = 0,
     val sessionCountToday: Int = 0
 )
@@ -77,16 +76,7 @@ class PomodoroViewModel(
 
     fun toggleWhiteNoise() {
         val current = _uiState.value
-        if (!current.isPremium) return
         _uiState.value = current.copy(whiteNoiseEnabled = !current.whiteNoiseEnabled)
-    }
-
-    fun setPremium(isPremium: Boolean) {
-        _uiState.value = _uiState.value.copy(isPremium = isPremium)
-        // Premium-only: mode 90 menit, white noise
-        if (!isPremium && _uiState.value.selectedMinutes == 90) {
-            selectDuration(50)
-        }
     }
 
     fun start() {

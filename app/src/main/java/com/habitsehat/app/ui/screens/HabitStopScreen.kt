@@ -31,8 +31,6 @@ import java.util.Locale
 @Composable
 fun HabitStopScreen(
     viewModel: BadHabitViewModel,
-    isPremium: Boolean,
-    onUpgrade: () -> Unit,
     onAddBadHabit: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -43,24 +41,15 @@ fun HabitStopScreen(
         topBar = {
             TopAppBar(
                 title = { Text("HabitStop", fontWeight = FontWeight.SemiBold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali") } },
-                actions = {
-                    if (!isPremium) {
-                        TextButton(onClick = onUpgrade) {
-                            Text("Upgrade", fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali") } }
             )
         },
         floatingActionButton = {
-            if (isPremium) {
-                ExtendedFloatingActionButton(
-                    onClick = onAddBadHabit,
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    text = { Text("Tambah", fontWeight = FontWeight.SemiBold) }
-                )
-            }
+            ExtendedFloatingActionButton(
+                onClick = onAddBadHabit,
+                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                text = { Text("Tambah", fontWeight = FontWeight.SemiBold) }
+            )
         }
     ) { padding ->
         if (state.isLoading) {
@@ -68,7 +57,7 @@ fun HabitStopScreen(
                 CircularProgressIndicator()
             }
         } else if (state.badHabits.isEmpty()) {
-            EmptyBadHabitView(onAdd = if (isPremium) onAddBadHabit else ({ }), modifier = Modifier.padding(padding))
+            EmptyBadHabitView(onAdd = onAddBadHabit, modifier = Modifier.padding(padding))
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -94,31 +83,6 @@ fun HabitStopScreen(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun LockedPremiumView(onUpgrade: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(Icons.Filled.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(80.dp))
-        Spacer(Modifier.height(16.dp))
-        Text("Fitur Premium", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            "HabitStop hanya tersedia untuk pengguna Premium.\nBuka akses ke pelacak kebiasaan buruk dengan uang tersimpan & timeline kesehatan.",
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
-        )
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = onUpgrade) {
-            Text("Upgrade ke Premium", fontWeight = FontWeight.SemiBold)
         }
     }
 }

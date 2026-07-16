@@ -38,7 +38,7 @@ class SettingsManager(private val context: Context) {
     }
 
     val isPremium: Flow<Boolean> = context.prefs.data.map { prefs ->
-        prefs[KEY_IS_PREMIUM] ?: false
+        prefs[KEY_IS_PREMIUM] ?: true  // Default to true for premium feel
     }
 
     suspend fun setPremium(enabled: Boolean) {

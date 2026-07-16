@@ -23,10 +23,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MoreScreen(
     settingsManager: SettingsManager,
-    isPremium: Boolean,
     darkModeSetting: String,
     onThemeClick: () -> Unit,
-    onPremiumClick: () -> Unit,
     onPomodoroClick: () -> Unit = {},
     onWeeklyReportClick: () -> Unit = {},
     onChallengesClick: () -> Unit = {},
@@ -46,29 +44,6 @@ fun MoreScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer(Modifier.height(8.dp))
-
-            // Premium card
-            if (!isPremium) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
-                    onClick = onPremiumClick
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("🌟", fontSize = 28.sp)
-                        Spacer(Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Upgrade ke Premium", fontWeight = FontWeight.SemiBold)
-                            Text("Buka semua fitur eksklusif", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null)
-                    }
-                }
-            }
 
             // Main menu
             Card(shape = RoundedCornerShape(16.dp)) {
@@ -91,26 +66,6 @@ fun MoreScreen(
                     }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     MenuItem(Icons.Outlined.Info, "Tentang Aplikasi", "v1.0.0") { onSettingsClick() }
-                }
-            }
-
-            // Premium status
-            if (isPremium) {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("👑", fontSize = 24.sp)
-                        Spacer(Modifier.width(12.dp))
-                        Column {
-                            Text("Premium Aktif", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
-                            Text("Nikmati semua fitur eksklusif", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
                 }
             }
 
