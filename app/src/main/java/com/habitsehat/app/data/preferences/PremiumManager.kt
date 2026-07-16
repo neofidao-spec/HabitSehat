@@ -35,10 +35,32 @@ class PremiumManager(
         }
     }
 
+    /**
+     * DEVELOPMENT-ONLY: langsung set premium tanpa validasi pembayaran.
+     * TODO: Ganti dengan Play Billing purchase flow sebelum production.
+     */
     suspend fun unlockPremium() {
         settingsManager.setPremium(true)
     }
 
+    /**
+     * DEVELOPMENT-ONLY: pulihkan status premium tanpa verifikasi receipt.
+     * TODO: Implementasi receipt validation via Play Billing (purchase token).
+     * Untuk sekarang: cek apakah pernah ada history pembelian tersimpan,
+     * lalu restore premium. Karena belum ada billing nyata, langsung unlock.
+     */
+    suspend fun restorePurchases(): Boolean {
+        // TODO: cek purchase history / receipt dari Google Play
+        // val purchases = billingClient.queryPurchasesAsync(...)
+        // if (purchases.isNotEmpty()) { settingsManager.setPremium(true) }
+        settingsManager.setPremium(true)
+        return true
+    }
+
+    /**
+     * DEVELOPMENT-ONLY: langsung lock tanpa validasi.
+     * TODO: Integrasi dengan cancellation/expiry flow.
+     */
     suspend fun lockPremium() {
         settingsManager.setPremium(false)
     }

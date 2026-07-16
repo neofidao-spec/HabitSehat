@@ -209,7 +209,7 @@ fun MainApp(
                         scope.launch { premiumManager.unlockPremium() }
                         navController.popBackStack()
                     },
-                    onRestore = { /* TODO */ },
+                    onRestore = { scope.launch { premiumManager.restorePurchases(); navController.popBackStack() } },
                     onBack = { navController.popBackStack() }
                 )
             }
