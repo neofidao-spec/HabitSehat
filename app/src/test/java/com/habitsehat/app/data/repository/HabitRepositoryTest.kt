@@ -42,8 +42,8 @@ class HabitRepositoryTest {
         repository.checkHabit(habitId, today)
 
         verify(habitLogDao).insert(
-            org.mockito.kotlin.argThat {
-                it.habitId == habitId && it.date == todayStr
+            org.mockito.kotlin.argThat<com.habitsehat.app.data.model.HabitLog> { log ->
+                log.habitId == habitId && log.date == todayStr
             }
         )
     }
