@@ -297,7 +297,10 @@ fun MainApp(
                         value = repository.getHabitById(habitId)
                     }
                     AddHabitScreen(
-                        onSave = { habit -> homeViewModel.saveHabit(habit) },
+                        onSave = { habit ->
+                            homeViewModel.saveHabit(habit)
+                            navController.popBackStack()
+                        },
                         onBack = { navController.popBackStack() },
                         habitToEdit = habit
                     )
