@@ -164,7 +164,7 @@ fun MainApp(
                     viewModel = homeViewModel,
                     repository = repository,
                     navController = navController,
-                    onAddHabit = { navController.navigate(Screen.AddHabit.route) }
+                    onAddHabit = { navController.navigate(Screen.AddHabit.route) { launchSingleTop = true } }
                 )
             }
             composable(Screen.AddHabit.route) {
@@ -186,8 +186,8 @@ fun MainApp(
                 HabitStopScreen(
                     viewModel = badHabitViewModel,
                     isPremium = isPremium,
-                    onUpgrade = { navController.navigate(Screen.Premium.route) },
-                    onAddBadHabit = { navController.navigate(Screen.AddBadHabit.route) },
+                    onUpgrade = { navController.navigate(Screen.Premium.route) { launchSingleTop = true } },
+                    onAddBadHabit = { navController.navigate(Screen.AddBadHabit.route) { launchSingleTop = true } },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -199,7 +199,7 @@ fun MainApp(
                     onSelectTheme = { theme ->
                         scope.launch { settingsManager.setTheme(theme.id) }
                     },
-                    onUpgrade = { navController.navigate(Screen.Premium.route) },
+                    onUpgrade = { navController.navigate(Screen.Premium.route) { launchSingleTop = true } },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -218,12 +218,12 @@ fun MainApp(
                     settingsManager = settingsManager,
                     isPremium = isPremium,
                     darkModeSetting = darkModeSetting,
-                    onThemeClick = { navController.navigate(Screen.Theme.route) },
-                    onPremiumClick = { navController.navigate(Screen.Premium.route) },
-                    onPomodoroClick = { navController.navigate(Screen.Pomodoro.route) },
-                    onWeeklyReportClick = { navController.navigate(Screen.WeeklyReport.route) },
-                    onChallengesClick = { navController.navigate(Screen.Challenges.route) },
-                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                    onThemeClick = { navController.navigate(Screen.Theme.route) { launchSingleTop = true } },
+                    onPremiumClick = { navController.navigate(Screen.Premium.route) { launchSingleTop = true } },
+                    onPomodoroClick = { navController.navigate(Screen.Pomodoro.route) { launchSingleTop = true } },
+                    onWeeklyReportClick = { navController.navigate(Screen.WeeklyReport.route) { launchSingleTop = true } },
+                    onChallengesClick = { navController.navigate(Screen.Challenges.route) { launchSingleTop = true } },
+                    onSettingsClick = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -238,7 +238,7 @@ fun MainApp(
                 PomodoroScreen(
                     viewModel = pomodoroViewModel,
                     isPremium = isPremium,
-                    onUpgrade = { navController.navigate(Screen.Premium.route) },
+                    onUpgrade = { navController.navigate(Screen.Premium.route) { launchSingleTop = true } },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -283,9 +283,9 @@ fun MainApp(
                     viewModel = expenseViewModel,
                     repository = repository,
                     navController = navController,
-                    onNavigateToAdd = { navController.navigate(Screen.AddExpense.route) },
-                    onNavigateToCategories = { navController.navigate(Screen.ExpenseCategories.route) },
-                    onNavigateToReport = { navController.navigate("expense_report") }
+                    onNavigateToAdd = { navController.navigate(Screen.AddExpense.route) { launchSingleTop = true } },
+                    onNavigateToCategories = { navController.navigate(Screen.ExpenseCategories.route) { launchSingleTop = true } },
+                    onNavigateToReport = { navController.navigate("expense_report") { launchSingleTop = true } }
                 )
             }
             composable(Screen.AddExpense.route) {

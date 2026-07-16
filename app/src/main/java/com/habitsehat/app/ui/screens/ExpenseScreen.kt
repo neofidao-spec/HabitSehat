@@ -180,7 +180,7 @@ fun ExpenseScreen(
                         ExpenseItemCard(
                             expense = expenseWithCat.expense,
                             category = expenseWithCat.expenseCategory!!,
-                            onClick = { navController.navigate("add_expense/${expenseWithCat.expense.id}") },
+                            onClick = { navController.navigate("add_expense/${expenseWithCat.expense.id}") { launchSingleTop = true } },
                             onDelete = { expenseToDelete = expenseWithCat.expense }
                         )
                     }

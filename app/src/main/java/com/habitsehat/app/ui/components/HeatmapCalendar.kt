@@ -48,13 +48,13 @@ fun HeatmapCalendar(
 
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 28.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             val months = weeks.flatten().filterNotNull().map { it.month.name.take(3) }.distinct().take(6)
             months.forEach { label ->
                 Text(label, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.width(28.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    modifier = Modifier.width(24.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         }
 

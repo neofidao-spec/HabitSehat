@@ -291,7 +291,7 @@ fun HomeScreen(
                                 }
                             }
                         },
-                        onEdit = { navController.navigate("add_habit/${habit.id}") },
+                        onEdit = { navController.navigate("add_habit/${habit.id}") { launchSingleTop = true } },
                         onDelete = { viewModel.deleteHabit(habit.id) }
                     )
                 }

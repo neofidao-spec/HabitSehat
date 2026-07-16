@@ -95,33 +95,48 @@ class HomeViewModel(private val repository: HabitRepository) : ViewModel() {
     }
 
     fun toggleHabit(habitId: Long) {
+        val today = LocalDate.now()
+        val wasChecked = _checkedStates.value[habitId] ?: false
+        val oldCount = _habitCounts.value[habitId] ?: 0
+        val target = _uiState.value.habits.find { it.id == habitId }?.targetCount ?: 1
+
+        // Optimistic update: flip UI state immediately
+        _checkedStates.update { it + (habitId to !wasChecked) }
+        val newCount = if (wasChecked) 0 else target
+        _habitCounts.update { it + (habitId to newCount) }
+        _uiState.update { s ->
+            s.copy(habitsDone = (s.habitsDone + if (wasChecked) -1 else 1).coerceIn(0, s.habitsTotal))
+        }
+
         viewModelScope.launch {
             try {
-                val today = LocalDate.now()
-                val currentlyDone = repository.getHabitCount(habitId, today) > 0
-                if (currentlyDone) {
+                if (wasChecked) {
                     repository.uncheckHabit(habitId, today)
                 } else {
                     repository.checkHabit(habitId, today)
                 }
-                refresh()
+                refresh() // silent reconcile with DB
             } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(error = "Failed to toggle habit: ${e.message}")
-                }
+                // Revert on failure
+                _checkedStates.update { it + (habitId to wasChecked) }
+                _habitCounts.update { it + (habitId to oldCount) }
+                _uiState.update { s -> s.copy(error = "Gagal: ${e.message}") }
+                refresh()
             }
         }
     }
 
     fun addWater(amountMl: Int = 200) {
+        val oldTotal = _uiState.value.waterTotal
+        _uiState.update { it.copy(waterTotal = it.waterTotal + amountMl) }
+
         viewModelScope.launch {
             try {
                 repository.addWater(amountMl)
                 refresh()
             } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(error = "Failed to add water: ${e.message}")
-                }
+                _uiState.update { s -> s.copy(waterTotal = oldTotal, error = "Gagal: ${e.message}") }
+                refresh()
             }
         }
     }
