@@ -27,13 +27,13 @@ class PremiumManagerTest {
 
     @Test
     fun canUseTheme_premiumTheme_withPremium_shouldReturnTrue() = runBlocking {
-        val result = premiumManager.canUseTheme("premium_theme", isPremiumNow = true)
+        val result = premiumManager.canUseTheme("berry", isPremiumNow = true)
         assertTrue(result)
     }
 
     @Test
     fun canUseTheme_premiumTheme_withoutPremium_shouldReturnFalse() = runBlocking {
-        val result = premiumManager.canUseTheme("premium_theme", isPremiumNow = false)
+        val result = premiumManager.canUseTheme("berry", isPremiumNow = false)
         assertFalse(result)
     }
 
@@ -51,7 +51,7 @@ class PremiumManagerTest {
 
     @Test
     fun features_shouldContain7Items() {
-        assertEquals(7, PremiumManager.FEATURES.size)
+        assertEquals(9, PremiumManager.FEATURES.size)
     }
 
     private fun assertEquals(expected: Int, actual: Int) {
