@@ -26,6 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.habitsehat.app.data.model.Habit
 import com.habitsehat.app.ui.theme.StreakOrange
 import com.habitsehat.app.ui.theme.WaterBlue
@@ -76,6 +78,7 @@ fun WaterCard(
         colors = CardDefaults.cardColors(containerColor = WaterBlueBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
+        val haptic = LocalHapticFeedback.current
         Column(modifier = Modifier.padding(16.dp)) {
             // Header
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -171,7 +174,7 @@ fun WaterCard(
                 ) {
                     listOf(200, 300, 500).forEach { ml ->
                         FilledTonalButton(
-                            onClick = { onAdd(ml) },
+                            onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onAdd(ml) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(44.dp),
@@ -239,6 +242,7 @@ fun HabitItem(
     // Spring scale animation
     val scale = remember { Animatable(1f) }
     var justChecked by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
 
     LaunchedEffect(isChecked) {
         if (isChecked && !justChecked) {
@@ -267,7 +271,7 @@ fun HabitItem(
                 scaleX = scale.value * bounceScale.value,
                 scaleY = scale.value * bounceScale.value
             )
-            .clickable { bounceTrigger++; onCheck() },
+            .clickable { bounceTrigger++; haptic.performHapticFeedback(HapticFeedbackType.LongPress); onCheck() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
         border = if (isChecked) androidx.compose.foundation.BorderStroke(1.5.dp, borderColor) else null,

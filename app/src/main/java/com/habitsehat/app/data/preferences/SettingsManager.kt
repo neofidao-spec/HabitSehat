@@ -68,4 +68,12 @@ class SettingsManager(private val context: Context) {
     suspend fun setLastWeeklyReport(date: String) {
         context.prefs.edit { it[KEY_LAST_WEEKLY_REPORT] = date }
     }
+
+    val isFirstLaunch: Flow<Boolean> = context.prefs.data.map { prefs ->
+        prefs[KEY_FIRST_LAUNCH] ?: true
+    }
+
+    suspend fun setFirstLaunchComplete() {
+        context.prefs.edit { it[KEY_FIRST_LAUNCH] = false }
+    }
 }

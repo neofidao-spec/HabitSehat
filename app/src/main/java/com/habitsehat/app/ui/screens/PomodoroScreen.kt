@@ -1,6 +1,8 @@
 package com.habitsehat.app.ui.screens
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -22,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import com.habitsehat.app.data.model.Habit
 import kotlinx.coroutines.delay
 
@@ -34,6 +39,18 @@ fun PomodoroScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val haptic = LocalHapticFeedback.current
+    var prevFinished by remember { mutableStateOf(false) }
+
+    // Haptic + celebration on session finish
+    LaunchedEffect(state.isFinished) {
+        if (state.isFinished && !prevFinished) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            delay(200)
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+        prevFinished = state.isFinished
+    }
 
     LaunchedEffect(isPremium) {
         viewModel.setPremium(isPremium)
@@ -97,11 +114,22 @@ fun PomodoroScreen(
 
                     if (state.isFinished) {
                         Spacer(Modifier.height(8.dp))
+
+                        val finishedScale = remember { Animatable(0f) }
+                        LaunchedEffect(Unit) {
+                            finishedScale.animateTo(1.1f, spring(dampingRatio = 0.4f, stiffness = 300f))
+                            finishedScale.animateTo(1.0f, spring(dampingRatio = 0.3f, stiffness = 600f))
+                        }
+
                         Text(
-                            "Sesi Selesai! 🎉",
-                            fontSize = 16.sp,
+                            "🎉 Selesai!",
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.graphicsLayer(
+                                scaleX = finishedScale.value,
+                                scaleY = finishedScale.value
+                            )
                         )
                     }
                 }

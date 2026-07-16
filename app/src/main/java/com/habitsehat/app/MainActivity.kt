@@ -13,6 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -92,6 +97,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private val screenIn = slideInHorizontally { it / 4 } + fadeIn(animationSpec = tween(300))
+private val screenOut = slideOutHorizontally { it / 4 } + fadeOut(animationSpec = tween(300))
+
 @Composable
 fun MainApp(
     homeViewModel: HomeViewModel,
@@ -110,6 +118,23 @@ fun MainApp(
 ) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
+    val isFirstLaunch by settingsManager.isFirstLaunch.collectAsState(initial = true)
+    var showOnboarding by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFirstLaunch) {
+        showOnboarding = isFirstLaunch
+    }
+
+    if (showOnboarding) {
+        OnboardingScreen(
+            onComplete = {
+                scope.launch {
+                    settingsManager.setFirstLaunchComplete()
+                    showOnboarding = false
+                }
+            }
+        )
+    } else {
 
     val bottomNavItems = listOf(
         BottomNavItem("Beranda", Icons.Filled.Home, Icons.Outlined.Home, Screen.Home.route),
@@ -167,7 +192,7 @@ fun MainApp(
                     onAddHabit = { navController.navigate(Screen.AddHabit.route) { launchSingleTop = true } }
                 )
             }
-            composable(Screen.AddHabit.route) {
+            composable(Screen.AddHabit.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 AddHabitScreen(
                     onSave = { habit ->
                         homeViewModel.saveHabit(habit)
@@ -203,7 +228,7 @@ fun MainApp(
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.Premium.route) {
+            composable(Screen.Premium.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 PremiumScreen(
                     onUpgrade = { plan ->
                         scope.launch { premiumManager.unlockPremium() }
@@ -227,14 +252,14 @@ fun MainApp(
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.Settings.route) {
+            composable(Screen.Settings.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 SettingsScreen(
                     repository = repository,
                     settingsManager = settingsManager,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.Pomodoro.route) {
+            composable(Screen.Pomodoro.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 PomodoroScreen(
                     viewModel = pomodoroViewModel,
                     isPremium = isPremium,
@@ -242,19 +267,19 @@ fun MainApp(
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.WeeklyReport.route) {
+            composable(Screen.WeeklyReport.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 WeeklyReportScreen(
                     viewModel = weeklyReportViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.Challenges.route) {
+            composable(Screen.Challenges.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 ChallengesScreen(
                     viewModel = challengesViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.AddBadHabit.route) {
+            composable(Screen.AddBadHabit.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 AddBadHabitScreen(
                     repository = repository,
                     onBack = { navController.popBackStack() }
@@ -262,7 +287,9 @@ fun MainApp(
             }
             composable(
                 route = "add_habit/{habitId}",
-                arguments = listOf(navArgument("habitId") { type = NavType.LongType })
+                arguments = listOf(navArgument("habitId") { type = NavType.LongType }),
+                enterTransition = { screenIn },
+                exitTransition = { screenOut }
             ) { backStackEntry ->
                 val habitId = backStackEntry.arguments?.getLong("habitId") ?: 0L
                 if (habitId > 0) {
@@ -288,7 +315,7 @@ fun MainApp(
                     onNavigateToReport = { navController.navigate("expense_report") { launchSingleTop = true } }
                 )
             }
-            composable(Screen.AddExpense.route) {
+            composable(Screen.AddExpense.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 AddExpenseScreen(
                     viewModel = expenseViewModel,
                     onBack = { navController.popBackStack() }
@@ -296,7 +323,9 @@ fun MainApp(
             }
             composable(
                 route = "add_expense/{expenseId}",
-                arguments = listOf(navArgument("expenseId") { type = NavType.LongType })
+                arguments = listOf(navArgument("expenseId") { type = NavType.LongType }),
+                enterTransition = { screenIn },
+                exitTransition = { screenOut }
             ) { backStackEntry ->
                 val expenseId = backStackEntry.arguments?.getLong("expenseId") ?: 0L
                 if (expenseId > 0) {
@@ -315,18 +344,19 @@ fun MainApp(
                     )
                 }
             }
-            composable(Screen.ExpenseCategories.route) {
+            composable(Screen.ExpenseCategories.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 ExpenseCategoriesScreen(
                     viewModel = expenseViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Screen.ExpenseReport.route) {
+            composable(Screen.ExpenseReport.route, enterTransition = { screenIn }, exitTransition = { screenOut }) {
                 ExpenseReportScreen(
                     viewModel = expenseViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
         }
+    }
     }
 }
