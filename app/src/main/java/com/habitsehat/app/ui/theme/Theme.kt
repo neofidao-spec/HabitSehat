@@ -9,20 +9,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.habitsehat.app.data.model.AppTheme
 
-private val fontBody = FontFamily(
-    Font(R.font.plus_jakarta_sans)
-)
-
-private val fontHeading = FontFamily(
-    Font(R.font.space_grotesk)
-)
+// Font family untuk heading (Space Grotesk lebih tegas untuk judul & angka)
+// TODO: Bundle TTF via res/font/ untuk tampilan lebih premium
+private val fontHeading = FontFamily.Default
+private val fontBody = FontFamily.Default
 
 @Composable
 fun HabitSehatTheme(
