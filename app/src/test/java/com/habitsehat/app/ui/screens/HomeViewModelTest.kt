@@ -26,9 +26,11 @@ class HomeViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         MockitoAnnotations.openMocks(this)
-        whenever(repository.getAllHabits()).thenReturn(emptyList())
-        whenever(repository.getWaterTotal()).thenReturn(0)
-        whenever(repository.getArchivedHabits()).thenReturn(emptyList())
+        kotlinx.coroutines.runBlocking {
+            whenever(repository.getAllHabits()).thenReturn(emptyList())
+            whenever(repository.getWaterTotal()).thenReturn(0)
+            whenever(repository.getArchivedHabits()).thenReturn(emptyList())
+        }
         viewModel = HomeViewModel(repository)
         testDispatcher.scheduler.advanceUntilIdle()
     }
