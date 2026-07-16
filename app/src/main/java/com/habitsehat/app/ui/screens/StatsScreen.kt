@@ -1,8 +1,10 @@
 package com.habitsehat.app.ui.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,18 @@ fun StatsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val primary = MaterialTheme.colorScheme.primary
 
+    // Empty state animation
+    val infiniteTransition = rememberInfiniteTransition(label = "statsFloat")
+    val floatY by infiniteTransition.animateFloat(
+        initialValue = -4f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "floatY"
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,6 +63,45 @@ fun StatsScreen(
         if (state.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
+            }
+        } else if (state.totalHabitsCreated == 0 && state.weekData.isEmpty()) {
+            // ── EMPTY STATE ──
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(primary.copy(alpha = 0.08f), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(modifier = Modifier.graphicsLayer { translationY = floatY }) {
+                            Icon(
+                                Icons.Outlined.BarChart,
+                                contentDescription = null,
+                                modifier = Modifier.size(40.dp),
+                                tint = primary.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        "Belum ada data statistik",
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Statistik akan muncul setelah kamu\nmemulai kebiasaan pertamamu",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         } else {
             LazyColumn(
@@ -119,49 +173,84 @@ fun StatsScreen(
                 }
 
                 // Minggu ini chart
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    Text("Minggu Ini", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                }
+                if (state.weekData.isNotEmpty()) {
+                    item {
+                        Spacer(Modifier.height(8.dp))
+                        Text("Minggu Ini", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    }
 
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                state.weekData.forEach { day ->
-                                    val date = day.date
-                                    val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("id", "ID"))
-                                    Text(dayName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    state.weekData.forEach { day ->
+                                        val date = day.date
+                                        val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("id", "ID"))
+                                        Text(dayName, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                                    }
                                 }
-                            }
 
-                            Spacer(Modifier.height(8.dp))
+                                Spacer(Modifier.height(8.dp))
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                state.weekData.forEach { day ->
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        val pct = if (day.habitsTotal > 0) day.habitsDone.toFloat() / day.habitsTotal else 0f
-                                        val barHeight = (pct * 60).dp.coerceAtLeast(4.dp)
-                                        val color = when {
-                                            pct >= 1f -> StreakGreen
-                                            pct >= 0.5f -> StreakOrange
-                                            pct > 0f -> StreakRed
-                                            else -> MaterialTheme.colorScheme.surfaceVariant
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    state.weekData.forEach { day ->
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            val pct = if (day.habitsTotal > 0) day.habitsDone.toFloat() / day.habitsTotal else 0f
+                                            val barHeight = (pct * 60).dp.coerceAtLeast(4.dp)
+                                            val color = when {
+                                                pct >= 1f -> StreakGreen
+                                                pct >= 0.5f -> StreakOrange
+                                                pct > 0f -> StreakRed
+                                                else -> MaterialTheme.colorScheme.surfaceVariant
+                                            }
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(24.dp)
+                                                    .height(64.dp)
+                                                    .clip(RoundedCornerShape(4.dp))
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                contentAlignment = Alignment.BottomCenter
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .width(24.dp)
+                                                        .height(barHeight)
+                                                        .clip(RoundedCornerShape(4.dp))
+                                                        .background(color)
+                                                )
+                                            }
+                                            Spacer(Modifier.height(4.dp))
+                                            Text("${day.habitsDone}", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
+                                    }
+                                }
+
+                                Spacer(Modifier.height(12.dp))
+                                HorizontalDivider()
+                                Spacer(Modifier.height(8.dp))
+
+                                Text("Air (ml)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Spacer(Modifier.height(4.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    state.weekData.forEach { day ->
+                                        val pct = (day.waterMl.toFloat() / 2500f).coerceIn(0f, 1f)
                                         Box(
                                             modifier = Modifier
                                                 .width(24.dp)
-                                                .height(64.dp)
+                                                .height(32.dp)
                                                 .clip(RoundedCornerShape(4.dp))
                                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                                             contentAlignment = Alignment.BottomCenter
@@ -169,54 +258,21 @@ fun StatsScreen(
                                             Box(
                                                 modifier = Modifier
                                                     .width(24.dp)
-                                                    .height(barHeight)
+                                                    .height((pct * 32).dp.coerceAtLeast(2.dp))
                                                     .clip(RoundedCornerShape(4.dp))
-                                                    .background(color)
+                                                    .background(WaterBlue)
                                             )
                                         }
-                                        Spacer(Modifier.height(4.dp))
-                                        Text("${day.habitsDone}", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
-                            }
 
-                            Spacer(Modifier.height(12.dp))
-                            HorizontalDivider()
-                            Spacer(Modifier.height(8.dp))
-
-                            Text("Air (ml)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(4.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                state.weekData.forEach { day ->
-                                    val pct = (day.waterMl.toFloat() / 2500f).coerceIn(0f, 1f)
-                                    Box(
-                                        modifier = Modifier
-                                            .width(24.dp)
-                                            .height(32.dp)
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                                        contentAlignment = Alignment.BottomCenter
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(24.dp)
-                                                .height((pct * 32).dp.coerceAtLeast(2.dp))
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(WaterBlue)
-                                        )
-                                    }
+                                Spacer(Modifier.height(8.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    LegendItem(color = StreakGreen, label = "Selesai")
+                                    LegendItem(color = StreakOrange, label = "Setengah")
+                                    LegendItem(color = StreakRed, label = "Sedikit")
+                                    LegendItem(color = WaterBlue, label = "Air")
                                 }
-                            }
-
-                            Spacer(Modifier.height(8.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                LegendItem(color = StreakGreen, label = "Selesai")
-                                LegendItem(color = StreakOrange, label = "Setengah")
-                                LegendItem(color = StreakRed, label = "Sedikit")
-                                LegendItem(color = WaterBlue, label = "Air")
                             }
                         }
                     }
