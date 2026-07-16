@@ -36,18 +36,6 @@ fun StatsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val primary = MaterialTheme.colorScheme.primary
 
-    // Empty state animation
-    val infiniteTransition = rememberInfiniteTransition(label = "statsFloat")
-    val floatY by infiniteTransition.animateFloat(
-        initialValue = -4f,
-        targetValue = 4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "floatY"
-    )
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -66,6 +54,16 @@ fun StatsScreen(
             }
         } else if (state.totalHabitsCreated == 0 && state.weekData.isEmpty()) {
             // ── EMPTY STATE ──
+            val infiniteTransition = rememberInfiniteTransition(label = "statsFloat")
+            val floatY by infiniteTransition.animateFloat(
+                initialValue = -4f,
+                targetValue = 4f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1800, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "floatY"
+            )
             Box(
                 modifier = Modifier
                     .fillMaxSize()

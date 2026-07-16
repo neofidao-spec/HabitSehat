@@ -150,8 +150,14 @@ fun MainApp(
             }
         )
     } else {
+            // Request notification permission for existing/upgrading users on Android 13+
+            LaunchedEffect(Unit) {
+                if (!isFirstLaunch && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notifPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
 
-    val bottomNavItems = listOf(
+            val bottomNavItems = listOf(
         BottomNavItem("Beranda", Icons.Filled.Home, Icons.Outlined.Home, Screen.Home.route),
         BottomNavItem("Statistik", Icons.Filled.BarChart, Icons.Outlined.BarChart, Screen.Stats.route),
         BottomNavItem("HabitStop", Icons.Filled.Block, Icons.Outlined.Block, Screen.HabitStop.route),
