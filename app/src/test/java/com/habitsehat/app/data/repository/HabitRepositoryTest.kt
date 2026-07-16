@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 class HabitRepositoryTest {
@@ -37,13 +36,12 @@ class HabitRepositoryTest {
     fun checkHabit_shouldInsertHabitLog() = runBlocking {
         val habitId = 1L
         val today = LocalDate.now()
-        val todayStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
 
         repository.checkHabit(habitId, today)
 
         verify(habitLogDao).insert(
             org.mockito.kotlin.argThat<com.habitsehat.app.data.model.HabitLog> { log ->
-                log.habitId == habitId && log.date == todayStr
+                log.habitId == habitId && log.date == today
             }
         )
     }
