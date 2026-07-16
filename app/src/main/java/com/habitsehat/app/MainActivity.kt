@@ -1,9 +1,13 @@
 package com.habitsehat.app
 
+import android.os.Build
+import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -121,6 +125,11 @@ fun MainApp(
     val isFirstLaunch by settingsManager.isFirstLaunch.collectAsState(initial = true)
     var showOnboarding by remember { mutableStateOf(false) }
 
+    // Notification permission launcher — fires once after onboarding
+    val notifPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { /* granted or denied — no action needed */ }
+
     LaunchedEffect(isFirstLaunch) {
         showOnboarding = isFirstLaunch
     }
@@ -131,6 +140,12 @@ fun MainApp(
                 scope.launch {
                     settingsManager.setFirstLaunchComplete()
                     showOnboarding = false
+                    // Request notification permission after onboarding
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notifPermissionLauncher.launch(
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        )
+                    }
                 }
             }
         )
