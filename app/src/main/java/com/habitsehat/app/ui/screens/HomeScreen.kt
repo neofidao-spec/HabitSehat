@@ -277,13 +277,18 @@ fun HomeScreen(
                         currentCount = habitCounts[habit.id] ?: 0,
                         onCheck = { viewModel.toggleHabit(habit.id) },
                         onArchive = {
-                            viewModel.archiveHabit(habit.id)
+                            val archivedHabitId = habit.id
+                            val archivedHabitName = habit.name
+                            viewModel.archiveHabit(archivedHabitId)
                             scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "\"${habit.name}\" diarsipkan",
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "\"$archivedHabitName\" diarsipkan",
                                     actionLabel = "Undo",
                                     duration = SnackbarDuration.Short
                                 )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.restoreArchivedHabit(archivedHabitId)
+                                }
                             }
                         },
                         onEdit = { navController.navigate("add_habit/${habit.id}") },
