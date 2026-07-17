@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.habitsehat.app.data.model.AppTheme
 import com.habitsehat.app.data.preferences.SettingsManager
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,7 +99,7 @@ fun ThemeScreen(
             }
 
             items(AppTheme.ALL_THEMES) { theme ->
-                ThemeGridCard(theme, theme.id == currentTheme.id, false) {
+                ThemeGridCard(theme, theme.id == currentTheme.id) {
                     onSelectTheme(theme)
                 }
             }
