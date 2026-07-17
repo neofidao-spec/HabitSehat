@@ -28,7 +28,7 @@ fun PremiumScreen(
     onBack: () -> Unit
 ) {
     val features = remember { PremiumManager.FEATURES }
-    val showBadge by remember { mutableStateOf(false) }
+    var showBadge by remember { mutableStateOf(false) }
     val badgeScale by animateColorAsState(
         targetValue = if (showBadge) Color.White else Color.Transparent,
         animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f)
