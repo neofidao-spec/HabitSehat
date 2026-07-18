@@ -1,5 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- PRIMARY: Emerald Green (Health/Growth) -->
+    <color name="md_theme_light_primary">#2D8A61</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#B0F0D9</color>
+    <color name="md_theme_light_onPrimaryContainer">#002114</color>
+
+    <!-- SECONDARY: Ocean Blue (Hydration) -->
+    <color name="md_theme_light_secondary">#0066CC</color>
+    <color name="md_theme_light_onSecondary">#FFFFFF</color>
+    <color name="md_theme_light_secondaryContainer">#CCE5FF</color>
+    <color name="md_theme_light_onSecondaryContainer">#001C47</color>
+
+    <!-- TERTIARY: Warm Amber (Energy) -->
+    <color name="md_theme_light_tertiary">#FF9500</color>
+    <color name="md_theme_light_onTertiary">#FFFFFF</color>
+    <color name="md_theme_light_tertiaryContainer">#FFE4CC</color>
+    <color name="md_theme_light_onTertiaryContainer">#331E00</color>
+
+    <!-- ERROR: Red -->
+    <color name="md_theme_light_error">#D00000</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#FFCCCC</color>
+    <color name="md_theme_light_onErrorContainer">#330000</color>
+
+    <!-- SURFACE &amp; NEUTRAL -->
+    <color name="md_theme_light_surface">#FFFBFE</color>
+    <color name="md_theme_light_onSurface">#1A1A1A</color>
+    <color name="md_theme_light_surfaceVariant">#F0E4EA</color>
+    <color name="md_theme_light_onSurfaceVariant">#49454E</color>
+    <color name="md_theme_light_outline">#7C747E</color>
+    <color name="md_theme_light_outlineVariant">#C8C1C9</color>
+    <color name="md_theme_light_background">#FFFBFE</color>
+    <color name="md_theme_light_onBackground">#1A1A1A</color>
+
+    <!-- DARK MODE -->
+    <color name="md_theme_dark_primary">#81D9B1</color>
+    <color name="md_theme_dark_onPrimary">#003D25</color>
+    <color name="md_theme_dark_primaryContainer">#005A3C</color>
+    <color name="md_theme_dark_onPrimaryContainer">#B0F0D9</color>
+
+    <color name="md_theme_dark_secondary">#81C5FF</color>
+    <color name="md_theme_dark_onSecondary">#003459</color>
+    <color name="md_theme_dark_secondaryContainer">#004C7D</color>
+    <color name="md_theme_dark_onSecondaryContainer">#CCE5FF</color>
+
+    <color name="md_theme_dark_tertiary">#FFB84D</color>
+    <color name="md_theme_dark_onTertiary">#4D2600</color>
+    <color name="md_theme_dark_tertiaryContainer">#6D3D00</color>
+    <color name="md_theme_dark_onTertiaryContainer">#FFE4CC</color>
+
+    <color name="md_theme_dark_error">#FFB4AB</color>
+    <color name="md_theme_dark_onError">#5C0002</color>
+    <color name="md_theme_dark_errorContainer">#93000A</color>
+    <color name="md_theme_dark_onErrorContainer">#FFCCC0</color>
+
+    <color name="md_theme_dark_surface">#121212</color>
+    <color name="md_theme_dark_onSurface">#E5E5E5</color>
+    <color name="md_theme_dark_surfaceVariant">#49454E</color>
+    <color name="md_theme_dark_onSurfaceVariant">#C8C1C9</color>
+    <color name="md_theme_dark_outline">#92909B</color>
+    <color name="md_theme_dark_outlineVariant">#49454E</color>
+    <color name="md_theme_dark_background">#0F0F0F</color>
+    <color name="md_theme_dark_onBackground">#E5E5E5</color>
+
+    <!-- STATUS COLORS -->
+    <color name="status_success">#2D8A61</color>
+    <color name="status_warning">#FF9500</color>
+    <color name="status_error">#D00000</color>
+    <color name="status_info">#0066CC</color>
+
+    <!-- HEATMAP COLORS -->
+    <color name="heatmap_level_0">#E0E0E0</color>
+    <color name="heatmap_level_1">#C3E9DC</color>
+    <color name="heatmap_level_2">#78D9B1</color>
+    <color name="heatmap_level_3">#2D8A61</color>
+    <color name="heatmap_level_4">#004D2C</color>
+
+    <!-- STREAK COLORS -->
+    <color name="streak_flame">#FF6B35</color>
+    <color name="streak_standard">#2D8A61</color>
+    <color name="streak_broken">#9E9E9E</color>
+
+    <!-- WATER COLORS -->
+    <color name="water_primary">#0066CC</color>
+    <color name="water_light">#E3F2FD</color>
+    <color name="water_gradient_start">#0066CC</color>
+    <color name="water_gradient_end">#81D9B1</color>
+
+    <!-- HABIT CATEGORY COLORS -->
+    <color name="habit_exercise">#FF6B35</color>
+    <color name="habit_reading">#8B6BB1</color>
+    <color name="habit_meditation">#2D8A61</color>
+    <color name="habit_nutrition">#FFA500</color>
+    <color name="habit_sleep">#4A5569</color>
+    <color name="habit_custom">#0066CC</color>
+
+    <!-- LEGACY (for compatibility) -->
     <color name="green">#FF4CAF50</color>
     <color name="blue">#FF2196F3</color>
     <color name="orange">#FFFF9800</color>
